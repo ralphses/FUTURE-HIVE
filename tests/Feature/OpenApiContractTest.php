@@ -44,6 +44,8 @@ final class OpenApiContractTest extends TestCase
             '/auth/password/reset',
             '/auth/password/change',
             '/health/readiness',
+            '/auth/context/switch',
+            '/auth/context',
             '/schools/{school}/invitations',
             '/invitations/{invitation}/accept',
             '/invitations/{invitation}/revoke',
@@ -63,7 +65,7 @@ final class OpenApiContractTest extends TestCase
 
         $this->assertArrayHasKey('bearerAuth', $document['components']['securitySchemes']);
         $this->assertArrayHasKey('ApiError', $document['components']['schemas']);
-        foreach (['/auth/me', '/auth/logout', '/auth/logout-all', '/auth/password/change', '/schools/{school}/invitations', '/invitations/{invitation}/accept', '/invitations/{invitation}/revoke', '/me/memberships', '/schools/{school}/roles', '/schools/{school}/memberships/{membership}/roles', '/schools/{school}/memberships/{membership}/roles/{role}', '/me/schools/{school}/permissions'] as $protectedPath) {
+        foreach (['/auth/me', '/auth/logout', '/auth/logout-all', '/auth/context/switch', '/auth/context', '/auth/password/change', '/schools/{school}/invitations', '/invitations/{invitation}/accept', '/invitations/{invitation}/revoke', '/me/memberships', '/schools/{school}/roles', '/schools/{school}/memberships/{membership}/roles', '/schools/{school}/memberships/{membership}/roles/{role}', '/me/schools/{school}/permissions'] as $protectedPath) {
             $this->assertSame([['bearerAuth' => []]], $document['paths'][$protectedPath][array_key_first($document['paths'][$protectedPath])]['security']);
         }
 

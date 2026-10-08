@@ -52,7 +52,7 @@ final class SchoolMembershipInvitationTest extends TestCase
     {
         [$school, $owner] = $this->schoolWithOwner();
         $invitee = $this->identity('invitee@example.com', 'invitee-password');
-        $token = $this->login($owner, 'owner-password')->json('data.access_token');
+        $token = $this->login($owner, 'owner-password', $school)->json('data.access_token');
 
         $response = $this->withToken($token)->postJson('/api/v1/schools/'.$school->public_id.'/invitations', [
             'contact' => ' INVITEE@EXAMPLE.COM ',
@@ -85,7 +85,7 @@ final class SchoolMembershipInvitationTest extends TestCase
             'joined_at' => now(),
         ]);
         $invitee = $this->identity('multi-school@example.com', 'invitee-password');
-        $ownerToken = $this->login($owner, 'owner-password')->json('data.access_token');
+        $ownerToken = $this->login($owner, 'owner-password', $firstSchool)->json('data.access_token');
         $issue = $this->withToken($ownerToken)->postJson('/api/v1/schools/'.$firstSchool->public_id.'/invitations', [
             'contact' => 'multi-school@example.com',
         ])->assertCreated();
@@ -113,13 +113,13 @@ final class SchoolMembershipInvitationTest extends TestCase
             'status' => 'active',
             'joined_at' => now(),
         ]);
-        $memberToken = $this->login($member, 'member-password')->json('data.access_token');
+        $memberToken = $this->login($member, 'member-password', $school)->json('data.access_token');
 
         $this->withToken($memberToken)->postJson('/api/v1/schools/'.$school->public_id.'/invitations', [
             'contact' => 'other@example.com',
         ])->assertNotFound();
 
-        $ownerToken = $this->login($owner, 'owner-password')->json('data.access_token');
+        $ownerToken = $this->login($owner, 'owner-password', $school)->json('data.access_token');
         $issue = $this->withToken($ownerToken)->postJson('/api/v1/schools/'.$school->public_id.'/invitations', [
             'contact' => 'target@example.com',
         ])->assertCreated();
@@ -133,7 +133,7 @@ final class SchoolMembershipInvitationTest extends TestCase
         [$school, $owner] = $this->schoolWithOwner();
         $invitee = $this->identity('right@example.com', 'right-password');
         $other = $this->identity('wrong@example.com', 'wrong-password');
-        $ownerToken = $this->login($owner, 'owner-password')->json('data.access_token');
+        $ownerToken = $this->login($owner, 'owner-password', $school)->json('data.access_token');
         $issue = $this->withToken($ownerToken)->postJson('/api/v1/schools/'.$school->public_id.'/invitations', [
             'contact' => 'right@example.com',
         ])->assertCreated();
@@ -155,7 +155,7 @@ final class SchoolMembershipInvitationTest extends TestCase
     {
         [$school, $owner] = $this->schoolWithOwner();
         $invitee = $this->identity('expired@example.com', 'expired-password');
-        $ownerToken = $this->login($owner, 'owner-password')->json('data.access_token');
+        $ownerToken = $this->login($owner, 'owner-password', $school)->json('data.access_token');
         $issue = $this->withToken($ownerToken)->postJson('/api/v1/schools/'.$school->public_id.'/invitations', [
             'contact' => 'expired@example.com',
         ])->assertCreated();
@@ -215,7 +215,7 @@ final class SchoolMembershipInvitationTest extends TestCase
         [$school, $owner] = $this->schoolWithOwner();
         $unverified = UserIdentity::factory()->withPassword('unverified-password')->create();
         $unverified->contacts()->update(['canonical_value' => 'unverified@example.com']);
-        $ownerToken = $this->login($owner, 'owner-password')->json('data.access_token');
+        $ownerToken = $this->login($owner, 'owner-password', $school)->json('data.access_token');
 
         $this->withToken($ownerToken)->postJson('/api/v1/schools/'.$school->public_id.'/invitations', [
             'contact' => 'unverified@example.com',
@@ -267,11 +267,19 @@ final class SchoolMembershipInvitationTest extends TestCase
     }
 
     /** @return TestResponse<JsonResponse> */
-    private function login(UserIdentity $identity, string $password): TestResponse
+    private function login(UserIdentity $identity, string $password, ?School $school = null): TestResponse
     {
-        return $this->postJson('/api/v1/auth/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'login' => $identity->contacts()->firstOrFail()->canonical_value,
             'password' => $password,
         ])->assertOk();
+
+        if ($school instanceof School) {
+            $this->withToken($response->json('data.access_token'))
+                ->postJson('/api/v1/auth/context/switch', ['school_id' => $school->public_id])
+                ->assertOk();
+        }
+
+        return $response;
     }
 }

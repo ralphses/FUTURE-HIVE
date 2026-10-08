@@ -48,6 +48,8 @@ final class FoundationContractDocumentTransformer
                     'v1.schools.memberships.roles.assign',
                     'v1.schools.memberships.roles.revoke',
                     'v1.me.schools.permissions',
+                    'v1.auth.context.switch',
+                    'v1.auth.context',
                     'v1.schools.roles.catalogue',
                     'v1.schools.memberships.roles',
                     'v1.schools.memberships.roles.assign',

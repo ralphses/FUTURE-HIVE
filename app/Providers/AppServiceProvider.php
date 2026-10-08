@@ -89,6 +89,8 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.auth.me',
                     'api.v1.auth.logout',
                     'api.v1.auth.logout_all',
+                    'api.v1.auth.context.switch',
+                    'api.v1.auth.context',
                     'api.v1.auth.password.forgot',
                     'api.v1.auth.password.reset',
                     'api.v1.auth.password.change',

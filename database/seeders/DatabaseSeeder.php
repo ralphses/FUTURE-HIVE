@@ -40,8 +40,11 @@ class DatabaseSeeder extends Seeder
                 $identity->contacts()->create([
                     'type' => ContactType::Email,
                     'canonical_value' => 'test@example.com',
+                    'verified_at' => now(),
                     'is_primary' => true,
                 ]);
+            } else {
+                $contact->update(['verified_at' => $contact->verified_at ?? now()]);
             }
         });
     }

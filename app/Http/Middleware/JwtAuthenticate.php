@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Contexts\Identity\Application\Actions\ResolveSchoolContextAction;
 use App\Contexts\Identity\Domain\Models\AuthSession;
 use App\Contexts\Identity\Domain\Models\UserIdentity;
 use App\Contexts\Identity\Infrastructure\Authentication\JwtTokenService;
@@ -14,7 +15,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class JwtAuthenticate
 {
-    public function __construct(private readonly JwtTokenService $jwt) {}
+    public function __construct(
+        private readonly JwtTokenService $jwt,
+        private readonly ResolveSchoolContextAction $resolveContext,
+    ) {}
 
     public function handle(Request $request, Closure $next): Response
     {
@@ -41,6 +45,7 @@ final class JwtAuthenticate
 
         $request->attributes->set('auth_session', $session);
         $request->setUserResolver(static fn (): UserIdentity => $identity);
+        $this->resolveContext->handle($identity, $session);
 
         return $next($request);
     }

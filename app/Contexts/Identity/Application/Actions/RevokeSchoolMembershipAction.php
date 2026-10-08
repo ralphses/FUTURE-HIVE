@@ -38,6 +38,9 @@ final class RevokeSchoolMembershipAction
                 'revoked_at' => now(),
                 'revoked_reason' => $reason,
             ]);
+            $membership->identity()->first()?->authSessions()->where('active_school_membership_id', $membership->id)->update([
+                'active_school_membership_id' => null,
+            ]);
         });
     }
 

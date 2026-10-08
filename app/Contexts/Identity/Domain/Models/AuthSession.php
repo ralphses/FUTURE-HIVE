@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 #[Fillable([
     'public_id', 'user_id', 'token_family_id', 'refresh_token_hash', 'expires_at',
-    'last_used_at', 'revoked_at', 'revoked_reason', 'replaced_by_id', 'ip_address', 'user_agent',
+    'active_school_membership_id', 'last_used_at', 'revoked_at', 'revoked_reason', 'replaced_by_id', 'ip_address', 'user_agent',
 ])]
 #[Hidden(['id', 'refresh_token_hash'])]
 class AuthSession extends Model
@@ -31,11 +31,18 @@ class AuthSession extends Model
         return $this->belongsTo(UserIdentity::class, 'user_id');
     }
 
+    /** @return BelongsTo<SchoolMembership, $this> */
+    public function activeSchoolMembership(): BelongsTo
+    {
+        return $this->belongsTo(SchoolMembership::class, 'active_school_membership_id');
+    }
+
     /** @return array<string, string> */
     protected function casts(): array
     {
         return [
             'expires_at' => 'datetime',
+            'active_school_membership_id' => 'integer',
             'last_used_at' => 'datetime',
             'revoked_at' => 'datetime',
         ];

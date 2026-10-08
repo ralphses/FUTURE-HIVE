@@ -20,6 +20,7 @@ final class ContactVerificationAction
     public function __construct(
         private readonly ContactCanonicalizer $canonicalizer,
         private readonly ContactVerificationCodeDelivery $delivery,
+        private readonly RecordSecurityEventAction $securityEvents,
     ) {}
 
     public function request(string $value, ?string $ipAddress, ?string $userAgent): void
@@ -72,6 +73,7 @@ final class ContactVerificationAction
         $contact = $this->findContact($value);
 
         if (! $contact instanceof UserContact) {
+            $this->securityEvents->execute('verification.failed', 'denied');
             throw new VerificationFailed;
         }
 
@@ -114,6 +116,7 @@ final class ContactVerificationAction
         });
 
         if ($invalidCode) {
+            $this->securityEvents->execute('verification.failed', 'denied', $contact->identity()->first());
             throw new VerificationFailed;
         }
     }

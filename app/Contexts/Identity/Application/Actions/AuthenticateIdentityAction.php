@@ -8,6 +8,7 @@ use App\Contexts\Identity\Application\DTOs\AuthenticationResult;
 use App\Contexts\Identity\Domain\Enums\ContactType;
 use App\Contexts\Identity\Domain\Models\AuthSession;
 use App\Contexts\Identity\Domain\Models\UserIdentity;
+use App\Contexts\Identity\Domain\Services\AccountLockoutService;
 use App\Contexts\Identity\Domain\Services\AuthenticationFailed;
 use App\Contexts\Identity\Domain\Services\ContactCanonicalizer;
 use App\Contexts\Identity\Infrastructure\Authentication\JwtTokenService;
@@ -21,17 +22,26 @@ final class AuthenticateIdentityAction
     public function __construct(
         private readonly ContactCanonicalizer $canonicalizer,
         private readonly JwtTokenService $jwt,
+        private readonly AccountLockoutService $lockout,
+        private readonly RecordSecurityEventAction $securityEvents,
     ) {}
 
     public function login(string $login, string $password, ?string $ipAddress, ?string $userAgent): AuthenticationResult
     {
         $identity = $this->findIdentity($login);
 
+        if ($identity instanceof UserIdentity) {
+            $this->lockout->assertLoginAllowed($identity, $ipAddress, $userAgent);
+        }
+
         if ($identity === null || $identity->password === null || ! Hash::check($password, $identity->password)) {
+            $this->lockout->recordFailure($identity, $login, $ipAddress, $userAgent);
             throw new AuthenticationFailed;
         }
 
         return DB::transaction(function () use ($identity, $ipAddress, $userAgent): AuthenticationResult {
+            $this->lockout->recordSuccess($identity);
+            $this->securityEvents->execute('login.succeeded', 'allowed', $identity, null, $ipAddress, $userAgent);
             $refreshToken = Str::random(96);
             $session = AuthSession::create([
                 'user_id' => $identity->id,
@@ -66,6 +76,7 @@ final class AuthenticateIdentityAction
                     'revoked_reason' => 'refresh_token_reuse',
                 ]);
                 $reuseDetected = true;
+                $this->securityEvents->execute('refresh.reuse_detected', 'denied', null, null, $ipAddress, $userAgent);
 
                 return null;
             }
@@ -114,12 +125,17 @@ final class AuthenticateIdentityAction
 
     public function revoke(AuthSession $session, string $reason = 'logout'): void
     {
-        $session->update(['revoked_at' => now(), 'revoked_reason' => $reason]);
+        $session->update([
+            'active_school_membership_id' => null,
+            'revoked_at' => now(),
+            'revoked_reason' => $reason,
+        ]);
     }
 
     public function revokeAll(UserIdentity $identity): void
     {
         $identity->authSessions()->whereNull('revoked_at')->update([
+            'active_school_membership_id' => null,
             'revoked_at' => now(),
             'revoked_reason' => 'logout_all',
         ]);

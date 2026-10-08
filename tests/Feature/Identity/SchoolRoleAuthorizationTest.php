@@ -39,7 +39,7 @@ final class SchoolRoleAuthorizationTest extends TestCase
     public function test_catalogue_and_effective_permissions_are_deterministic_for_an_active_member(): void
     {
         [$school, $admin] = $this->schoolWithRole('school_admin', 'admin@example.com');
-        $token = $this->login($admin, 'admin-password')->json('data.access_token');
+        $token = $this->login($admin, 'admin-password', $school)->json('data.access_token');
 
         $this->withToken($token)->getJson('/api/v1/schools/'.$school->public_id.'/roles')
             ->assertOk()
@@ -59,7 +59,7 @@ final class SchoolRoleAuthorizationTest extends TestCase
         [$school, $admin] = $this->schoolWithRole('school_admin', 'admin@example.com');
         $member = $this->identity('member@example.com', 'member-password');
         $membership = SchoolMembership::create(['school_id' => $school->id, 'user_id' => $member->id, 'status' => 'active', 'joined_at' => now()]);
-        $adminToken = $this->login($admin, 'admin-password')->json('data.access_token');
+        $adminToken = $this->login($admin, 'admin-password', $school)->json('data.access_token');
 
         $assigned = $this->withToken($adminToken)->postJson('/api/v1/schools/'.$school->public_id.'/memberships/'.$membership->public_id.'/roles', ['roles' => ['teacher', 'counsellor', 'school_admin'], 'school_id' => 999, 'is_owner' => true]);
         $assigned->assertCreated()->assertJsonCount(3, 'data.assignments');
@@ -78,11 +78,11 @@ final class SchoolRoleAuthorizationTest extends TestCase
         [$school, $admin] = $this->schoolWithRole('school_admin', 'admin@example.com');
         $member = $this->identity('member@example.com', 'member-password');
         $membership = SchoolMembership::create(['school_id' => $school->id, 'user_id' => $member->id, 'status' => 'active', 'joined_at' => now()]);
-        $memberToken = $this->login($member, 'member-password')->json('data.access_token');
+        $memberToken = $this->login($member, 'member-password', $school)->json('data.access_token');
         $this->withToken($memberToken)->postJson('/api/v1/schools/'.$school->public_id.'/memberships/'.$membership->public_id.'/roles', ['roles' => ['teacher']])->assertNotFound();
 
         $otherSchool = School::factory()->create(['name' => 'Other Fictional School']);
-        $this->withToken($this->login($admin, 'admin-password')->json('data.access_token'))
+        $this->withToken($this->login($admin, 'admin-password', $school)->json('data.access_token'))
             ->postJson('/api/v1/schools/'.$otherSchool->public_id.'/memberships/'.$membership->public_id.'/roles', ['roles' => ['teacher']])
             ->assertNotFound();
     }
@@ -91,7 +91,7 @@ final class SchoolRoleAuthorizationTest extends TestCase
     {
         [$school, $member] = $this->schoolWithRole('teacher', 'teacher@example.com');
         $membership = SchoolMembership::query()->where('user_id', $member->id)->firstOrFail();
-        $token = $this->login($member, 'member-password')->json('data.access_token');
+        $token = $this->login($member, 'member-password', $school)->json('data.access_token');
         $this->withToken($token)->getJson('/api/v1/me/schools/'.$school->public_id.'/permissions')->assertOk()->assertJsonPath('data.permissions', ['academic.assignments.manage', 'academic.assignments.read', 'academic.records.read', 'school.memberships.list']);
         $membership->update(['status' => 'revoked', 'revoked_at' => now(), 'revoked_reason' => 'test']);
         $this->withToken($token)->getJson('/api/v1/me/schools/'.$school->public_id.'/permissions')->assertNotFound();
@@ -117,8 +117,16 @@ final class SchoolRoleAuthorizationTest extends TestCase
     }
 
     /** @return TestResponse<JsonResponse> */
-    private function login(UserIdentity $identity, string $password): TestResponse
+    private function login(UserIdentity $identity, string $password, ?School $school = null): TestResponse
     {
-        return $this->postJson('/api/v1/auth/login', ['login' => $identity->contacts()->firstOrFail()->canonical_value, 'password' => $password])->assertOk();
+        $response = $this->postJson('/api/v1/auth/login', ['login' => $identity->contacts()->firstOrFail()->canonical_value, 'password' => $password])->assertOk();
+
+        if ($school instanceof School) {
+            $this->withToken($response->json('data.access_token'))
+                ->postJson('/api/v1/auth/context/switch', ['school_id' => $school->public_id])
+                ->assertOk();
+        }
+
+        return $response;
     }
 }

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -47,6 +48,12 @@ class UserIdentity extends Authenticatable
     public function authSessions(): HasMany
     {
         return $this->hasMany(AuthSession::class, 'user_id');
+    }
+
+    /** @return HasOne<IdentitySecurityState, $this> */
+    public function securityState(): HasOne
+    {
+        return $this->hasOne(IdentitySecurityState::class, 'user_id');
     }
 
     /** @return HasMany<SchoolMembership, $this> */

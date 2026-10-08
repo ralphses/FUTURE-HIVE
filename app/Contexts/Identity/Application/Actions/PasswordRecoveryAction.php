@@ -9,6 +9,7 @@ use App\Contexts\Identity\Domain\Enums\ContactType;
 use App\Contexts\Identity\Domain\Models\PasswordResetChallenge;
 use App\Contexts\Identity\Domain\Models\UserContact;
 use App\Contexts\Identity\Domain\Models\UserIdentity;
+use App\Contexts\Identity\Domain\Services\AccountLockoutService;
 use App\Contexts\Identity\Domain\Services\AuthenticationFailed;
 use App\Contexts\Identity\Domain\Services\ContactCanonicalizer;
 use App\Contexts\Identity\Domain\Services\PasswordPolicy;
@@ -21,33 +22,19 @@ final class PasswordRecoveryAction
         private readonly ContactCanonicalizer $canonicalizer,
         private readonly PasswordResetCodeDelivery $delivery,
         private readonly PasswordPolicy $passwordPolicy,
+        private readonly AccountLockoutService $lockout,
+        private readonly RecordSecurityEventAction $securityEvents,
     ) {}
 
     public function request(string $login, ?string $ipAddress, ?string $userAgent): void
     {
-        $contact = $this->findContact($login);
+        $issued = $this->issue($login, $ipAddress, $userAgent);
 
-        if (! $contact instanceof UserContact || $contact->verified_at === null) {
+        if ($issued === null) {
             return;
         }
 
-        $identity = $contact->identity()->first();
-
-        if (! $identity instanceof UserIdentity) {
-            return;
-        }
-
-        $code = (string) random_int(100000, 999999);
-        $challenge = PasswordResetChallenge::create([
-            'user_id' => $identity->id,
-            'contact_id' => $contact->id,
-            'purpose' => 'password_reset',
-            'code_hash' => hash('sha256', $code),
-            'expires_at' => now()->addSeconds((int) config('auth.password_recovery.challenge_ttl', 900)),
-            'max_attempts' => (int) config('auth.password_recovery.max_attempts', 5),
-            'ip_address' => $ipAddress,
-            'user_agent' => $userAgent,
-        ]);
+        [$identity, $contact, $code, $challenge] = $issued;
 
         try {
             $this->delivery->send($identity, $contact, $code);
@@ -57,6 +44,13 @@ final class PasswordRecoveryAction
                 'revoked_reason' => 'delivery_unavailable',
             ]);
         }
+    }
+
+    public function issueForDevelopment(string $login): ?string
+    {
+        $issued = $this->issue($login, null, null);
+
+        return $issued === null ? null : $issued[2];
     }
 
     public function reset(string $login, string $code, string $newPassword): void
@@ -112,6 +106,8 @@ final class PasswordRecoveryAction
 
             $identity->password = $newPassword;
             $identity->save();
+            $this->lockout->clear($identity);
+            $this->securityEvents->execute('password.reset', 'allowed', $identity);
             $identity->authSessions()->whereNull('revoked_at')->update([
                 'revoked_at' => now(),
                 'revoked_reason' => 'password_reset',
@@ -120,6 +116,7 @@ final class PasswordRecoveryAction
         });
 
         if ($invalidCode) {
+            $this->securityEvents->execute('password.reset.failed', 'denied', $contact->identity()->first());
             throw new AuthenticationFailed;
         }
     }
@@ -145,5 +142,37 @@ final class PasswordRecoveryAction
         }
 
         return null;
+    }
+
+    /**
+     * @return array{0: UserIdentity, 1: UserContact, 2: string, 3: PasswordResetChallenge}|null
+     */
+    private function issue(string $login, ?string $ipAddress, ?string $userAgent): ?array
+    {
+        $contact = $this->findContact($login);
+
+        if (! $contact instanceof UserContact || $contact->verified_at === null) {
+            return null;
+        }
+
+        $identity = $contact->identity()->first();
+
+        if (! $identity instanceof UserIdentity) {
+            return null;
+        }
+
+        $code = (string) random_int(100000, 999999);
+        $challenge = PasswordResetChallenge::create([
+            'user_id' => $identity->id,
+            'contact_id' => $contact->id,
+            'purpose' => 'password_reset',
+            'code_hash' => hash('sha256', $code),
+            'expires_at' => now()->addSeconds((int) config('auth.password_recovery.challenge_ttl', 900)),
+            'max_attempts' => (int) config('auth.password_recovery.max_attempts', 5),
+            'ip_address' => $ipAddress,
+            'user_agent' => $userAgent,
+        ]);
+
+        return [$identity, $contact, $code, $challenge];
     }
 }
