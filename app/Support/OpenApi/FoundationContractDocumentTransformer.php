@@ -13,6 +13,7 @@ use Dedoc\Scramble\Support\Generator\Response;
 use Dedoc\Scramble\Support\Generator\Schema;
 use Dedoc\Scramble\Support\Generator\SecurityRequirement;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Dedoc\Scramble\Support\Generator\Tag;
 use Dedoc\Scramble\Support\Generator\Types\ObjectType;
 use Dedoc\Scramble\Support\Generator\Types\StringType;
 
@@ -21,6 +22,7 @@ final class FoundationContractDocumentTransformer
     public function __invoke(OpenApi $document): void
     {
         $components = $document->components;
+        $this->addBoundedContextTags($document);
         $components->addSchema('ApiError', $this->errorType());
         $components->addSecurityScheme(
             'bearerAuth',
@@ -31,6 +33,7 @@ final class FoundationContractDocumentTransformer
 
         foreach ($document->paths as $path) {
             foreach ($path->operations as $operation) {
+                $operation->setTags([$this->tagForOperation($operation->operationId)]);
                 $this->addRequestIdHeaders($operation);
                 $this->addStandardErrorResponses($operation, $components);
 
@@ -60,6 +63,64 @@ final class FoundationContractDocumentTransformer
                 }
             }
         }
+    }
+
+    private function addBoundedContextTags(OpenApi $document): void
+    {
+        $document->tags = [
+            new Tag('Platform', 'Infrastructure health, readiness and private file delivery.'),
+            new Tag('Identity & Authentication', 'Global identity authentication, credentials and contact verification.'),
+            new Tag('School Access', 'Authenticated school context, memberships, invitations, roles and permissions.'),
+            new Tag('School Registration', 'Unauthenticated provisional registration and registration-bound verification.'),
+        ];
+    }
+
+    private function tagForOperation(?string $operationId): string
+    {
+        if (in_array($operationId, ['v1.health', 'v1.health.readiness', 'v1.files.download'], true)) {
+            return 'Platform';
+        }
+
+        if (in_array($operationId, [
+            'v1.auth.login',
+            'v1.auth.refresh',
+            'v1.auth.me',
+            'v1.auth.logout',
+            'v1.auth.logout_all',
+            'v1.auth.password.forgot',
+            'v1.auth.password.reset',
+            'v1.auth.password.change',
+            'v1.auth.verification.request',
+            'v1.auth.verification.confirm',
+        ], true)) {
+            return 'Identity & Authentication';
+        }
+
+        if (in_array($operationId, [
+            'v1.auth.context.switch',
+            'v1.auth.context',
+            'v1.me.memberships',
+            'v1.schools.invitations.create',
+            'v1.invitations.accept',
+            'v1.invitations.revoke',
+            'v1.schools.roles.catalogue',
+            'v1.schools.memberships.roles',
+            'v1.schools.memberships.roles.assign',
+            'v1.schools.memberships.roles.revoke',
+            'v1.me.schools.permissions',
+        ], true)) {
+            return 'School Access';
+        }
+
+        if (in_array($operationId, [
+            'v1.public.school-registrations',
+            'v1.public.school-registrations.verification.request',
+            'v1.public.school-registrations.verification.confirm',
+        ], true)) {
+            return 'School Registration';
+        }
+
+        return 'Platform';
     }
 
     private function errorType(): Schema

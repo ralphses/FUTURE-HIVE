@@ -26,6 +26,12 @@ class SchoolRegistration extends Model
         return $this->hasMany(IdempotencyRecord::class, 'registration_id');
     }
 
+    /** @return HasMany<RegistrationVerificationChallenge, $this> */
+    public function verificationChallenges(): HasMany
+    {
+        return $this->hasMany(RegistrationVerificationChallenge::class, 'registration_id');
+    }
+
     protected static function booted(): void
     {
         static::creating(function (self $registration): void {

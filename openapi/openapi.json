@@ -10,12 +10,30 @@
             "url": "http://localhost:8000/api/v1"
         }
     ],
+    "tags": [
+        {
+            "name": "Platform",
+            "description": "Infrastructure health, readiness and private file delivery."
+        },
+        {
+            "name": "Identity & Authentication",
+            "description": "Global identity authentication, credentials and contact verification."
+        },
+        {
+            "name": "School Access",
+            "description": "Authenticated school context, memberships, invitations, roles and permissions."
+        },
+        {
+            "name": "School Registration",
+            "description": "Unauthenticated provisional registration and registration-bound verification."
+        }
+    ],
     "paths": {
         "/auth/login": {
             "post": {
                 "operationId": "v1.auth.login",
                 "tags": [
-                    "Authentication"
+                    "Identity & Authentication"
                 ],
                 "requestBody": {
                     "required": true,
@@ -282,7 +300,7 @@
             "post": {
                 "operationId": "v1.auth.refresh",
                 "tags": [
-                    "Authentication"
+                    "Identity & Authentication"
                 ],
                 "requestBody": {
                     "content": {
@@ -548,7 +566,7 @@
             "get": {
                 "operationId": "v1.auth.me",
                 "tags": [
-                    "Authentication"
+                    "Identity & Authentication"
                 ],
                 "responses": {
                     "200": {
@@ -829,7 +847,7 @@
             "post": {
                 "operationId": "v1.auth.logout",
                 "tags": [
-                    "Authentication"
+                    "Identity & Authentication"
                 ],
                 "responses": {
                     "200": {
@@ -1076,7 +1094,7 @@
             "post": {
                 "operationId": "v1.auth.logout_all",
                 "tags": [
-                    "Authentication"
+                    "Identity & Authentication"
                 ],
                 "responses": {
                     "200": {
@@ -1325,7 +1343,7 @@
                 "description": "Redirects to a short-lived signed Cloudinary URL after validating the school-scoped asset reference.",
                 "summary": "Generate a signed file download",
                 "tags": [
-                    "CloudinaryFileDownload"
+                    "Platform"
                 ],
                 "parameters": [
                     {
@@ -1591,7 +1609,7 @@
             "post": {
                 "operationId": "v1.auth.verification.request",
                 "tags": [
-                    "ContactVerification"
+                    "Identity & Authentication"
                 ],
                 "requestBody": {
                     "required": true,
@@ -1828,7 +1846,7 @@
             "post": {
                 "operationId": "v1.auth.verification.confirm",
                 "tags": [
-                    "ContactVerification"
+                    "Identity & Authentication"
                 ],
                 "requestBody": {
                     "required": true,
@@ -2082,7 +2100,7 @@
                 "description": "Returns a process-level liveness response without checking external dependencies.",
                 "summary": "Liveness check",
                 "tags": [
-                    "Health"
+                    "Platform"
                 ],
                 "responses": {
                     "200": {
@@ -2325,7 +2343,7 @@
             "post": {
                 "operationId": "v1.auth.password.forgot",
                 "tags": [
-                    "Password"
+                    "Identity & Authentication"
                 ],
                 "requestBody": {
                     "required": true,
@@ -2562,7 +2580,7 @@
             "post": {
                 "operationId": "v1.auth.password.reset",
                 "tags": [
-                    "Password"
+                    "Identity & Authentication"
                 ],
                 "requestBody": {
                     "required": true,
@@ -2814,7 +2832,7 @@
             "post": {
                 "operationId": "v1.auth.password.change",
                 "tags": [
-                    "Password"
+                    "Identity & Authentication"
                 ],
                 "requestBody": {
                     "required": true,
@@ -3073,7 +3091,7 @@
                 "description": "Checks safe application dependencies without contacting external file, notification or payment providers.",
                 "summary": "Readiness check",
                 "tags": [
-                    "Readiness"
+                    "Platform"
                 ],
                 "responses": {
                     "200": {
@@ -3367,7 +3385,7 @@
             "post": {
                 "operationId": "v1.auth.context.switch",
                 "tags": [
-                    "SchoolContext"
+                    "School Access"
                 ],
                 "requestBody": {
                     "required": true,
@@ -3636,7 +3654,7 @@
             "get": {
                 "operationId": "v1.auth.context",
                 "tags": [
-                    "SchoolContext"
+                    "School Access"
                 ],
                 "responses": {
                     "200": {
@@ -3898,7 +3916,7 @@
             "post": {
                 "operationId": "v1.schools.invitations.create",
                 "tags": [
-                    "SchoolInvitation"
+                    "School Access"
                 ],
                 "parameters": [
                     {
@@ -4150,7 +4168,7 @@
             "post": {
                 "operationId": "v1.invitations.accept",
                 "tags": [
-                    "SchoolInvitation"
+                    "School Access"
                 ],
                 "parameters": [
                     {
@@ -4421,7 +4439,7 @@
             "post": {
                 "operationId": "v1.invitations.revoke",
                 "tags": [
-                    "SchoolInvitation"
+                    "School Access"
                 ],
                 "parameters": [
                     {
@@ -4678,7 +4696,7 @@
             "get": {
                 "operationId": "v1.me.memberships",
                 "tags": [
-                    "SchoolMembership"
+                    "School Access"
                 ],
                 "responses": {
                     "200": {
@@ -4957,7 +4975,7 @@
                 "description": "Creates an intake record only. It does not create a school, identity, membership, credential or session.",
                 "summary": "Submit provisional school registration",
                 "tags": [
-                    "SchoolRegistration"
+                    "School Registration"
                 ],
                 "parameters": [
                     {
@@ -5221,11 +5239,550 @@
                 }
             }
         },
+        "/public/school-registrations/{registration}/verification/request": {
+            "post": {
+                "operationId": "v1.public.school-registrations.verification.request",
+                "description": "Requests verification for the registration contact stored by SchoolOS. The response is generic and does not reveal registration or contact state.",
+                "summary": "Request provisional registration verification",
+                "tags": [
+                    "School Registration"
+                ],
+                "parameters": [
+                    {
+                        "name": "registration",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "const": 202
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/public/school-registrations/{registration}/verification/confirm": {
+            "post": {
+                "operationId": "v1.public.school-registrations.verification.confirm",
+                "description": "Confirms a six-digit code for a provisional registration without creating an identity, school, membership, credential or session.",
+                "summary": "Confirm provisional registration verification",
+                "tags": [
+                    "School Registration"
+                ],
+                "parameters": [
+                    {
+                        "name": "registration",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {
+                                        "type": "string",
+                                        "description": "The six-digit verification code delivered to the stored registration contact.",
+                                        "examples": [
+                                            "123456"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "code"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "verified": {
+                                                    "type": "boolean"
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "verified",
+                                                "status"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The verification code is invalid, expired, consumed, revoked or exhausted.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/schools/{school}/roles": {
             "get": {
                 "operationId": "v1.schools.roles.catalogue",
                 "tags": [
-                    "SchoolRole"
+                    "School Access"
                 ],
                 "parameters": [
                     {
@@ -5504,7 +6061,7 @@
             "get": {
                 "operationId": "v1.schools.memberships.roles",
                 "tags": [
-                    "SchoolRole"
+                    "School Access"
                 ],
                 "parameters": [
                     {
@@ -5797,7 +6354,7 @@
             "post": {
                 "operationId": "v1.schools.memberships.roles.assign",
                 "tags": [
-                    "SchoolRole"
+                    "School Access"
                 ],
                 "parameters": [
                     {
@@ -6087,7 +6644,7 @@
             "delete": {
                 "operationId": "v1.schools.memberships.roles.revoke",
                 "tags": [
-                    "SchoolRole"
+                    "School Access"
                 ],
                 "parameters": [
                     {
@@ -6360,7 +6917,7 @@
             "get": {
                 "operationId": "v1.me.schools.permissions",
                 "tags": [
-                    "SchoolRole"
+                    "School Access"
                 ],
                 "parameters": [
                     {

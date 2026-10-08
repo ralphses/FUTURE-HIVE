@@ -51,6 +51,8 @@ final class OpenApiContractTest extends TestCase
             '/invitations/{invitation}/revoke',
             '/me/memberships',
             '/public/school-registrations',
+            '/public/school-registrations/{registration}/verification/request',
+            '/public/school-registrations/{registration}/verification/confirm',
             '/schools/{school}/roles',
             '/schools/{school}/memberships/{membership}/roles',
             '/schools/{school}/memberships/{membership}/roles/{role}',
@@ -93,6 +95,34 @@ final class OpenApiContractTest extends TestCase
         $registrationParameters = array_column($document['paths']['/public/school-registrations']['post']['parameters'], 'name');
         $this->assertContains('Idempotency-Key', $registrationParameters);
         $this->assertArrayHasKey('409', $document['paths']['/public/school-registrations']['post']['responses']);
+
+        $this->assertSame([], $document['paths']['/public/school-registrations/{registration}/verification/request']['post']['security'] ?? []);
+        $this->assertSame([], $document['paths']['/public/school-registrations/{registration}/verification/confirm']['post']['security'] ?? []);
+        $this->assertTrue(
+            isset($document['paths']['/public/school-registrations/{registration}/verification/request']['post']['responses']['200'])
+                || isset($document['paths']['/public/school-registrations/{registration}/verification/request']['post']['responses']['202']),
+        );
+        $this->assertArrayHasKey('400', $document['paths']['/public/school-registrations/{registration}/verification/confirm']['post']['responses']);
+    }
+
+    public function test_operations_use_only_the_bounded_context_documentation_groups(): void
+    {
+        $document = $this->document();
+        $expectedTags = ['Platform', 'Identity & Authentication', 'School Access', 'School Registration'];
+
+        $this->assertSame($expectedTags, array_column($document['tags'], 'name'));
+
+        foreach ($document['paths'] as $path) {
+            foreach ($path as $operation) {
+                $this->assertCount(1, $operation['tags']);
+                $this->assertContains($operation['tags'][0], $expectedTags);
+            }
+        }
+
+        $contents = json_encode($document, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+        foreach (['Authentication', 'SchoolInvitation', 'SchoolMembership', 'SchoolRole', 'Health', 'Readiness'] as $controllerTag) {
+            self::assertStringNotContainsString('"'.$controllerTag.'"', $contents);
+        }
     }
 
     public function test_documentation_contains_no_deployment_secrets_or_connection_strings(): void

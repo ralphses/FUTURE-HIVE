@@ -10,6 +10,7 @@ use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolRoleController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ReadinessController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationVerificationController;
 use App\Http\Middleware\JwtAuthenticate;
 use App\Http\Middleware\RefreshCookieCsrf;
 use App\Http\Middleware\RequireSchoolContext;
@@ -24,6 +25,12 @@ Route::get('/files/download', CloudinaryFileDownloadController::class)
 Route::post('/public/school-registrations', [SchoolRegistrationController::class, 'store'])
     ->middleware('throttle:public-school-registration')
     ->name('api.v1.public.school-registrations');
+Route::post('/public/school-registrations/{registration}/verification/request', [SchoolRegistrationVerificationController::class, 'request'])
+    ->middleware('throttle:public-registration-verification-request')
+    ->name('api.v1.public.school-registrations.verification.request');
+Route::post('/public/school-registrations/{registration}/verification/confirm', [SchoolRegistrationVerificationController::class, 'confirm'])
+    ->middleware('throttle:public-registration-verification-confirm')
+    ->name('api.v1.public.school-registrations.verification.confirm');
 
 Route::post('/auth/login', [AuthenticationController::class, 'login'])
     ->middleware('throttle:auth-login')

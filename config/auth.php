@@ -139,6 +139,11 @@ return [
         'max_attempts' => (int) env('AUTH_CONTACT_VERIFICATION_MAX_ATTEMPTS', 5),
     ],
 
+    'registration_verification' => [
+        'challenge_ttl' => (int) env('AUTH_REGISTRATION_VERIFICATION_TTL', 600),
+        'max_attempts' => (int) env('AUTH_REGISTRATION_VERIFICATION_MAX_ATTEMPTS', 5),
+    ],
+
     'lockout' => [
         'threshold' => (int) env('AUTH_LOCKOUT_THRESHOLD', 5),
         'failure_window_minutes' => (int) env('AUTH_LOCKOUT_FAILURE_WINDOW', 15),

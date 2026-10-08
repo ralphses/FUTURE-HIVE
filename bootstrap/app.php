@@ -3,6 +3,7 @@
 use App\Contexts\Identity\Domain\Services\AuthenticationFailed;
 use App\Contexts\Identity\Domain\Services\VerificationFailed;
 use App\Contexts\Platform\Domain\Exceptions\IdempotencyKeyReused;
+use App\Contexts\Platform\Domain\Exceptions\RegistrationVerificationFailed;
 use App\Http\Middleware\RequestId;
 use App\Support\Observability\MetricsRecorder;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -79,6 +80,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 $status = 409;
                 $code = 'IDEMPOTENCY_KEY_REUSED';
                 $message = 'The idempotency key cannot be reused for a different request.';
+            } elseif ($exception instanceof RegistrationVerificationFailed) {
+                $status = 400;
+                $code = 'VERIFICATION_FAILED';
+                $message = 'The verification request could not be completed.';
             } elseif ($exception instanceof AuthenticationException) {
                 $status = 401;
                 $code = 'UNAUTHENTICATED';

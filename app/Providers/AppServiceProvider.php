@@ -6,6 +6,8 @@ use App\Contexts\Identity\Application\Contracts\ContactVerificationCodeDelivery;
 use App\Contexts\Identity\Application\Contracts\PasswordResetCodeDelivery;
 use App\Contexts\Identity\Infrastructure\ContactVerification\UnavailableContactVerificationCodeDelivery;
 use App\Contexts\Identity\Infrastructure\PasswordReset\UnavailablePasswordResetCodeDelivery;
+use App\Contexts\Platform\Application\Contracts\RegistrationVerificationCodeDelivery;
+use App\Contexts\Platform\Infrastructure\Verification\UnavailableRegistrationVerificationCodeDelivery;
 use App\Support\Contacts\ContactNormalizer;
 use App\Support\Contacts\IdentityContactNormalizer;
 use App\Support\Files\CloudinaryAssetClient;
@@ -43,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(MalwareScanner::class, UnavailableMalwareScanner::class);
         $this->app->singleton(PasswordResetCodeDelivery::class, UnavailablePasswordResetCodeDelivery::class);
         $this->app->singleton(ContactVerificationCodeDelivery::class, UnavailableContactVerificationCodeDelivery::class);
+        $this->app->singleton(RegistrationVerificationCodeDelivery::class, UnavailableRegistrationVerificationCodeDelivery::class);
         $this->app->singleton(MetricsRecorder::class, StructuredLogMetricsRecorder::class);
         $this->app->singleton(PhoneNumberUtil::class, static fn (): PhoneNumberUtil => PhoneNumberUtil::getInstance());
         $this->app->singleton(ContactNormalizer::class, IdentityContactNormalizer::class);
@@ -93,6 +96,14 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinutes(15, 3)->by(hash('sha256', mb_strtolower($contact).'|'.$request->ip()));
         });
 
+        RateLimiter::for('public-registration-verification-request', static function (Request $request): Limit {
+            return Limit::perMinutes(15, 3)->by($request->route('registration').'|'.$request->ip());
+        });
+
+        RateLimiter::for('public-registration-verification-confirm', static function (Request $request): Limit {
+            return Limit::perMinute(10)->by($request->route('registration').'|'.$request->ip());
+        });
+
         if (class_exists(Scramble::class)) {
             Scramble::configure()->routes(static fn (Route $route): bool => in_array(
                 $route->getName(),
@@ -127,6 +138,8 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.memberships.roles.revoke',
                     'api.v1.me.schools.permissions',
                     'api.v1.public.school-registrations',
+                    'api.v1.public.school-registrations.verification.request',
+                    'api.v1.public.school-registrations.verification.confirm',
                 ],
                 true,
             ));
