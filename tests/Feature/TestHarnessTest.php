@@ -2,7 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
+use App\Contexts\Identity\Domain\Models\UserContact;
+use App\Contexts\Identity\Domain\Models\UserIdentity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,15 +18,20 @@ class TestHarnessTest extends TestCase
 
     public function test_a_factory_user_persists_in_the_isolated_test_database(): void
     {
-        $user = User::factory()->create([
+        $user = UserIdentity::factory()->create([
             'name' => 'Fictional Fixture User',
-            'email' => 'fixture@example.test',
         ]);
+
+        $contact = $user->contacts()->first();
 
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'name' => 'Fictional Fixture User',
-            'email' => 'fixture@example.test',
+        ]);
+        $this->assertInstanceOf(UserContact::class, $contact);
+        $this->assertDatabaseHas('user_contacts', [
+            'id' => $contact->id,
+            'canonical_value' => $contact->canonical_value,
         ]);
     }
 
@@ -41,7 +47,10 @@ class TestHarnessTest extends TestCase
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseHas('users', [
             'name' => 'Test User',
-            'email' => 'test@example.com',
+        ]);
+        $this->assertDatabaseHas('user_contacts', [
+            'type' => 'email',
+            'canonical_value' => 'test@example.com',
         ]);
     }
 }

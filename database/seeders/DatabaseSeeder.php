@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Contexts\Identity\Domain\Enums\ContactType;
+use App\Contexts\Identity\Domain\Models\UserIdentity;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +17,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
+        $identity = UserIdentity::create([
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'public_id' => (string) Str::uuid7(),
+        ]);
+
+        $identity->contacts()->create([
+            'type' => ContactType::Email,
+            'canonical_value' => 'test@example.com',
+            'is_primary' => true,
         ]);
     }
 }

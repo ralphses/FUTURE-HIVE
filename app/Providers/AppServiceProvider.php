@@ -15,6 +15,7 @@ use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use libphonenumber\PhoneNumberUtil;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         );
         $this->app->singleton(MalwareScanner::class, UnavailableMalwareScanner::class);
         $this->app->singleton(MetricsRecorder::class, StructuredLogMetricsRecorder::class);
+        $this->app->singleton(PhoneNumberUtil::class, static fn (): PhoneNumberUtil => PhoneNumberUtil::getInstance());
     }
 
     /**

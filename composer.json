@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.3",
         "cloudinary/cloudinary_php": "^3",
+        "giggsey/libphonenumber-for-php": "^9.0",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0"
     },
