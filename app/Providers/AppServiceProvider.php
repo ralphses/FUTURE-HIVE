@@ -94,6 +94,10 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.auth.password.change',
                     'api.v1.auth.verification.request',
                     'api.v1.auth.verification.confirm',
+                    'api.v1.me.memberships',
+                    'api.v1.schools.invitations.create',
+                    'api.v1.invitations.accept',
+                    'api.v1.invitations.revoke',
                 ],
                 true,
             ));

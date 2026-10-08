@@ -27,6 +27,12 @@ class UserContact extends Model
         return $this->hasMany(ContactVerificationChallenge::class, 'contact_id');
     }
 
+    /** @return HasMany<SchoolInvitation, $this> */
+    public function schoolInvitations(): HasMany
+    {
+        return $this->hasMany(SchoolInvitation::class, 'invitee_contact_id');
+    }
+
     /** @return array<string, string> */
     protected function casts(): array
     {

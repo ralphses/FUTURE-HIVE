@@ -139,4 +139,8 @@ return [
         'max_attempts' => (int) env('AUTH_CONTACT_VERIFICATION_MAX_ATTEMPTS', 5),
     ],
 
+    'school_invitations' => [
+        'ttl_days' => (int) env('AUTH_SCHOOL_INVITATION_TTL_DAYS', 7),
+    ],
+
 ];

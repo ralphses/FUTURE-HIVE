@@ -3,6 +3,8 @@
 use App\Contexts\Identity\Http\Controllers\Api\V1\AuthenticationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\ContactVerificationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\PasswordController;
+use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolInvitationController;
+use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolMembershipController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Middleware\JwtAuthenticate;
@@ -41,4 +43,12 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/auth/password/change', [PasswordController::class, 'change'])
         ->middleware('throttle:auth-password-change')
         ->name('api.v1.auth.password.change');
+    Route::get('/me/memberships', [SchoolMembershipController::class, 'index'])
+        ->name('api.v1.me.memberships');
+    Route::post('/schools/{school}/invitations', [SchoolInvitationController::class, 'create'])
+        ->name('api.v1.schools.invitations.create');
+    Route::post('/invitations/{invitation}/accept', [SchoolInvitationController::class, 'accept'])
+        ->name('api.v1.invitations.accept');
+    Route::post('/invitations/{invitation}/revoke', [SchoolInvitationController::class, 'revoke'])
+        ->name('api.v1.invitations.revoke');
 });

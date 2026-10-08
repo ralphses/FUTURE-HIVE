@@ -39,6 +39,10 @@ final class FoundationContractDocumentTransformer
                     'v1.auth.logout',
                     'v1.auth.logout_all',
                     'v1.auth.password.change',
+                    'v1.me.memberships',
+                    'v1.schools.invitations.create',
+                    'v1.invitations.accept',
+                    'v1.invitations.revoke',
                 ], true)) {
                     $operation->addSecurity(new SecurityRequirement(['bearerAuth' => []]));
                 }

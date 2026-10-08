@@ -44,6 +44,10 @@ final class OpenApiContractTest extends TestCase
             '/auth/password/reset',
             '/auth/password/change',
             '/health/readiness',
+            '/schools/{school}/invitations',
+            '/invitations/{invitation}/accept',
+            '/invitations/{invitation}/revoke',
+            '/me/memberships',
         ], array_keys($document['paths']));
         $this->assertArrayNotHasKey('/students', $document['paths']);
         $this->assertArrayNotHasKey('/public/school-registrations', $document['paths']);
@@ -55,7 +59,7 @@ final class OpenApiContractTest extends TestCase
 
         $this->assertArrayHasKey('bearerAuth', $document['components']['securitySchemes']);
         $this->assertArrayHasKey('ApiError', $document['components']['schemas']);
-        foreach (['/auth/me', '/auth/logout', '/auth/logout-all', '/auth/password/change'] as $protectedPath) {
+        foreach (['/auth/me', '/auth/logout', '/auth/logout-all', '/auth/password/change', '/schools/{school}/invitations', '/invitations/{invitation}/accept', '/invitations/{invitation}/revoke', '/me/memberships'] as $protectedPath) {
             $this->assertSame([['bearerAuth' => []]], $document['paths'][$protectedPath][array_key_first($document['paths'][$protectedPath])]['security']);
         }
 

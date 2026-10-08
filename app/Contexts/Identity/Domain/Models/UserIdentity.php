@@ -49,6 +49,18 @@ class UserIdentity extends Authenticatable
         return $this->hasMany(AuthSession::class, 'user_id');
     }
 
+    /** @return HasMany<SchoolMembership, $this> */
+    public function schoolMemberships(): HasMany
+    {
+        return $this->hasMany(SchoolMembership::class, 'user_id');
+    }
+
+    /** @return HasMany<SchoolInvitation, $this> */
+    public function schoolInvitations(): HasMany
+    {
+        return $this->hasMany(SchoolInvitation::class, 'invitee_id');
+    }
+
     /** @return HasMany<PasswordResetChallenge, $this> */
     public function passwordResetChallenges(): HasMany
     {
