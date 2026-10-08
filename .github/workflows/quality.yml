@@ -1,0 +1,32 @@
+name: Quality
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    quality:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.3'
+                  extensions: mbstring, pdo_sqlite
+                  coverage: none
+
+            - name: Install dependencies
+              run: composer install --no-interaction --prefer-dist --no-progress
+
+            - name: Check formatting
+              run: composer format
+
+            - name: Run static analysis
+              run: composer analyse
+
+            - name: Run tests
+              run: composer test
