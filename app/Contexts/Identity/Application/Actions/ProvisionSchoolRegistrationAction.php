@@ -19,6 +19,7 @@ use App\Contexts\Platform\Domain\Enums\SchoolRegistrationStatus;
 use App\Contexts\Platform\Domain\Models\ProvisioningRun;
 use App\Contexts\Platform\Domain\Models\SchoolRegistration;
 use App\Contexts\Platform\Domain\Models\SchoolSetupChecklistItem;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -108,12 +109,19 @@ final class ProvisionSchoolRegistrationAction
                     ['assigned_by' => $identity->id, 'assigned_at' => now()],
                 );
 
-                foreach (self::CHECKLIST_KEYS as $itemKey) {
-                    SchoolSetupChecklistItem::query()->firstOrCreate([
-                        'school_id' => $school->id,
-                        'item_key' => $itemKey,
-                    ], ['status' => 'pending']);
-                }
+                TenantContext::runInternal(
+                    TenantContext::fromMembership($membership),
+                    'school registration provisioning checklist',
+                    function (): null {
+                        foreach (self::CHECKLIST_KEYS as $itemKey) {
+                            SchoolSetupChecklistItem::query()->firstOrCreate([
+                                'item_key' => $itemKey,
+                            ], ['status' => 'pending']);
+                        }
+
+                        return null;
+                    },
+                );
 
                 $registration->update(['status' => SchoolRegistrationStatus::Completed]);
                 $run->update(['status' => ProvisioningRunStatus::Completed, 'failure_code' => null, 'failure_message' => null]);

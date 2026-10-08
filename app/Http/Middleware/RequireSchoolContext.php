@@ -37,6 +37,8 @@ final class RequireSchoolContext
             throw new AuthorizationException;
         }
 
+        $request->attributes->set('school_context', $context);
+
         $routeSchool = $request->route('school');
         if (is_string($routeSchool) && $routeSchool !== $context->membership->school->public_id) {
             throw (new ModelNotFoundException)->setModel(SchoolMembership::class);

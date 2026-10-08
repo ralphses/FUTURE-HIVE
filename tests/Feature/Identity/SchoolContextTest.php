@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Identity;
 
+use App\Contexts\Identity\Application\DTOs\SchoolContext;
 use App\Contexts\Identity\Domain\Models\AuthSession;
 use App\Contexts\Identity\Domain\Models\MembershipRole;
 use App\Contexts\Identity\Domain\Models\Role;
@@ -11,8 +12,12 @@ use App\Contexts\Identity\Domain\Models\School;
 use App\Contexts\Identity\Domain\Models\SchoolMembership;
 use App\Contexts\Identity\Domain\Models\UserIdentity;
 use App\Contexts\Identity\Infrastructure\Authentication\JwtTokenService;
+use App\Http\Middleware\RequireSchoolContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Testing\TestResponse;
 use Lcobucci\JWT\Token\Plain;
 use Tests\TestCase;
@@ -111,6 +116,31 @@ final class SchoolContextTest extends TestCase
         $this->withToken($token)->postJson('/api/v1/auth/logout')->assertOk();
 
         self::assertNull($session->fresh()->active_school_membership_id);
+    }
+
+    public function test_school_context_is_attached_as_typed_request_and_hidden_execution_context(): void
+    {
+        [$identity, $school] = $this->identityWithMemberships();
+        $token = $this->login($identity, 'context-password')->json('data.access_token');
+        $this->withToken($token)->postJson('/api/v1/auth/context/switch', ['school_id' => $school->public_id])->assertOk();
+
+        $request = Request::create('/internal/school-operation');
+        $request->setUserResolver(static fn (): UserIdentity => $identity);
+        $request->attributes->set('auth_session', AuthSession::query()->firstOrFail());
+
+        try {
+            $response = app(RequireSchoolContext::class)->handle($request, static fn (): Response => new Response('ok'));
+            $context = $request->attributes->get('school_context');
+
+            self::assertSame(200, $response->getStatusCode());
+            self::assertInstanceOf(SchoolContext::class, $context);
+            self::assertSame($context, Context::getHidden('school_context'));
+            self::assertSame($school->public_id, Context::get('school_id'));
+        } finally {
+            Context::forget('school_id');
+            Context::forget('school_membership_id');
+            Context::forgetHidden('school_context');
+        }
     }
 
     /** @return array{0: UserIdentity, 1: School, 2?: School} */

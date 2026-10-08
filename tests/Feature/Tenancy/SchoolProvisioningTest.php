@@ -6,11 +6,13 @@ namespace Tests\Feature\Tenancy;
 
 use App\Contexts\Identity\Application\Actions\ProvisionSchoolRegistrationAction;
 use App\Contexts\Identity\Domain\Models\MembershipRole;
+use App\Contexts\Identity\Domain\Models\SchoolMembership;
 use App\Contexts\Identity\Domain\Models\UserIdentity;
 use App\Contexts\Platform\Domain\Enums\SchoolRegistrationStatus;
 use App\Contexts\Platform\Domain\Models\AuditEvent;
 use App\Contexts\Platform\Domain\Models\SchoolRegistration;
 use App\Contexts\Platform\Domain\Models\SchoolSetupChecklistItem;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -34,7 +36,12 @@ final class SchoolProvisioningTest extends TestCase
         $this->assertDatabaseCount('school_memberships', 1);
         $this->assertDatabaseCount('membership_roles', 1);
         $this->assertDatabaseCount('provisioning_runs', 1);
-        self::assertSame(4, SchoolSetupChecklistItem::query()->count());
+        $membership = SchoolMembership::query()->with('school')->firstOrFail();
+        self::assertSame(4, TenantContext::runInternal(
+            TenantContext::fromMembership($membership),
+            'school provisioning verification',
+            static fn (): int => SchoolSetupChecklistItem::query()->count(),
+        ));
         self::assertSame('school_admin', MembershipRole::query()->firstOrFail()->role->key);
     }
 

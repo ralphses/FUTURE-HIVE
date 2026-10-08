@@ -8,6 +8,7 @@ use App\Contexts\Identity\Application\DTOs\SchoolContext;
 use App\Contexts\Identity\Domain\Models\AuthSession;
 use App\Contexts\Identity\Domain\Models\SchoolMembership;
 use App\Contexts\Identity\Domain\Models\UserIdentity;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Support\Facades\Context;
 
 final class ResolveSchoolContextAction
@@ -17,6 +18,11 @@ final class ResolveSchoolContextAction
         $membershipId = $session->getAttribute('active_school_membership_id');
 
         if (! is_int($membershipId) && ! is_numeric($membershipId)) {
+            Context::forget('school_id');
+            Context::forget('school_membership_id');
+            Context::forgetHidden('school_context');
+            Context::forgetHidden('tenant_context');
+
             return null;
         }
 
@@ -30,6 +36,10 @@ final class ResolveSchoolContextAction
 
         if (! $membership instanceof SchoolMembership) {
             $session->newQuery()->whereKey($session->id)->update(['active_school_membership_id' => null]);
+            Context::forget('school_id');
+            Context::forget('school_membership_id');
+            Context::forgetHidden('school_context');
+            Context::forgetHidden('tenant_context');
 
             return null;
         }
@@ -37,6 +47,8 @@ final class ResolveSchoolContextAction
         $context = new SchoolContext($membership);
         Context::add('school_id', $membership->school->public_id);
         Context::add('school_membership_id', $membership->public_id);
+        Context::addHidden('school_context', $context);
+        Context::addHidden('tenant_context', TenantContext::fromSchoolContext($context));
 
         return $context;
     }
