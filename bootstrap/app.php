@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\RequestId;
+use App\Support\Observability\MetricsRecorder;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Console\Scheduling\Schedule;
@@ -97,6 +98,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 ],
             ], $status, [
                 'X-Request-ID' => $requestId,
+            ]);
+        });
+
+        $exceptions->report(function (Throwable $exception): void {
+            app(MetricsRecorder::class)->increment('exceptions.reported', [
+                'type' => class_basename($exception),
             ]);
         });
     })->create();

@@ -8,6 +8,10 @@ return [
         'upload_prefix' => env('CLOUDINARY_UPLOAD_PREFIX', 'schoolos/schools'),
     ],
 
+    'observability' => [
+        'structured_log_channel' => env('OBSERVABILITY_LOG_CHANNEL', 'structured'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

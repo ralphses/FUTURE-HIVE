@@ -22,6 +22,32 @@ final class ApiResponse
     }
 
     /**
+     * @param  array<string, mixed>  $details
+     * @param  array<string, string>  $headers
+     */
+    public static function error(
+        string $code,
+        string $message,
+        array $details = [],
+        int $status = 500,
+        ?string $requestId = null,
+        array $headers = [],
+    ): JsonResponse {
+        if ($requestId !== null) {
+            $headers['X-Request-ID'] = $requestId;
+        }
+
+        return response()->json([
+            'error' => [
+                'code' => $code,
+                'message' => $message,
+                'details' => $details,
+                'request_id' => $requestId,
+            ],
+        ], $status, $headers);
+    }
+
+    /**
      * @param  LengthAwarePaginator<int, mixed>  $paginator
      * @param  array<string, string>  $headers
      */
