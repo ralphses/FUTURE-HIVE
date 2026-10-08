@@ -50,13 +50,13 @@ final class OpenApiContractTest extends TestCase
             '/invitations/{invitation}/accept',
             '/invitations/{invitation}/revoke',
             '/me/memberships',
+            '/public/school-registrations',
             '/schools/{school}/roles',
             '/schools/{school}/memberships/{membership}/roles',
             '/schools/{school}/memberships/{membership}/roles/{role}',
             '/me/schools/{school}/permissions',
         ], array_keys($document['paths']));
         $this->assertArrayNotHasKey('/students', $document['paths']);
-        $this->assertArrayNotHasKey('/public/school-registrations', $document['paths']);
     }
 
     public function test_standard_envelopes_headers_errors_and_authentication_are_documented(): void
@@ -72,7 +72,7 @@ final class OpenApiContractTest extends TestCase
         foreach ($document['paths'] as $path) {
             foreach ($path as $operation) {
                 $this->assertArrayHasKey('responses', $operation);
-                $responseForHeader = $operation['responses']['200'] ?? $operation['responses']['201'] ?? $operation['responses']['302'] ?? [];
+                $responseForHeader = $operation['responses']['200'] ?? $operation['responses']['201'] ?? $operation['responses']['202'] ?? $operation['responses']['302'] ?? [];
                 $this->assertArrayHasKey('X-Request-ID', $responseForHeader['headers'] ?? []);
 
                 foreach ([401, 403, 404, 405, 422, 500, 503] as $status) {
@@ -89,6 +89,10 @@ final class OpenApiContractTest extends TestCase
         $this->assertContains('school_id', $parameters);
         $this->assertContains('public_id', $parameters);
         $this->assertArrayHasKey('302', $document['paths']['/files/download']['get']['responses']);
+
+        $registrationParameters = array_column($document['paths']['/public/school-registrations']['post']['parameters'], 'name');
+        $this->assertContains('Idempotency-Key', $registrationParameters);
+        $this->assertArrayHasKey('409', $document['paths']['/public/school-registrations']['post']['responses']);
     }
 
     public function test_documentation_contains_no_deployment_secrets_or_connection_strings(): void

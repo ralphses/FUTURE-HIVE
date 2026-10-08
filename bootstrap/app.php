@@ -2,6 +2,7 @@
 
 use App\Contexts\Identity\Domain\Services\AuthenticationFailed;
 use App\Contexts\Identity\Domain\Services\VerificationFailed;
+use App\Contexts\Platform\Domain\Exceptions\IdempotencyKeyReused;
 use App\Http\Middleware\RequestId;
 use App\Support\Observability\MetricsRecorder;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -29,6 +30,11 @@ return Application::configure(basePath: dirname(__DIR__))
             ->command('queue:prune-failed', [
                 '--hours' => (int) config('queue.failed_prune_hours', 168),
             ])
+            ->daily()
+            ->onOneServer()
+            ->withoutOverlapping(30);
+        $schedule
+            ->command('registrations:prune-idempotency')
             ->daily()
             ->onOneServer()
             ->withoutOverlapping(30);
@@ -69,6 +75,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 $code = 'VALIDATION_FAILED';
                 $message = 'The given data was invalid.';
                 $details = $exception->errors();
+            } elseif ($exception instanceof IdempotencyKeyReused) {
+                $status = 409;
+                $code = 'IDEMPOTENCY_KEY_REUSED';
+                $message = 'The idempotency key cannot be reused for a different request.';
             } elseif ($exception instanceof AuthenticationException) {
                 $status = 401;
                 $code = 'UNAUTHENTICATED';

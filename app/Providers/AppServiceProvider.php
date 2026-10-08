@@ -6,6 +6,8 @@ use App\Contexts\Identity\Application\Contracts\ContactVerificationCodeDelivery;
 use App\Contexts\Identity\Application\Contracts\PasswordResetCodeDelivery;
 use App\Contexts\Identity\Infrastructure\ContactVerification\UnavailableContactVerificationCodeDelivery;
 use App\Contexts\Identity\Infrastructure\PasswordReset\UnavailablePasswordResetCodeDelivery;
+use App\Support\Contacts\ContactNormalizer;
+use App\Support\Contacts\IdentityContactNormalizer;
 use App\Support\Files\CloudinaryAssetClient;
 use App\Support\Files\CloudinarySdkClient;
 use App\Support\Files\MalwareScanner;
@@ -23,6 +25,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use libphonenumber\PhoneNumberUtil;
+use Throwable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ContactVerificationCodeDelivery::class, UnavailableContactVerificationCodeDelivery::class);
         $this->app->singleton(MetricsRecorder::class, StructuredLogMetricsRecorder::class);
         $this->app->singleton(PhoneNumberUtil::class, static fn (): PhoneNumberUtil => PhoneNumberUtil::getInstance());
+        $this->app->singleton(ContactNormalizer::class, IdentityContactNormalizer::class);
     }
 
     /**
@@ -77,6 +81,18 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by(hash('sha256', mb_strtolower(trim($request->string('contact')->toString())).'|'.$request->ip()));
         });
 
+        RateLimiter::for('public-school-registration', static function (Request $request): Limit {
+            $contact = trim($request->string('contact')->toString());
+
+            try {
+                $contact = app(ContactNormalizer::class)->normalize($contact)->value;
+            } catch (Throwable) {
+                // Invalid contacts still receive a bounded, non-plaintext throttle key.
+            }
+
+            return Limit::perMinutes(15, 3)->by(hash('sha256', mb_strtolower($contact).'|'.$request->ip()));
+        });
+
         if (class_exists(Scramble::class)) {
             Scramble::configure()->routes(static fn (Route $route): bool => in_array(
                 $route->getName(),
@@ -110,6 +126,7 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.memberships.roles.assign',
                     'api.v1.schools.memberships.roles.revoke',
                     'api.v1.me.schools.permissions',
+                    'api.v1.public.school-registrations',
                 ],
                 true,
             ));

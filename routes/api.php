@@ -9,6 +9,7 @@ use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolMembershipController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolRoleController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ReadinessController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationController;
 use App\Http\Middleware\JwtAuthenticate;
 use App\Http\Middleware\RefreshCookieCsrf;
 use App\Http\Middleware\RequireSchoolContext;
@@ -20,6 +21,9 @@ Route::get('/health/readiness', ReadinessController::class)->name('api.v1.health
 Route::get('/files/download', CloudinaryFileDownloadController::class)
     ->middleware('signed')
     ->name('api.v1.files.download');
+Route::post('/public/school-registrations', [SchoolRegistrationController::class, 'store'])
+    ->middleware('throttle:public-school-registration')
+    ->name('api.v1.public.school-registrations');
 
 Route::post('/auth/login', [AuthenticationController::class, 'login'])
     ->middleware('throttle:auth-login')
