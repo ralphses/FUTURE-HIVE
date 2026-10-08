@@ -1,0 +1,1 @@
+O:23:"PHPStan\Cache\CacheItem":2:{s:11:"variableKey";s:73:"v2-f0b634dd67be5d852a66848f9afe340e4bae207d638c9ac791aa81773daea625-8.4.1";s:4:"data";a:3:{s:7:"classes";a:1:{s:66:"illuminate\foundation\testing\traits\canconfiguremigrationcommands";b:1;}s:9:"functions";a:0:{}s:9:"constants";a:0:{}}}
