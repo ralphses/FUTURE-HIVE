@@ -1,5 +1,6 @@
 <?php
 
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\AuthenticationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\ContactVerificationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\PasswordController;
@@ -127,4 +128,40 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/lifecycle/archive', [SchoolLifecycleController::class, 'archive'])
         ->middleware(RequireSchoolLifecycleContext::class)
         ->name('api.v1.schools.lifecycle.archive');
+    Route::get('/schools/{school}/academic-sessions', [AcademicPeriodController::class, 'sessions'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.index');
+    Route::post('/schools/{school}/academic-sessions', [AcademicPeriodController::class, 'storeSession'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.store');
+    Route::get('/schools/{school}/academic-sessions/{session}', [AcademicPeriodController::class, 'showSession'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.show');
+    Route::patch('/schools/{school}/academic-sessions/{session}', [AcademicPeriodController::class, 'updateSession'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.update');
+    Route::post('/schools/{school}/academic-sessions/{session}/activate', [AcademicPeriodController::class, 'activateSession'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.activate');
+    Route::post('/schools/{school}/academic-sessions/{session}/close', [AcademicPeriodController::class, 'closeSession'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.close');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms', [AcademicPeriodController::class, 'terms'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.index');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms', [AcademicPeriodController::class, 'storeTerm'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.store');
+    Route::patch('/schools/{school}/academic-sessions/{session}/terms/{term}', [AcademicPeriodController::class, 'updateTerm'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.update');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/activate', [AcademicPeriodController::class, 'activateTerm'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.activate');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/close', [AcademicPeriodController::class, 'closeTerm'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.close');
+    Route::get('/schools/{school}/academic-context', [AcademicPeriodController::class, 'context'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-context');
 });
