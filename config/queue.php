@@ -13,7 +13,30 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'database'),
+    // Redis is the production queue backend. PHPUnit overrides this with sync.
+    'default' => env('QUEUE_CONNECTION', 'redis'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Queue Policy
+    |--------------------------------------------------------------------------
+    |
+    | These values are the shared defaults for retryable application jobs.
+    | Individual jobs may tighten the policy for permanent or high-risk work.
+    |
+    */
+
+    'policy' => [
+        'tries' => (int) env('QUEUE_TRIES', 3),
+        'backoff' => array_map(
+            'intval',
+            explode(',', (string) env('QUEUE_BACKOFF', '10,30,60')),
+        ),
+        'retry_window' => (int) env('QUEUE_RETRY_WINDOW', 300),
+        'timeout' => (int) env('QUEUE_TIMEOUT', 60),
+    ],
+
+    'failed_prune_hours' => (int) env('QUEUE_FAILED_PRUNE_HOURS', 168),
 
     /*
     |--------------------------------------------------------------------------

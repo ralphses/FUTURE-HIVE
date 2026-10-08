@@ -15,7 +15,9 @@ return [
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    // Redis supplies shared cache, lock and rate-limit storage in production.
+    // PHPUnit overrides this with the isolated array store.
+    'default' => env('CACHE_STORE', 'redis'),
 
     /*
     |--------------------------------------------------------------------------

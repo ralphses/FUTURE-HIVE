@@ -3,6 +3,7 @@
 use App\Http\Middleware\RequestId;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,6 +21,15 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withSchedule(function (Schedule $schedule): void {
+        $schedule
+            ->command('queue:prune-failed', [
+                '--hours' => (int) config('queue.failed_prune_hours', 168),
+            ])
+            ->daily()
+            ->onOneServer()
+            ->withoutOverlapping(30);
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(RequestId::class);
     })
