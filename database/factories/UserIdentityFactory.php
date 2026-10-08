@@ -33,4 +33,9 @@ class UserIdentityFactory extends Factory
             ]);
         });
     }
+
+    public function withPassword(string $password = 'password'): static
+    {
+        return $this->state(['password' => $password]);
+    }
 }

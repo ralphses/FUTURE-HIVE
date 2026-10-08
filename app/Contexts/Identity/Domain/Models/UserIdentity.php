@@ -43,6 +43,12 @@ class UserIdentity extends Authenticatable
         return $this->hasMany(UserContact::class, 'user_id');
     }
 
+    /** @return HasMany<AuthSession, $this> */
+    public function authSessions(): HasMany
+    {
+        return $this->hasMany(AuthSession::class, 'user_id');
+    }
+
     /** @return HasMany<UserContact, $this> */
     public function activeContacts(): HasMany
     {

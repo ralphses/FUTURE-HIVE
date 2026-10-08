@@ -11,6 +11,7 @@ use Dedoc\Scramble\Support\Generator\Operation;
 use Dedoc\Scramble\Support\Generator\Reference;
 use Dedoc\Scramble\Support\Generator\Response;
 use Dedoc\Scramble\Support\Generator\Schema;
+use Dedoc\Scramble\Support\Generator\SecurityRequirement;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Dedoc\Scramble\Support\Generator\Types\ObjectType;
 use Dedoc\Scramble\Support\Generator\Types\StringType;
@@ -25,13 +26,21 @@ final class FoundationContractDocumentTransformer
             'bearerAuth',
             SecurityScheme::http('bearer', 'JWT')
                 ->as('bearerAuth')
-                ->setDescription('Approved future JWT access-token authentication scheme.'),
+                ->setDescription('JWT access-token authentication using the approved RS256 issuer and rotating key IDs.'),
         );
 
         foreach ($document->paths as $path) {
             foreach ($path->operations as $operation) {
                 $this->addRequestIdHeaders($operation);
                 $this->addStandardErrorResponses($operation, $components);
+
+                if (in_array($operation->operationId, [
+                    'v1.auth.me',
+                    'v1.auth.logout',
+                    'v1.auth.logout_all',
+                ], true)) {
+                    $operation->addSecurity(new SecurityRequirement(['bearerAuth' => []]));
+                }
             }
         }
     }

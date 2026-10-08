@@ -114,4 +114,15 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    'jwt' => [
+        'issuer' => env('AUTH_JWT_ISSUER', env('APP_URL', 'http://localhost')),
+        'audience' => env('AUTH_JWT_AUDIENCE', 'schoolos-api'),
+        'algorithm' => 'RS256',
+        'access_ttl' => 600,
+        'refresh_ttl' => 1209600,
+        'current_kid' => env('AUTH_JWT_CURRENT_KID', 'schoolos-current'),
+        'private_key' => env('AUTH_JWT_PRIVATE_KEY'),
+        'public_keys' => json_decode(env('AUTH_JWT_PUBLIC_KEYS', '{}'), true) ?: [],
+    ],
+
 ];

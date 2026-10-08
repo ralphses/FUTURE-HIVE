@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 final class OpenApiContractTest extends TestCase
@@ -30,6 +31,11 @@ final class OpenApiContractTest extends TestCase
 
         $this->assertSame('3.1.0', $document['openapi']);
         $this->assertSame([
+            '/auth/login',
+            '/auth/refresh',
+            '/auth/me',
+            '/auth/logout',
+            '/auth/logout-all',
             '/files/download',
             '/health',
             '/health/readiness',
@@ -38,12 +44,15 @@ final class OpenApiContractTest extends TestCase
         $this->assertArrayNotHasKey('/public/school-registrations', $document['paths']);
     }
 
-    public function test_standard_envelopes_headers_errors_and_future_authentication_are_documented(): void
+    public function test_standard_envelopes_headers_errors_and_authentication_are_documented(): void
     {
         $document = $this->document();
 
         $this->assertArrayHasKey('bearerAuth', $document['components']['securitySchemes']);
         $this->assertArrayHasKey('ApiError', $document['components']['schemas']);
+        foreach (['/auth/me', '/auth/logout', '/auth/logout-all'] as $protectedPath) {
+            $this->assertSame([['bearerAuth' => []]], $document['paths'][$protectedPath][array_key_first($document['paths'][$protectedPath])]['security']);
+        }
 
         foreach ($document['paths'] as $path) {
             foreach ($path as $operation) {
@@ -78,7 +87,9 @@ final class OpenApiContractTest extends TestCase
 
     public function test_generated_artifact_passes_the_strict_drift_check(): void
     {
-        $this->artisan('openapi:check')->assertSuccessful();
+        $exitCode = Artisan::call('openapi:check');
+
+        $this->assertSame(0, $exitCode, Artisan::output());
     }
 
     public function test_documentation_routes_are_denied_by_default_and_available_when_enabled(): void

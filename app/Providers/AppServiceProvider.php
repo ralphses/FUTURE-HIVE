@@ -11,9 +11,12 @@ use App\Support\Observability\StructuredLogMetricsRecorder;
 use App\Support\OpenApi\FoundationContractDocumentTransformer;
 use Cloudinary\Api\Upload\UploadApi;
 use Dedoc\Scramble\Scramble;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use libphonenumber\PhoneNumberUtil;
 
@@ -40,6 +43,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('auth-login', static function (Request $request): Limit {
+            return Limit::perMinute(5)->by(hash('sha256', mb_strtolower(trim($request->string('login')->toString())).'|'.$request->ip()));
+        });
+
+        RateLimiter::for('auth-refresh', static function (Request $request): Limit {
+            return Limit::perMinute(30)->by($request->ip());
+        });
+
         if (class_exists(Scramble::class)) {
             Scramble::configure()->routes(static fn (Route $route): bool => in_array(
                 $route->getName(),
@@ -47,6 +58,11 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.health',
                     'api.v1.health.readiness',
                     'api.v1.files.download',
+                    'api.v1.auth.login',
+                    'api.v1.auth.refresh',
+                    'api.v1.auth.me',
+                    'api.v1.auth.logout',
+                    'api.v1.auth.logout_all',
                 ],
                 true,
             ));

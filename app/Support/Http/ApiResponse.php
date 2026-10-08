@@ -14,9 +14,10 @@ final class ApiResponse
     public const MAX_PAGE_SIZE = 100;
 
     /**
+     * @param  array<string, mixed>  $data
      * @param  array<string, string>  $headers
      */
-    public static function data(mixed $data, int $status = 200, array $headers = []): JsonResponse
+    public static function data(array $data, int $status = 200, array $headers = []): JsonResponse
     {
         return response()->json(['data' => $data], $status, $headers);
     }

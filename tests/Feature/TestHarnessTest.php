@@ -43,8 +43,10 @@ class TestHarnessTest extends TestCase
     public function test_database_seeder_creates_only_the_fictional_demo_user(): void
     {
         $this->seed();
+        $this->seed();
 
         $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('user_contacts', 1);
         $this->assertDatabaseHas('users', [
             'name' => 'Test User',
         ]);
