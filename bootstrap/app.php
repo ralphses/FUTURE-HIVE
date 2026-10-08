@@ -1,6 +1,7 @@
 <?php
 
 use App\Contexts\Identity\Domain\Services\AuthenticationFailed;
+use App\Contexts\Identity\Domain\Services\VerificationFailed;
 use App\Http\Middleware\RequestId;
 use App\Support\Observability\MetricsRecorder;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -59,6 +60,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 $status = 401;
                 $code = 'AUTHENTICATION_FAILED';
                 $message = 'Authentication failed.';
+            } elseif ($exception instanceof VerificationFailed) {
+                $status = 400;
+                $code = 'VERIFICATION_FAILED';
+                $message = 'The verification request could not be completed.';
             } elseif ($exception instanceof ValidationException) {
                 $status = 422;
                 $code = 'VALIDATION_FAILED';

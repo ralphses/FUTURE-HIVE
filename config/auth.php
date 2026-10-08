@@ -125,4 +125,18 @@ return [
         'public_keys' => json_decode(env('AUTH_JWT_PUBLIC_KEYS', '{}'), true) ?: [],
     ],
 
+    'password_recovery' => [
+        'challenge_ttl' => (int) env('AUTH_PASSWORD_RESET_TTL', 900),
+        'max_attempts' => (int) env('AUTH_PASSWORD_RESET_MAX_ATTEMPTS', 5),
+        'common_passwords' => array_values(array_filter(array_map(
+            static fn (string $password): string => mb_strtolower(trim($password)),
+            explode(',', (string) env('AUTH_PASSWORD_COMMON_DENYLIST', 'passwordpassword,schoolos-password,letmeinplease')),
+        ))),
+    ],
+
+    'contact_verification' => [
+        'challenge_ttl' => (int) env('AUTH_CONTACT_VERIFICATION_TTL', 600),
+        'max_attempts' => (int) env('AUTH_CONTACT_VERIFICATION_MAX_ATTEMPTS', 5),
+    ],
+
 ];

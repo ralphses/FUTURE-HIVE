@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['type', 'canonical_value', 'verified_at', 'is_primary', 'superseded_at', 'superseded_reason'])]
 #[Hidden(['id'])]
@@ -18,6 +19,12 @@ class UserContact extends Model
     public function identity(): BelongsTo
     {
         return $this->belongsTo(UserIdentity::class, 'user_id');
+    }
+
+    /** @return HasMany<ContactVerificationChallenge, $this> */
+    public function verificationChallenges(): HasMany
+    {
+        return $this->hasMany(ContactVerificationChallenge::class, 'contact_id');
     }
 
     /** @return array<string, string> */
