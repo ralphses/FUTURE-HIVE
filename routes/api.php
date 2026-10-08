@@ -1,6 +1,7 @@
 <?php
 
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStructureController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\AuthenticationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\ContactVerificationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\PasswordController;
@@ -164,4 +165,28 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/academic-context', [AcademicPeriodController::class, 'context'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-context');
+    Route::get('/schools/{school}/academic-levels', [AcademicStructureController::class, 'levels'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.index');
+    Route::post('/schools/{school}/academic-levels', [AcademicStructureController::class, 'storeLevel'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.store');
+    Route::get('/schools/{school}/academic-levels/{level}', [AcademicStructureController::class, 'showLevel'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.show');
+    Route::patch('/schools/{school}/academic-levels/{level}', [AcademicStructureController::class, 'updateLevel'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.update');
+    Route::post('/schools/{school}/academic-levels/{level}/activate', [AcademicStructureController::class, 'activateLevel'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.activate');
+    Route::post('/schools/{school}/academic-levels/{level}/deactivate', [AcademicStructureController::class, 'deactivateLevel'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.deactivate');
+    Route::get('/schools/{school}/academic-levels/{level}/sections', [AcademicStructureController::class, 'sections'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.index');
+    Route::post('/schools/{school}/academic-levels/{level}/sections', [AcademicStructureController::class, 'storeSection'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.store');
+    Route::get('/schools/{school}/academic-levels/{level}/sections/{section}', [AcademicStructureController::class, 'showSection'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.show');
+    Route::patch('/schools/{school}/academic-levels/{level}/sections/{section}', [AcademicStructureController::class, 'updateSection'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.update');
+    Route::post('/schools/{school}/academic-levels/{level}/sections/{section}/activate', [AcademicStructureController::class, 'activateSection'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.activate');
+    Route::post('/schools/{school}/academic-levels/{level}/sections/{section}/deactivate', [AcademicStructureController::class, 'deactivateSection'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.deactivate');
 });
