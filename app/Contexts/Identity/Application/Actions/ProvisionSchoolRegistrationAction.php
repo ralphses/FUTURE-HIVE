@@ -17,6 +17,7 @@ use App\Contexts\Platform\Domain\Enums\ProvisioningRunStatus;
 use App\Contexts\Platform\Domain\Enums\RegistrationContactType;
 use App\Contexts\Platform\Domain\Enums\SchoolRegistrationStatus;
 use App\Contexts\Platform\Domain\Models\ProvisioningRun;
+use App\Contexts\Platform\Domain\Models\SchoolProfile;
 use App\Contexts\Platform\Domain\Models\SchoolRegistration;
 use App\Contexts\Platform\Domain\Models\SchoolSetupChecklistItem;
 use App\Support\Tenancy\TenantContext;
@@ -113,6 +114,11 @@ final class ProvisionSchoolRegistrationAction
                     TenantContext::fromMembership($membership),
                     'school registration provisioning checklist',
                     function (): null {
+                        SchoolProfile::query()->firstOrCreate([], [
+                            'country' => 'NG',
+                            'timezone' => 'Africa/Lagos',
+                        ]);
+
                         foreach (self::CHECKLIST_KEYS as $itemKey) {
                             SchoolSetupChecklistItem::query()->firstOrCreate([
                                 'item_key' => $itemKey,

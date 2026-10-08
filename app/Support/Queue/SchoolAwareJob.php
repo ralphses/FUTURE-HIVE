@@ -7,4 +7,6 @@ namespace App\Support\Queue;
 interface SchoolAwareJob
 {
     public function schoolId(): string;
+
+    public function tenantContext(): TenantJobContext;
 }

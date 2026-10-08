@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Contexts\Identity\Domain\Models\School;
+use App\Contexts\Identity\Domain\Models\SchoolMembership;
+use App\Contexts\Identity\Domain\Models\UserIdentity;
 use App\Support\Files\CloudinaryAssetClient;
 use App\Support\Files\CloudinaryAssetStore;
 use App\Support\Files\FileScanResult;
 use App\Support\Files\MalwareScanner;
 use App\Support\Files\SchoolFileReference;
 use App\Support\Files\UnsafeFileUpload;
+use App\Support\Tenancy\TenantContext;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -17,9 +22,17 @@ use Tests\TestCase;
 
 final class FileStorageTest extends TestCase
 {
+    use RefreshDatabase;
+
     private FakeCloudinaryClient $client;
 
     private FakeMalwareScanner $scanner;
+
+    private School $school;
+
+    private TenantContext $tenant;
+
+    private string $token;
 
     protected function setUp(): void
     {
@@ -29,6 +42,32 @@ final class FileStorageTest extends TestCase
             'services.cloudinary.download_ttl' => 300,
             'services.cloudinary.upload_prefix' => 'schoolos/schools',
         ]);
+
+        $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_RSA, 'private_key_bits' => 2048]);
+        self::assertNotFalse($key);
+        $privateKey = '';
+        self::assertTrue(openssl_pkey_export($key, $privateKey));
+        $details = openssl_pkey_get_details($key);
+        self::assertIsArray($details);
+        config([
+            'auth.jwt.private_key' => $privateKey,
+            'auth.jwt.public_keys' => ['test-key' => (string) ($details['key'] ?? '')],
+            'auth.jwt.current_kid' => 'test-key',
+            'auth.jwt.issuer' => 'https://schoolos.test',
+            'auth.jwt.audience' => 'schoolos-api',
+        ]);
+
+        $identity = UserIdentity::factory()->withPassword('file-password')->create();
+        $this->school = School::factory()->create(['name' => 'File Isolation School']);
+        $membership = SchoolMembership::factory()->create(['user_id' => $identity->id, 'school_id' => $this->school->id]);
+        $this->tenant = TenantContext::fromMembership($membership->load('school'));
+        $this->token = $this->postJson('/api/v1/auth/login', [
+            'login' => $identity->contacts()->firstOrFail()->canonical_value,
+            'password' => 'file-password',
+        ])->assertOk()->json('data.access_token');
+        $this->withToken($this->token)->postJson('/api/v1/auth/context/switch', [
+            'school_id' => $this->school->public_id,
+        ])->assertOk();
 
         $this->client = new FakeCloudinaryClient;
         $this->scanner = new FakeMalwareScanner;
@@ -46,11 +85,11 @@ final class FileStorageTest extends TestCase
 
     public function test_clean_file_is_uploaded_as_an_authenticated_raw_school_asset(): void
     {
-        $schoolId = (string) Str::uuid7();
+        $schoolId = (string) $this->school->public_id;
         $file = UploadedFile::fake()->create('fictional-student-record.pdf', 10, 'application/pdf');
         $store = $this->app->make(CloudinaryAssetStore::class);
 
-        $reference = $store->store($file, $schoolId);
+        $reference = TenantContext::runInternal($this->tenant, 'file storage test', fn (): SchoolFileReference => $store->store($file, $schoolId));
 
         self::assertSame(FileScanResult::Clean, $this->scanner->lastResult);
         self::assertSame('raw', $this->client->lastOptions['resource_type']);
@@ -73,6 +112,17 @@ final class FileStorageTest extends TestCase
         );
 
         self::assertSame(0, $this->client->uploadCount);
+    }
+
+    public function test_upload_rejects_a_school_that_does_not_match_trusted_context(): void
+    {
+        $store = $this->app->make(CloudinaryAssetStore::class);
+
+        $this->expectException(UnsafeFileUpload::class);
+        TenantContext::runInternal($this->tenant, 'file isolation test', fn (): SchoolFileReference => $store->store(
+            UploadedFile::fake()->create('fictional-mismatch.pdf', 10, 'application/pdf'),
+            (string) Str::uuid7(),
+        ));
     }
 
     public function test_unavailable_scan_results_are_rejected_before_cloudinary_upload(): void
@@ -109,7 +159,7 @@ final class FileStorageTest extends TestCase
 
     public function test_school_file_references_reject_invalid_and_cross_school_paths(): void
     {
-        $schoolId = (string) Str::uuid7();
+        $schoolId = (string) $this->school->public_id;
 
         $invalidReferences = [
             ['', 'schoolos/schools/'.$schoolId.'/asset', 'pdf'],
@@ -131,14 +181,14 @@ final class FileStorageTest extends TestCase
     public function test_signed_download_uses_application_and_cloudinary_signatures(): void
     {
         $store = $this->app->make(CloudinaryAssetStore::class);
-        $schoolId = (string) Str::uuid7();
+        $schoolId = (string) $this->school->public_id;
         $reference = new SchoolFileReference(
             $schoolId,
             'schoolos/schools/'.$schoolId.'/asset',
             'pdf',
         );
 
-        $url = $store->temporaryDownloadUrl($reference);
+        $url = TenantContext::runInternal($this->tenant, 'file download test', fn (): string => $store->temporaryDownloadUrl($reference));
 
         self::assertStringContainsString('signature=', $url);
         self::assertStringContainsString('expires=', $url);
@@ -147,7 +197,7 @@ final class FileStorageTest extends TestCase
 
     public function test_signed_download_route_rejects_unsigned_expired_tampered_and_cross_school_requests(): void
     {
-        $schoolId = (string) Str::uuid7();
+        $schoolId = (string) $this->school->public_id;
         $publicId = 'schoolos/schools/'.$schoolId.'/asset';
         $parameters = [
             'school_id' => $schoolId,
@@ -161,13 +211,13 @@ final class FileStorageTest extends TestCase
             $parameters,
         );
 
-        $this->get('/api/v1/files/download?'.http_build_query($parameters))
+        $this->withToken($this->token)->get('/api/v1/files/download?'.http_build_query($parameters))
             ->assertForbidden();
 
-        $this->get($signedUrl.'&public_id='.urlencode($publicId.'-tampered'))
+        $this->withToken($this->token)->get($signedUrl.'&public_id='.urlencode($publicId.'-tampered'))
             ->assertForbidden();
 
-        $this->get(URL::temporarySignedRoute(
+        $this->withToken($this->token)->get(URL::temporarySignedRoute(
             'api.v1.files.download',
             now()->subMinute(),
             $parameters,
@@ -184,12 +234,12 @@ final class FileStorageTest extends TestCase
             ],
         );
 
-        $this->get($crossSchoolUrl)->assertNotFound();
+        $this->withToken($this->token)->get($crossSchoolUrl)->assertNotFound();
     }
 
     public function test_valid_signed_route_redirects_to_authenticated_cloudinary_download(): void
     {
-        $schoolId = (string) Str::uuid7();
+        $schoolId = (string) $this->school->public_id;
         $publicId = 'schoolos/schools/'.$schoolId.'/asset';
         $url = URL::temporarySignedRoute(
             'api.v1.files.download',
@@ -201,7 +251,7 @@ final class FileStorageTest extends TestCase
             ],
         );
 
-        $this->get($url)
+        $this->withToken($this->token)->get($url)
             ->assertRedirect($this->client->downloadUrl);
 
         self::assertSame('authenticated', $this->client->lastDownloadOptions['type']);

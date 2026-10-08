@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Files;
 
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
@@ -30,14 +31,24 @@ final readonly class SchoolFileReference
 
     public static function forUpload(string $schoolId): self
     {
-        self::assertSchoolId($schoolId);
+        $context = TenantContext::require();
+        if ($schoolId !== $context->schoolPublicId) {
+            throw new InvalidArgumentException('The file school does not match the trusted tenant context.');
+        }
+
+        return self::forTrustedContext($context);
+    }
+
+    public static function forTrustedContext(TenantContext $context): self
+    {
+        self::assertSchoolId($context->schoolPublicId);
 
         return new self(
-            schoolId: $schoolId,
+            schoolId: $context->schoolPublicId,
             publicId: sprintf(
                 '%s/%s/%s',
                 trim((string) config('services.cloudinary.upload_prefix', 'schoolos/schools')),
-                $schoolId,
+                $context->schoolPublicId,
                 (string) Str::uuid7(),
             ),
             format: 'bin',

@@ -49,7 +49,13 @@ final class OpenApiContractTest extends TestCase
             '/schools/{school}/invitations',
             '/invitations/{invitation}/accept',
             '/invitations/{invitation}/revoke',
+            '/schools/{school}/lifecycle',
+            '/schools/{school}/lifecycle/suspend',
+            '/schools/{school}/lifecycle/reactivate',
+            '/schools/{school}/lifecycle/archive',
             '/me/memberships',
+            '/schools/{school}/profile',
+            '/schools/{school}/profile/logo',
             '/public/school-registrations',
             '/public/school-registrations/{registration}/verification/request',
             '/public/school-registrations/{registration}/verification/confirm',
@@ -57,6 +63,8 @@ final class OpenApiContractTest extends TestCase
             '/schools/{school}/memberships/{membership}/roles',
             '/schools/{school}/memberships/{membership}/roles/{role}',
             '/me/schools/{school}/permissions',
+            '/schools/{school}/setup',
+            '/schools/{school}/setup/{item}',
         ], array_keys($document['paths']));
         $this->assertArrayNotHasKey('/students', $document['paths']);
     }
@@ -67,7 +75,7 @@ final class OpenApiContractTest extends TestCase
 
         $this->assertArrayHasKey('bearerAuth', $document['components']['securitySchemes']);
         $this->assertArrayHasKey('ApiError', $document['components']['schemas']);
-        foreach (['/auth/me', '/auth/logout', '/auth/logout-all', '/auth/context/switch', '/auth/context', '/auth/password/change', '/schools/{school}/invitations', '/invitations/{invitation}/accept', '/invitations/{invitation}/revoke', '/me/memberships', '/schools/{school}/roles', '/schools/{school}/memberships/{membership}/roles', '/schools/{school}/memberships/{membership}/roles/{role}', '/me/schools/{school}/permissions'] as $protectedPath) {
+        foreach (['/auth/me', '/auth/logout', '/auth/logout-all', '/auth/context/switch', '/auth/context', '/auth/password/change', '/schools/{school}/invitations', '/invitations/{invitation}/accept', '/invitations/{invitation}/revoke', '/schools/{school}/lifecycle', '/schools/{school}/lifecycle/suspend', '/schools/{school}/lifecycle/reactivate', '/schools/{school}/lifecycle/archive', '/me/memberships', '/schools/{school}/roles', '/schools/{school}/memberships/{membership}/roles', '/schools/{school}/memberships/{membership}/roles/{role}', '/me/schools/{school}/permissions', '/schools/{school}/setup', '/schools/{school}/setup/{item}', '/schools/{school}/profile', '/schools/{school}/profile/logo'] as $protectedPath) {
             $this->assertSame([['bearerAuth' => []]], $document['paths'][$protectedPath][array_key_first($document['paths'][$protectedPath])]['security']);
         }
 

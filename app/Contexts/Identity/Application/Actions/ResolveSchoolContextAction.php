@@ -35,7 +35,16 @@ final class ResolveSchoolContextAction
             ->first();
 
         if (! $membership instanceof SchoolMembership) {
-            $session->newQuery()->whereKey($session->id)->update(['active_school_membership_id' => null]);
+            $suspendedMembership = SchoolMembership::query()
+                ->whereKey((int) $membershipId)
+                ->where('user_id', $identity->id)
+                ->where('status', 'active')
+                ->whereHas('school', static fn ($query) => $query->where('status', 'suspended'))
+                ->exists();
+
+            if (! $suspendedMembership) {
+                $session->newQuery()->whereKey($session->id)->update(['active_school_membership_id' => null]);
+            }
             Context::forget('school_id');
             Context::forget('school_membership_id');
             Context::forgetHidden('school_context');

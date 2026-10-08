@@ -15,8 +15,8 @@ final readonly class TenantContext
     public function __construct(
         public int $schoolId,
         public string $schoolPublicId,
-        public int $membershipId,
-        public int $identityId,
+        public ?int $membershipId = null,
+        public ?int $identityId = null,
     ) {}
 
     public static function fromSchoolContext(SchoolContext $context): self
@@ -41,6 +41,11 @@ final readonly class TenantContext
             membershipId: (int) $membership->id,
             identityId: (int) $membership->user_id,
         );
+    }
+
+    public static function forSchool(int $schoolId, string $schoolPublicId): self
+    {
+        return new self($schoolId, $schoolPublicId);
     }
 
     public static function current(): ?self

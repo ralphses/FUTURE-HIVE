@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Files;
 
 use App\Http\Controllers\Controller;
+use App\Support\Tenancy\TenantContext;
 use Dedoc\Scramble\Attributes\Endpoint;
 use Dedoc\Scramble\Attributes\Header;
 use Dedoc\Scramble\Attributes\IgnoreResponse;
@@ -63,8 +64,13 @@ final class CloudinaryFileDownloadController extends Controller
     public function __invoke(Request $request, CloudinaryAssetStore $store): RedirectResponse
     {
         try {
+            $context = TenantContext::require();
+            if ((string) $request->query('school_id') !== $context->schoolPublicId) {
+                abort(404);
+            }
+
             $reference = new SchoolFileReference(
-                schoolId: (string) $request->query('school_id'),
+                schoolId: $context->schoolPublicId,
                 publicId: (string) $request->query('public_id'),
                 format: (string) $request->query('format', 'bin'),
             );

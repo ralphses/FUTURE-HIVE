@@ -45,9 +45,11 @@ final class JwtAuthenticate
 
         $request->attributes->set('auth_session', $session);
         $request->setUserResolver(static fn (): UserIdentity => $identity);
-        $context = $this->resolveContext->handle($identity, $session);
-        if ($context !== null) {
-            $request->attributes->set('school_context', $context);
+        if (! str_starts_with((string) $request->route()?->getName(), 'api.v1.schools.lifecycle.')) {
+            $context = $this->resolveContext->handle($identity, $session);
+            if ($context !== null) {
+                $request->attributes->set('school_context', $context);
+            }
         }
 
         return $next($request);

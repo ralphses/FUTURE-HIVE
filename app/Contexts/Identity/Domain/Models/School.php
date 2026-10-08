@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 #[Fillable(['name', 'status', 'public_id'])]
@@ -28,6 +29,16 @@ class School extends Model
     {
         static::creating(function (self $school): void {
             $school->public_id ??= (string) Str::uuid7();
+        });
+
+        static::created(function (self $school): void {
+            DB::table('school_profiles')->insert([
+                'school_id' => $school->getKey(),
+                'country' => 'NG',
+                'timezone' => 'Africa/Lagos',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         });
     }
 

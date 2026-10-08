@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Contexts\Identity\Domain\Models\School;
 use App\Support\Cache\SchoolCacheKey;
 use App\Support\Queue\MissingSchoolContext;
 use App\Support\Queue\RequireSchoolContext;
 use App\Support\Queue\RetryableJob;
 use App\Support\Queue\SchoolAwareJob;
+use App\Support\Queue\TenantJobContext;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,7 +35,7 @@ final class QueueCacheSchedulerTest extends TestCase
             'queue.policy.retry_window' => 300,
         ]);
 
-        $job = new RetryablePolicyProbeJob('school-fictional-001');
+        $job = new RetryablePolicyProbeJob(TenantJobContext::fromSchool(School::factory()->create()));
 
         self::assertSame(3, $job->tries());
         self::assertSame([10, 30, 60], $job->backoff());
@@ -46,7 +49,7 @@ final class QueueCacheSchedulerTest extends TestCase
             'queue.policy.backoff' => [0, 0, 0],
         ]);
 
-        FailingQueueProbeJob::dispatch('school-fictional-001');
+        FailingQueueProbeJob::dispatch(TenantJobContext::fromSchool(School::factory()->create()));
 
         for ($attempt = 0; $attempt < 3; $attempt++) {
             $this->artisan('queue:work database --once --tries=3 --backoff=0');
@@ -65,34 +68,49 @@ final class QueueCacheSchedulerTest extends TestCase
         $this->expectException(MissingSchoolContext::class);
 
         (new RequireSchoolContext)->handle(
-            new ContextProbeJob(''),
+            new ContextProbeJob(null),
             static function (object $job): void {},
         );
     }
 
     public function test_school_context_survives_job_serialization_and_is_validated(): void
     {
-        $job = unserialize(serialize(new ContextProbeJob('school-fictional-001')));
+        $context = TenantJobContext::fromSchool(School::factory()->create());
+        $job = unserialize(serialize(new ContextProbeJob($context)));
         self::assertInstanceOf(ContextProbeJob::class, $job);
-        self::assertSame('school-fictional-001', $job->schoolId());
+        self::assertSame($context->schoolPublicId, $job->schoolId());
 
         $handled = false;
         (new RequireSchoolContext)->handle(
             $job,
             static function (object $job) use (&$handled): void {
                 $handled = true;
+                self::assertNotNull(TenantContext::current());
             },
         );
 
         self::assertTrue($handled);
     }
 
+    public function test_suspended_or_unknown_job_context_is_rejected_before_execution(): void
+    {
+        $suspendedSchool = School::factory()->create(['status' => 'suspended']);
+
+        $this->expectException(MissingSchoolContext::class);
+        (new RequireSchoolContext)->handle(
+            new ContextProbeJob(TenantJobContext::fromSchool($suspendedSchool)),
+            static function (object $job): void {},
+        );
+    }
+
     public function test_school_cache_keys_are_deterministic_and_tenant_distinct(): void
     {
-        $first = SchoolCacheKey::make('school-fictional-001', 'dashboard.summary');
-        $second = SchoolCacheKey::make('school-fictional-002', 'dashboard.summary');
+        $firstContext = TenantContext::forSchool(1, 'school-fictional-001');
+        $secondContext = TenantContext::forSchool(2, 'school-fictional-002');
+        $first = SchoolCacheKey::forContext($firstContext, 'dashboard.summary');
+        $second = SchoolCacheKey::forContext($secondContext, 'dashboard.summary');
 
-        self::assertSame($first, SchoolCacheKey::make('school-fictional-001', 'dashboard.summary'));
+        self::assertSame($first, SchoolCacheKey::forContext($firstContext, 'dashboard.summary'));
         self::assertNotSame($first, $second);
 
         Cache::put($first, 'first-school', 60);
@@ -106,7 +124,18 @@ final class QueueCacheSchedulerTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        SchoolCacheKey::make('', 'dashboard.summary');
+        SchoolCacheKey::forContext(TenantContext::forSchool(1, 'school-fictional-001'), '');
+    }
+
+    public function test_school_cache_keys_reject_a_mismatched_trusted_context(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        TenantContext::runInternal(TenantContext::forSchool(1, 'school-fictional-001'), 'cache isolation test', static function (): null {
+            SchoolCacheKey::make('school-fictional-002', 'dashboard.summary');
+
+            return null;
+        });
     }
 
     public function test_scheduler_registers_failed_job_pruning(): void
@@ -125,11 +154,16 @@ final class RetryablePolicyProbeJob implements SchoolAwareJob, ShouldQueue
     use RetryableJob;
     use SerializesModels;
 
-    public function __construct(private readonly string $schoolContext) {}
+    public function __construct(private readonly TenantJobContext $context) {}
 
     public function schoolId(): string
     {
-        return $this->schoolContext;
+        return $this->context->schoolPublicId;
+    }
+
+    public function tenantContext(): TenantJobContext
+    {
+        return $this->context;
     }
 
     public function handle(): void {}
@@ -149,11 +183,16 @@ final class FailingQueueProbeJob implements SchoolAwareJob, ShouldQueue
      */
     public array $backoff = [0, 0, 0];
 
-    public function __construct(private readonly string $schoolContext) {}
+    public function __construct(private readonly TenantJobContext $context) {}
 
     public function schoolId(): string
     {
-        return $this->schoolContext;
+        return $this->context->schoolPublicId;
+    }
+
+    public function tenantContext(): TenantJobContext
+    {
+        return $this->context;
     }
 
     /**
@@ -172,10 +211,19 @@ final class FailingQueueProbeJob implements SchoolAwareJob, ShouldQueue
 
 final class ContextProbeJob implements SchoolAwareJob
 {
-    public function __construct(private readonly string $schoolContext) {}
+    public function __construct(private readonly ?TenantJobContext $context) {}
 
     public function schoolId(): string
     {
-        return $this->schoolContext;
+        return $this->context === null ? '' : $this->context->schoolPublicId;
+    }
+
+    public function tenantContext(): TenantJobContext
+    {
+        if (! $this->context instanceof TenantJobContext) {
+            throw new MissingSchoolContext;
+        }
+
+        return $this->context;
     }
 }
