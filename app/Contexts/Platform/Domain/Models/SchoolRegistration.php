@@ -32,6 +32,12 @@ class SchoolRegistration extends Model
         return $this->hasMany(RegistrationVerificationChallenge::class, 'registration_id');
     }
 
+    /** @return HasMany<ProvisioningRun, $this> */
+    public function provisioningRuns(): HasMany
+    {
+        return $this->hasMany(ProvisioningRun::class, 'registration_id');
+    }
+
     protected static function booted(): void
     {
         static::creating(function (self $registration): void {
