@@ -5,6 +5,7 @@ use App\Contexts\Identity\Http\Controllers\Api\V1\ContactVerificationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\PasswordController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolInvitationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolMembershipController;
+use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolRoleController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Middleware\JwtAuthenticate;
@@ -51,4 +52,14 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
         ->name('api.v1.invitations.accept');
     Route::post('/invitations/{invitation}/revoke', [SchoolInvitationController::class, 'revoke'])
         ->name('api.v1.invitations.revoke');
+    Route::get('/schools/{school}/roles', [SchoolRoleController::class, 'catalogue'])
+        ->name('api.v1.schools.roles.catalogue');
+    Route::get('/schools/{school}/memberships/{membership}/roles', [SchoolRoleController::class, 'membership'])
+        ->name('api.v1.schools.memberships.roles');
+    Route::post('/schools/{school}/memberships/{membership}/roles', [SchoolRoleController::class, 'assign'])
+        ->name('api.v1.schools.memberships.roles.assign');
+    Route::delete('/schools/{school}/memberships/{membership}/roles/{role}', [SchoolRoleController::class, 'revoke'])
+        ->name('api.v1.schools.memberships.roles.revoke');
+    Route::get('/me/schools/{school}/permissions', [SchoolRoleController::class, 'permissions'])
+        ->name('api.v1.me.schools.permissions');
 });

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Identity;
 
 use App\Contexts\Identity\Application\Actions\RevokeSchoolMembershipAction;
+use App\Contexts\Identity\Domain\Models\MembershipRole;
+use App\Contexts\Identity\Domain\Models\Role;
 use App\Contexts\Identity\Domain\Models\School;
 use App\Contexts\Identity\Domain\Models\SchoolInvitation;
 use App\Contexts\Identity\Domain\Models\SchoolMembership;
@@ -236,12 +238,18 @@ final class SchoolMembershipInvitationTest extends TestCase
     {
         $school = School::factory()->create(['name' => 'Fictional Academy']);
         $owner = $this->identity('owner@example.com', 'owner-password');
-        SchoolMembership::create([
+        $membership = SchoolMembership::create([
             'school_id' => $school->id,
             'user_id' => $owner->id,
             'status' => 'active',
             'is_owner' => true,
             'joined_at' => now(),
+        ]);
+        MembershipRole::create([
+            'school_membership_id' => $membership->id,
+            'role_id' => Role::query()->where('key', 'school_admin')->value('id'),
+            'assigned_by' => $owner->id,
+            'assigned_at' => now(),
         ]);
 
         return [$school, $owner];

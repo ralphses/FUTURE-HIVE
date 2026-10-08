@@ -48,6 +48,10 @@ final class OpenApiContractTest extends TestCase
             '/invitations/{invitation}/accept',
             '/invitations/{invitation}/revoke',
             '/me/memberships',
+            '/schools/{school}/roles',
+            '/schools/{school}/memberships/{membership}/roles',
+            '/schools/{school}/memberships/{membership}/roles/{role}',
+            '/me/schools/{school}/permissions',
         ], array_keys($document['paths']));
         $this->assertArrayNotHasKey('/students', $document['paths']);
         $this->assertArrayNotHasKey('/public/school-registrations', $document['paths']);
@@ -59,14 +63,14 @@ final class OpenApiContractTest extends TestCase
 
         $this->assertArrayHasKey('bearerAuth', $document['components']['securitySchemes']);
         $this->assertArrayHasKey('ApiError', $document['components']['schemas']);
-        foreach (['/auth/me', '/auth/logout', '/auth/logout-all', '/auth/password/change', '/schools/{school}/invitations', '/invitations/{invitation}/accept', '/invitations/{invitation}/revoke', '/me/memberships'] as $protectedPath) {
+        foreach (['/auth/me', '/auth/logout', '/auth/logout-all', '/auth/password/change', '/schools/{school}/invitations', '/invitations/{invitation}/accept', '/invitations/{invitation}/revoke', '/me/memberships', '/schools/{school}/roles', '/schools/{school}/memberships/{membership}/roles', '/schools/{school}/memberships/{membership}/roles/{role}', '/me/schools/{school}/permissions'] as $protectedPath) {
             $this->assertSame([['bearerAuth' => []]], $document['paths'][$protectedPath][array_key_first($document['paths'][$protectedPath])]['security']);
         }
 
         foreach ($document['paths'] as $path) {
             foreach ($path as $operation) {
                 $this->assertArrayHasKey('responses', $operation);
-                $responseForHeader = $operation['responses']['200'] ?? $operation['responses']['302'] ?? [];
+                $responseForHeader = $operation['responses']['200'] ?? $operation['responses']['201'] ?? $operation['responses']['302'] ?? [];
                 $this->assertArrayHasKey('X-Request-ID', $responseForHeader['headers'] ?? []);
 
                 foreach ([401, 403, 404, 405, 422, 500, 503] as $status) {

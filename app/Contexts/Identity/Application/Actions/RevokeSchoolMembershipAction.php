@@ -12,6 +12,8 @@ use Illuminate\Validation\ValidationException;
 
 final class RevokeSchoolMembershipAction
 {
+    public function __construct(private readonly ResolveSchoolPermissionsAction $permissions) {}
+
     public function handle(UserIdentity $actor, string $membershipPublicId, string $reason = 'owner_revoked'): void
     {
         DB::transaction(function () use ($actor, $membershipPublicId, $reason): void {
@@ -21,12 +23,7 @@ final class RevokeSchoolMembershipAction
                 ->lockForUpdate()
                 ->first();
 
-            if (! $membership instanceof SchoolMembership || ! SchoolMembership::query()
-                ->where('school_id', $membership->school_id)
-                ->where('user_id', $actor->id)
-                ->where('status', 'active')
-                ->where('is_owner', true)
-                ->exists()) {
+            if (! $membership instanceof SchoolMembership || ! $this->permissions->allows($actor, $membership->school->public_id, 'school.memberships.revoke')) {
                 $this->notFound();
             }
 

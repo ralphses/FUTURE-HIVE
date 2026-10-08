@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Contexts\Identity\Application\Actions;
 
 use App\Contexts\Identity\Domain\Models\SchoolInvitation;
-use App\Contexts\Identity\Domain\Models\SchoolMembership;
 use App\Contexts\Identity\Domain\Models\UserIdentity;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 final class RevokeSchoolInvitationAction
 {
+    public function __construct(private readonly ResolveSchoolPermissionsAction $permissions) {}
+
     public function handle(UserIdentity $actor, string $invitationPublicId): void
     {
         DB::transaction(function () use ($actor, $invitationPublicId): void {
@@ -21,12 +22,7 @@ final class RevokeSchoolInvitationAction
                 ->lockForUpdate()
                 ->first();
 
-            if (! $invitation instanceof SchoolInvitation || ! SchoolMembership::query()
-                ->where('school_id', $invitation->school_id)
-                ->where('user_id', $actor->id)
-                ->where('status', 'active')
-                ->where('is_owner', true)
-                ->exists()) {
+            if (! $invitation instanceof SchoolInvitation || ! $this->permissions->allows($actor, $invitation->school->public_id, 'school.memberships.invite')) {
                 $this->notFound();
             }
 

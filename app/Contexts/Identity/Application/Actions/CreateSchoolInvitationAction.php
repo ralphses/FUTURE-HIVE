@@ -18,7 +18,10 @@ use Illuminate\Validation\ValidationException;
 
 final class CreateSchoolInvitationAction
 {
-    public function __construct(private readonly ContactCanonicalizer $canonicalizer) {}
+    public function __construct(
+        private readonly ContactCanonicalizer $canonicalizer,
+        private readonly ResolveSchoolPermissionsAction $permissions,
+    ) {}
 
     public function handle(UserIdentity $inviter, string $schoolPublicId, string $contactValue): SchoolInvitationIssue
     {
@@ -27,7 +30,7 @@ final class CreateSchoolInvitationAction
             ->where('status', 'active')
             ->first();
 
-        if (! $school instanceof School || ! $this->isOwner($inviter, $school)) {
+        if (! $school instanceof School || ! $this->permissions->allows($inviter, $schoolPublicId, 'school.memberships.invite')) {
             $this->notFound();
         }
 
@@ -103,16 +106,6 @@ final class CreateSchoolInvitationAction
         }
 
         return null;
-    }
-
-    private function isOwner(UserIdentity $identity, School $school): bool
-    {
-        return SchoolMembership::query()
-            ->where('school_id', $school->id)
-            ->where('user_id', $identity->id)
-            ->where('status', 'active')
-            ->where('is_owner', true)
-            ->exists();
     }
 
     private function notFound(): never
