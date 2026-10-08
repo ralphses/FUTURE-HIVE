@@ -143,4 +143,8 @@ return [
         'ttl_days' => (int) env('AUTH_SCHOOL_INVITATION_TTL_DAYS', 7),
     ],
 
+    'platform' => [
+        'break_glass_max_minutes' => (int) env('AUTH_PLATFORM_BREAK_GLASS_MAX_MINUTES', 60),
+    ],
+
 ];

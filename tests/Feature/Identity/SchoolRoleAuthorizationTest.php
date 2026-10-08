@@ -50,8 +50,8 @@ final class SchoolRoleAuthorizationTest extends TestCase
             ->assertJsonPath('data.permissions.0', 'academic.assignments.manage')
             ->assertJsonPath('data.permissions.6', 'school.roles.assign');
 
-        self::assertSame(9, Role::query()->count());
-        self::assertSame(15, Permission::query()->count());
+        self::assertSame(12, Role::query()->count());
+        self::assertSame(22, Permission::query()->count());
     }
 
     public function test_admin_can_assign_multiple_roles_and_revoke_one_with_audit_history(): void

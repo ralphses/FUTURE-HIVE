@@ -73,6 +73,18 @@ class UserIdentity extends Authenticatable
         return $this->hasMany(ContactVerificationChallenge::class, 'user_id');
     }
 
+    /** @return HasMany<PlatformRoleAssignment, $this> */
+    public function platformRoleAssignments(): HasMany
+    {
+        return $this->hasMany(PlatformRoleAssignment::class, 'user_id');
+    }
+
+    /** @return HasMany<BreakGlassAccessGrant, $this> */
+    public function breakGlassGrants(): HasMany
+    {
+        return $this->hasMany(BreakGlassAccessGrant::class, 'granted_to_user_id');
+    }
+
     /** @return HasMany<UserContact, $this> */
     public function activeContacts(): HasMany
     {

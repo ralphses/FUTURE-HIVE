@@ -59,4 +59,38 @@ final class AuthorizationCatalogue
             'student' => ['school.memberships.list', 'student.self.read'],
         ];
     }
+
+    /** @return array<string, array{label: string, description: string}> */
+    public static function platformRoles(): array
+    {
+        return [
+            'platform_admin' => ['label' => 'Platform Admin', 'description' => 'Manages platform authorization and approved break-glass access.'],
+            'platform_support' => ['label' => 'Platform Support', 'description' => 'Uses explicitly approved, temporary support access.'],
+            'platform_ops' => ['label' => 'Platform Operations', 'description' => 'Reads safe platform operations and readiness information.'],
+        ];
+    }
+
+    /** @return array<string, array{label: string, description: string}> */
+    public static function platformPermissions(): array
+    {
+        return [
+            'platform.roles.manage' => ['label' => 'Manage platform roles', 'description' => 'Assign and revoke predefined platform roles.'],
+            'platform.grants.create' => ['label' => 'Create break-glass grants', 'description' => 'Create approved temporary support grants.'],
+            'platform.grants.revoke' => ['label' => 'Revoke break-glass grants', 'description' => 'Revoke temporary support grants.'],
+            'platform.schools.read' => ['label' => 'Read platform school metadata', 'description' => 'Read approved platform-level school metadata, not school records.'],
+            'platform.audit.read' => ['label' => 'Read platform audit events', 'description' => 'Read platform audit events within approved operational scope.'],
+            'platform.operations.read' => ['label' => 'Read platform operations', 'description' => 'Read safe platform operations and readiness information.'],
+            'platform.support.access' => ['label' => 'Use support access', 'description' => 'Use an active, approved break-glass grant within scope.'],
+        ];
+    }
+
+    /** @return array<string, list<string>> */
+    public static function platformRolePermissions(): array
+    {
+        return [
+            'platform_admin' => ['platform.roles.manage', 'platform.grants.create', 'platform.grants.revoke', 'platform.schools.read', 'platform.audit.read', 'platform.operations.read'],
+            'platform_support' => ['platform.support.access'],
+            'platform_ops' => ['platform.operations.read'],
+        ];
+    }
 }
