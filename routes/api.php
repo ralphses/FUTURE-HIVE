@@ -1,7 +1,11 @@
 <?php
 
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicClassArmController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStructureController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectOfferingController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicTeachingAssignmentController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\AuthenticationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\ContactVerificationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\PasswordController;
@@ -162,6 +166,39 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/close', [AcademicPeriodController::class, 'closeTerm'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-sessions.terms.close');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings', [AcademicSubjectOfferingController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.index');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings', [AcademicSubjectOfferingController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}', [AcademicSubjectOfferingController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.show');
+    Route::patch('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}', [AcademicSubjectOfferingController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.update');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/activate', [AcademicSubjectOfferingController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.activate');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/deactivate', [AcademicSubjectOfferingController::class, 'deactivate'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.deactivate');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments', [AcademicTeachingAssignmentController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.index');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments', [AcademicTeachingAssignmentController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}', [AcademicTeachingAssignmentController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.show');
+    Route::patch('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}', [AcademicTeachingAssignmentController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.update');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}/revoke', [AcademicTeachingAssignmentController::class, 'revoke'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.revoke');
     Route::get('/schools/{school}/academic-context', [AcademicPeriodController::class, 'context'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-context');
@@ -189,4 +226,28 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.activate');
     Route::post('/schools/{school}/academic-levels/{level}/sections/{section}/deactivate', [AcademicStructureController::class, 'deactivateSection'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.deactivate');
+    Route::get('/schools/{school}/academic-levels/{level}/sections/{section}/class-arms', [AcademicClassArmController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.class-arms.index');
+    Route::post('/schools/{school}/academic-levels/{level}/sections/{section}/class-arms', [AcademicClassArmController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.class-arms.store');
+    Route::get('/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}', [AcademicClassArmController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.class-arms.show');
+    Route::patch('/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}', [AcademicClassArmController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.class-arms.update');
+    Route::post('/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/activate', [AcademicClassArmController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.class-arms.activate');
+    Route::post('/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/deactivate', [AcademicClassArmController::class, 'deactivate'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.sections.class-arms.deactivate');
+    Route::get('/schools/{school}/subjects', [AcademicSubjectController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.subjects.index');
+    Route::post('/schools/{school}/subjects', [AcademicSubjectController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.subjects.store');
+    Route::get('/schools/{school}/subjects/{subject}', [AcademicSubjectController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.subjects.show');
+    Route::patch('/schools/{school}/subjects/{subject}', [AcademicSubjectController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.subjects.update');
+    Route::post('/schools/{school}/subjects/{subject}/activate', [AcademicSubjectController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.subjects.activate');
+    Route::post('/schools/{school}/subjects/{subject}/deactivate', [AcademicSubjectController::class, 'deactivate'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.subjects.deactivate');
 });

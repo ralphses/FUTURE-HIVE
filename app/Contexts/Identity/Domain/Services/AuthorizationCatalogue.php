@@ -39,6 +39,12 @@ final class AuthorizationCatalogue
             'academic.sessions.manage' => ['label' => 'Manage academic periods', 'description' => 'Create and manage school academic sessions and terms.'],
             'academic.structure.read' => ['label' => 'Read academic structure', 'description' => 'View school levels and sections.'],
             'academic.structure.manage' => ['label' => 'Manage academic structure', 'description' => 'Create and manage school levels and sections.'],
+            'academic.class-arms.read' => ['label' => 'Read class arms', 'description' => 'View school class-arm configuration.'],
+            'academic.class-arms.manage' => ['label' => 'Manage class arms', 'description' => 'Create and manage school class-arm configuration.'],
+            'academic.subjects.read' => ['label' => 'Read subjects', 'description' => 'View the school subject catalogue.'],
+            'academic.subjects.manage' => ['label' => 'Manage subjects', 'description' => 'Create and manage the school subject catalogue.'],
+            'academic.offerings.read' => ['label' => 'Read subject offerings', 'description' => 'View subjects offered to school class arms and terms.'],
+            'academic.offerings.manage' => ['label' => 'Manage subject offerings', 'description' => 'Create and manage subjects offered to school class arms and terms.'],
             'academic.records.read' => ['label' => 'Read academic records', 'description' => 'View permitted academic records.'],
             'finance.records.read' => ['label' => 'Read finance records', 'description' => 'View permitted finance records.'],
             'finance.records.manage' => ['label' => 'Manage finance records', 'description' => 'Manage permitted finance operations.'],
@@ -54,15 +60,15 @@ final class AuthorizationCatalogue
     public static function rolePermissions(): array
     {
         return [
-            'school_admin' => ['school.memberships.list', 'school.memberships.invite', 'school.memberships.revoke', 'school.roles.assign', 'school.roles.revoke', 'school.settings.read', 'school.settings.manage', 'school.lifecycle.read', 'school.lifecycle.manage', 'academic.sessions.read', 'academic.sessions.manage', 'academic.structure.read', 'academic.structure.manage', 'academic.assignments.read', 'academic.assignments.manage', 'guardian.links.read', 'student.self.read'],
-            'teacher' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.records.read', 'academic.assignments.read', 'academic.assignments.manage'],
-            'hod_reviewer' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.records.read', 'academic.assignments.read'],
-            'principal' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.records.read', 'academic.assignments.read'],
-            'bursar' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'finance.records.read', 'finance.records.manage'],
-            'proprietor' => ['school.memberships.list', 'school.settings.read', 'school.lifecycle.read', 'school.lifecycle.manage', 'academic.sessions.read', 'academic.sessions.manage', 'academic.structure.read', 'academic.structure.manage', 'finance.records.read'],
-            'counsellor' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'counselling.private_notes.read'],
-            'parent_guardian' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'guardian.links.read'],
-            'student' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'student.self.read'],
+            'school_admin' => ['school.memberships.list', 'school.memberships.invite', 'school.memberships.revoke', 'school.roles.assign', 'school.roles.revoke', 'school.settings.read', 'school.settings.manage', 'school.lifecycle.read', 'school.lifecycle.manage', 'academic.sessions.read', 'academic.sessions.manage', 'academic.structure.read', 'academic.structure.manage', 'academic.class-arms.read', 'academic.class-arms.manage', 'academic.subjects.read', 'academic.subjects.manage', 'academic.offerings.read', 'academic.offerings.manage', 'academic.assignments.read', 'academic.assignments.manage', 'guardian.links.read', 'student.self.read'],
+            'teacher' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.records.read', 'academic.assignments.read', 'academic.assignments.manage'],
+            'hod_reviewer' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.records.read', 'academic.assignments.read', 'academic.assignments.manage'],
+            'principal' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.records.read', 'academic.assignments.read', 'academic.assignments.manage'],
+            'bursar' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'finance.records.read', 'finance.records.manage'],
+            'proprietor' => ['school.memberships.list', 'school.settings.read', 'school.lifecycle.read', 'school.lifecycle.manage', 'academic.sessions.read', 'academic.sessions.manage', 'academic.structure.read', 'academic.structure.manage', 'academic.class-arms.read', 'academic.class-arms.manage', 'academic.subjects.read', 'academic.subjects.manage', 'academic.offerings.read', 'academic.offerings.manage', 'academic.assignments.read', 'academic.assignments.manage', 'finance.records.read'],
+            'counsellor' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'counselling.private_notes.read'],
+            'parent_guardian' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'guardian.links.read'],
+            'student' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'student.self.read'],
         ];
     }
 

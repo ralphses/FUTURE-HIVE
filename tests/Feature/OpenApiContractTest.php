@@ -31,6 +31,10 @@ final class OpenApiContractTest extends TestCase
 
         $this->assertSame('3.1.0', $document['openapi']);
         $this->assertSame([
+            '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms',
+            '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}',
+            '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/activate',
+            '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/deactivate',
             '/schools/{school}/academic-sessions',
             '/schools/{school}/academic-sessions/{session}',
             '/schools/{school}/academic-sessions/{session}/activate',
@@ -48,6 +52,17 @@ final class OpenApiContractTest extends TestCase
             '/schools/{school}/academic-levels/{level}/sections/{section}',
             '/schools/{school}/academic-levels/{level}/sections/{section}/activate',
             '/schools/{school}/academic-levels/{level}/sections/{section}/deactivate',
+            '/schools/{school}/subjects',
+            '/schools/{school}/subjects/{subject}',
+            '/schools/{school}/subjects/{subject}/activate',
+            '/schools/{school}/subjects/{subject}/deactivate',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/activate',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/deactivate',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}/revoke',
             '/auth/login',
             '/auth/refresh',
             '/auth/me',
@@ -92,7 +107,7 @@ final class OpenApiContractTest extends TestCase
 
         $this->assertArrayHasKey('bearerAuth', $document['components']['securitySchemes']);
         $this->assertArrayHasKey('ApiError', $document['components']['schemas']);
-        foreach (['/auth/me', '/auth/logout', '/auth/context/switch', '/auth/context', '/auth/password/change', '/schools/{school}/invitations', '/invitations/{invitation}/accept', '/invitations/{invitation}/revoke', '/schools/{school}/lifecycle', '/schools/{school}/lifecycle/suspend', '/schools/{school}/lifecycle/reactivate', '/schools/{school}/lifecycle/archive', '/schools/{school}/academic-levels', '/schools/{school}/academic-levels/{level}', '/schools/{school}/academic-levels/{level}/sections', '/schools/{school}/academic-levels/{level}/sections/{section}', '/schools/{school}/academic-sessions', '/schools/{school}/academic-sessions/{session}', '/schools/{school}/academic-sessions/{session}/terms', '/schools/{school}/academic-sessions/{session}/terms/{term}', '/schools/{school}/academic-context', '/me/memberships', '/schools/{school}/roles', '/schools/{school}/memberships/{membership}/roles', '/schools/{school}/memberships/{membership}/roles/{role}', '/me/schools/{school}/permissions', '/schools/{school}/setup', '/schools/{school}/setup/{item}', '/schools/{school}/profile', '/schools/{school}/profile/logo'] as $protectedPath) {
+        foreach (['/auth/me', '/auth/logout', '/auth/context/switch', '/auth/context', '/auth/password/change', '/schools/{school}/invitations', '/invitations/{invitation}/accept', '/invitations/{invitation}/revoke', '/schools/{school}/lifecycle', '/schools/{school}/lifecycle/suspend', '/schools/{school}/lifecycle/reactivate', '/schools/{school}/lifecycle/archive', '/schools/{school}/academic-levels', '/schools/{school}/academic-levels/{level}', '/schools/{school}/academic-levels/{level}/sections', '/schools/{school}/academic-levels/{level}/sections/{section}', '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms', '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}', '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/activate', '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/deactivate', '/schools/{school}/subjects', '/schools/{school}/subjects/{subject}', '/schools/{school}/subjects/{subject}/activate', '/schools/{school}/subjects/{subject}/deactivate', '/schools/{school}/academic-sessions', '/schools/{school}/academic-sessions/{session}', '/schools/{school}/academic-sessions/{session}/terms', '/schools/{school}/academic-sessions/{session}/terms/{term}', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/activate', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/deactivate', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}/revoke', '/schools/{school}/academic-context', '/me/memberships', '/schools/{school}/roles', '/schools/{school}/memberships/{membership}/roles', '/schools/{school}/memberships/{membership}/roles/{role}', '/me/schools/{school}/permissions', '/schools/{school}/setup', '/schools/{school}/setup/{item}', '/schools/{school}/profile', '/schools/{school}/profile/logo'] as $protectedPath) {
             $this->assertSame([['bearerAuth' => []]], $document['paths'][$protectedPath][array_key_first($document['paths'][$protectedPath])]['security']);
         }
 
@@ -147,6 +162,46 @@ final class OpenApiContractTest extends TestCase
         $contents = json_encode($document, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
         foreach (['Authentication', 'SchoolInvitation', 'SchoolMembership', 'SchoolRole', 'Health', 'Readiness'] as $controllerTag) {
             self::assertStringNotContainsString('"'.$controllerTag.'"', $contents);
+        }
+    }
+
+    public function test_operations_and_inputs_have_plain_language_documentation(): void
+    {
+        $document = $this->document();
+
+        foreach ($document['paths'] as $path) {
+            foreach ($path as $operation) {
+                self::assertNotSame('', trim((string) ($operation['summary'] ?? '')));
+                self::assertNotSame('', trim((string) ($operation['description'] ?? '')));
+
+                foreach ($operation['parameters'] ?? [] as $parameter) {
+                    self::assertNotSame('', trim((string) ($parameter['description'] ?? '')));
+                }
+
+                if (isset($operation['requestBody'])) {
+                    self::assertNotSame('', trim((string) ($operation['requestBody']['description'] ?? '')));
+                }
+            }
+        }
+    }
+
+    public function test_request_schema_fields_have_plain_language_descriptions_and_safe_examples(): void
+    {
+        $document = $this->document();
+
+        foreach ($document['components']['schemas'] as $schemaName => $schema) {
+            if (! str_ends_with($schemaName, 'Request')) {
+                continue;
+            }
+
+            foreach ($schema['properties'] ?? [] as $property) {
+                self::assertNotSame('', trim((string) ($property['description'] ?? '')), $schemaName);
+
+                foreach ($property['examples'] ?? [] as $example) {
+                    self::assertIsScalar($example);
+                    self::assertDoesNotMatchRegularExpression('/password|secret|token|bearer|postgres|redis|cloudinary/i', (string) $example);
+                }
+            }
         }
     }
 
