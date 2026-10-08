@@ -12,6 +12,7 @@
         "laravel/tinker": "^3.0"
     },
     "require-dev": {
+        "dedoc/scramble": "^0.13.47",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.13",
         "laravel/boost": "^2.10",
@@ -53,10 +54,12 @@
         ],
         "format": "vendor/bin/pint --test --format agent",
         "analyse": "vendor/bin/phpstan analyse --debug --memory-limit=2G --no-progress",
+        "openapi:check": "@php artisan openapi:check",
         "quality": [
             "@format",
             "@analyse",
-            "@test"
+            "@test",
+            "@openapi:check"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

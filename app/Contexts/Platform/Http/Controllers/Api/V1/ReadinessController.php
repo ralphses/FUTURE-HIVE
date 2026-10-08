@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Middleware\RequestId;
 use App\Support\Http\ApiResponse;
 use App\Support\Observability\MetricsRecorder;
+use Dedoc\Scramble\Attributes\Endpoint;
+use Dedoc\Scramble\Attributes\Header;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -19,6 +21,18 @@ final class ReadinessController extends Controller
         private readonly MetricsRecorder $metrics,
     ) {}
 
+    #[Endpoint(
+        title: 'Readiness check',
+        description: 'Checks safe application dependencies without contacting external file, notification or payment providers.',
+    )]
+    #[Header(
+        name: 'X-Request-ID',
+        description: 'Request correlation identifier.',
+        type: 'string',
+        format: 'uuid',
+        required: true,
+        status: '*',
+    )]
     public function __invoke(Request $request): JsonResponse
     {
         $result = $this->readinessCheckAction->execute();
