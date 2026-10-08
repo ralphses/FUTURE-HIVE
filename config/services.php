@@ -2,6 +2,12 @@
 
 return [
 
+    'cloudinary' => [
+        'url' => env('CLOUDINARY_URL'),
+        'download_ttl' => (int) env('CLOUDINARY_DOWNLOAD_TTL', 300),
+        'upload_prefix' => env('CLOUDINARY_UPLOAD_PREFIX', 'schoolos/schools'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
