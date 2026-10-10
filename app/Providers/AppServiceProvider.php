@@ -205,6 +205,8 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.students.update',
                     'api.v1.schools.students.activate',
                     'api.v1.schools.students.withdraw',
+                    'api.v1.schools.students.search',
+                    'api.v1.schools.students.export',
                     'api.v1.schools.students.enrollments.index',
                     'api.v1.schools.students.enrollments.store',
                     'api.v1.schools.students.enrollments.show',

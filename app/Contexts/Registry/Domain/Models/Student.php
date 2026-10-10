@@ -42,6 +42,12 @@ final class Student extends Model
         return $this->hasMany(StudentDocument::class);
     }
 
+    /** @return HasMany<StudentEnrollment, $this> */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(StudentEnrollment::class);
+    }
+
     /** @return HasMany<StudentGuardianRelationship, $this> */
     public function guardianRelationships(): HasMany
     {

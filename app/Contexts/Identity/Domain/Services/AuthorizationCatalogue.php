@@ -55,6 +55,7 @@ final class AuthorizationCatalogue
             'academic.promotion-rules.manage' => ['label' => 'Manage promotion rules', 'description' => 'Create and manage school-defined promotion criteria.'],
             'academic.readiness.read' => ['label' => 'Read academic readiness', 'description' => 'Check whether academic configuration is ready for future assessment workflows.'],
             'students.read' => ['label' => 'Read students', 'description' => 'View students in the selected school.'],
+            'students.export' => ['label' => 'Export students', 'description' => 'Export permitted student registry fields from the selected school.'],
             'students.admit' => ['label' => 'Admit students', 'description' => 'Create student admission records in the selected school.'],
             'students.manage' => ['label' => 'Manage students', 'description' => 'Update and manage student admission lifecycle in the selected school.'],
             'students.profile.read' => ['label' => 'Read student profiles', 'description' => 'View approved student profile information in the selected school.'],
@@ -91,7 +92,7 @@ final class AuthorizationCatalogue
     /** @return array<string, list<string>> */
     public static function rolePermissions(): array
     {
-        return [
+        $permissions = [
             'school_admin' => ['school.memberships.list', 'school.memberships.invite', 'school.memberships.revoke', 'school.roles.assign', 'school.roles.revoke', 'school.settings.read', 'school.settings.manage', 'school.lifecycle.read', 'school.lifecycle.manage', 'academic.sessions.read', 'academic.sessions.manage', 'academic.structure.read', 'academic.structure.manage', 'academic.class-arms.read', 'academic.class-arms.manage', 'academic.subjects.read', 'academic.subjects.manage', 'academic.offerings.read', 'academic.offerings.manage', 'academic.assessment-components.read', 'academic.assessment-components.manage', 'academic.assessment-policies.read', 'academic.assessment-policies.manage', 'academic.grading-scales.read', 'academic.grading-scales.manage', 'academic.promotion-rules.read', 'academic.promotion-rules.manage', 'academic.readiness.read', 'students.read', 'students.admit', 'students.manage', 'students.profile.read', 'students.profile.manage', 'students.documents.read', 'students.documents.manage', 'students.enrollments.read', 'students.enrollments.manage', 'students.enrollments.transfer', 'students.enrollments.withdraw', 'students.promotion.read', 'students.promotion.manage', 'students.promotion.approve', 'students.promotion.apply', 'academic.assignments.read', 'academic.assignments.manage', 'guardians.read', 'guardians.manage', 'guardian.links.read', 'guardian.links.manage', 'student.self.read', 'staff.read', 'staff.manage', 'staff.employment.manage', 'staff.class-teachers.read', 'staff.class-teachers.manage'],
             'teacher' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'students.profile.read', 'students.documents.read', 'academic.records.read', 'academic.assignments.read', 'academic.assignments.manage', 'staff.class-teachers.read'],
             'hod_reviewer' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'students.profile.read', 'students.documents.read', 'academic.records.read', 'academic.assignments.read', 'academic.assignments.manage', 'staff.class-teachers.read'],
@@ -102,6 +103,12 @@ final class AuthorizationCatalogue
             'parent_guardian' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'guardian.links.read'],
             'student' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'student.self.read'],
         ];
+
+        foreach (['school_admin', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'students.export';
+        }
+
+        return $permissions;
     }
 
     /** @return array<string, array{label: string, description: string}> */

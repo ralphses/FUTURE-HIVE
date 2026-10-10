@@ -33,6 +33,7 @@ use App\Contexts\Registry\Http\Controllers\Api\V1\StudentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentEnrollmentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentProfileController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentPromotionController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\StudentSearchExportController;
 use App\Http\Middleware\JwtAuthenticate;
 use App\Http\Middleware\RefreshCookieCsrf;
 use App\Http\Middleware\RequireSchoolContext;
@@ -310,6 +311,12 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/students', [StudentController::class, 'store'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.store');
+    Route::get('/schools/{school}/students/search', [StudentSearchExportController::class, 'search'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.search');
+    Route::get('/schools/{school}/students/export', [StudentSearchExportController::class, 'export'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.export');
     Route::get('/schools/{school}/students/{student}', [StudentController::class, 'show'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.show');
