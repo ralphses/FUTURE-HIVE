@@ -51,7 +51,7 @@ final class SchoolRoleAuthorizationTest extends TestCase
             ->assertJsonFragment(['guardian.links.read']);
 
         self::assertSame(12, Role::query()->count());
-        self::assertSame(40, Permission::query()->count());
+        self::assertSame(42, Permission::query()->count());
     }
 
     public function test_admin_can_assign_multiple_roles_and_revoke_one_with_audit_history(): void
@@ -92,7 +92,7 @@ final class SchoolRoleAuthorizationTest extends TestCase
         [$school, $member] = $this->schoolWithRole('teacher', 'teacher@example.com');
         $membership = SchoolMembership::query()->where('user_id', $member->id)->firstOrFail();
         $token = $this->login($member, 'member-password', $school)->json('data.access_token');
-        $this->withToken($token)->getJson('/api/v1/me/schools/'.$school->public_id.'/permissions')->assertOk()->assertJsonPath('data.permissions', ['academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.assignments.manage', 'academic.assignments.read', 'academic.class-arms.read', 'academic.grading-scales.read', 'academic.offerings.read', 'academic.records.read', 'academic.sessions.read', 'academic.structure.read', 'academic.subjects.read', 'school.memberships.list']);
+        $this->withToken($token)->getJson('/api/v1/me/schools/'.$school->public_id.'/permissions')->assertOk()->assertJsonPath('data.permissions', ['academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.assignments.manage', 'academic.assignments.read', 'academic.class-arms.read', 'academic.grading-scales.read', 'academic.offerings.read', 'academic.promotion-rules.read', 'academic.records.read', 'academic.sessions.read', 'academic.structure.read', 'academic.subjects.read', 'school.memberships.list']);
         $membership->update(['status' => 'revoked', 'revoked_at' => now(), 'revoked_reason' => 'test']);
         $this->withToken($token)->getJson('/api/v1/me/schools/'.$school->public_id.'/permissions')->assertNotFound();
     }

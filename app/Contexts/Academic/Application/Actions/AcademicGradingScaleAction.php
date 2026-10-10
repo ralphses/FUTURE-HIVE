@@ -117,7 +117,7 @@ final class AcademicGradingScaleAction
         return DB::transaction(function () use ($actor, $policyVersion, $academicTerm, $scale): array {
             $policyVersion = AcademicAssessmentPolicyVersion::query()->whereKey($policyVersion->getKey())->lockForUpdate()->firstOrFail();
             $academicTerm = AcademicTerm::query()->whereKey($academicTerm->getKey())->lockForUpdate()->firstOrFail();
-            $this->assertPolicyCanConfigure($policyVersion, $academicTerm, (string) $policyVersion->effective_start, $policyVersion->effective_end?->toDateString());
+            $this->assertPolicyCanConfigure($policyVersion, $academicTerm, (string) $policyVersion->effective_start, $policyVersion->effective_end === null ? null : CarbonImmutable::parse((string) $policyVersion->effective_end)->toDateString());
             $gradingScale = $this->find($scale, $policyVersion, true);
             if ($gradingScale->status === 'retired') {
                 return $this->data($gradingScale);
@@ -232,7 +232,7 @@ final class AcademicGradingScaleAction
             'id' => (string) $scale->public_id,
             'version' => (int) $scale->version,
             'name' => (string) $scale->name,
-            'policy_id' => (string) ($scale->policyVersion?->public_id ?? ''),
+            'policy_id' => (string) $scale->policyVersion->public_id,
             'effective_start' => CarbonImmutable::parse((string) $scale->effective_start)->toDateString(),
             'effective_end' => $scale->effective_end === null ? null : CarbonImmutable::parse((string) $scale->effective_end)->toDateString(),
             'status' => (string) $scale->status,

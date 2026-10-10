@@ -10156,6 +10156,2363 @@
                 ]
             }
         },
+        "/schools/{school}/promotion-rules": {
+            "get": {
+                "operationId": "v1.schools.promotion-rules.index",
+                "description": "Lists the school\u2019s level-to-level promotion rule configurations. This is configuration only and does not evaluate students or make promotion decisions.",
+                "summary": "List promotion rules",
+                "tags": [
+                    "School Access"
+                ],
+                "parameters": [
+                    {
+                        "name": "school",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the school selected by the authenticated session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "source_level_id": {
+                                                                "type": "string"
+                                                            },
+                                                            "target_level_id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "status": {
+                                                                "type": "string"
+                                                            },
+                                                            "criteria": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "metric": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "operator": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "threshold": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "required": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "sequence": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "id",
+                                                                        "metric",
+                                                                        "operator",
+                                                                        "threshold",
+                                                                        "required",
+                                                                        "sequence"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "source_level_id",
+                                                            "target_level_id",
+                                                            "name",
+                                                            "description",
+                                                            "status",
+                                                            "criteria"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "items"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "v1.schools.promotion-rules.store",
+                "description": "Creates a draft rule for moving learners from one school-defined academic level to another using reusable criteria.",
+                "summary": "Create a promotion rule",
+                "tags": [
+                    "School Access"
+                ],
+                "parameters": [
+                    {
+                        "name": "school",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the school selected by the authenticated session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001"
+                    }
+                ],
+                "requestBody": {
+                    "description": "Send the fields required for this operation. Server-managed identifiers, ownership, actor, lifecycle and timestamp fields are not accepted as authority.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertAcademicPromotionRuleRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "source_level_id": {
+                                                    "type": "string"
+                                                },
+                                                "target_level_id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "criteria": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "metric": {
+                                                                "type": "string"
+                                                            },
+                                                            "operator": {
+                                                                "type": "string"
+                                                            },
+                                                            "threshold": {
+                                                                "type": "string"
+                                                            },
+                                                            "required": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "sequence": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "metric",
+                                                            "operator",
+                                                            "threshold",
+                                                            "required",
+                                                            "sequence"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "source_level_id",
+                                                "target_level_id",
+                                                "name",
+                                                "description",
+                                                "status",
+                                                "criteria"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/schools/{school}/promotion-rules/{rule}": {
+            "get": {
+                "operationId": "v1.schools.promotion-rules.show",
+                "description": "Shows one school-defined promotion rule and its criteria.",
+                "summary": "View a promotion rule",
+                "tags": [
+                    "School Access"
+                ],
+                "parameters": [
+                    {
+                        "name": "school",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the school selected by the authenticated session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001"
+                    },
+                    {
+                        "name": "rule",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public request value used to select the requested resource.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "source_level_id": {
+                                                    "type": "string"
+                                                },
+                                                "target_level_id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "criteria": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "metric": {
+                                                                "type": "string"
+                                                            },
+                                                            "operator": {
+                                                                "type": "string"
+                                                            },
+                                                            "threshold": {
+                                                                "type": "string"
+                                                            },
+                                                            "required": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "sequence": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "metric",
+                                                            "operator",
+                                                            "threshold",
+                                                            "required",
+                                                            "sequence"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "source_level_id",
+                                                "target_level_id",
+                                                "name",
+                                                "description",
+                                                "status",
+                                                "criteria"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "operationId": "v1.schools.promotion-rules.update",
+                "description": "Replaces a draft or inactive promotion rule atomically. Criteria use approved metrics and the greater-than-or-equal operator.",
+                "summary": "Replace a promotion rule",
+                "tags": [
+                    "School Access"
+                ],
+                "parameters": [
+                    {
+                        "name": "school",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the school selected by the authenticated session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001"
+                    },
+                    {
+                        "name": "rule",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public request value used to select the requested resource.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Send the fields required for this operation. Server-managed identifiers, ownership, actor, lifecycle and timestamp fields are not accepted as authority.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertAcademicPromotionRuleRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "source_level_id": {
+                                                    "type": "string"
+                                                },
+                                                "target_level_id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "criteria": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "metric": {
+                                                                "type": "string"
+                                                            },
+                                                            "operator": {
+                                                                "type": "string"
+                                                            },
+                                                            "threshold": {
+                                                                "type": "string"
+                                                            },
+                                                            "required": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "sequence": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "metric",
+                                                            "operator",
+                                                            "threshold",
+                                                            "required",
+                                                            "sequence"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "source_level_id",
+                                                "target_level_id",
+                                                "name",
+                                                "description",
+                                                "status",
+                                                "criteria"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/schools/{school}/promotion-rules/{rule}/activate": {
+            "post": {
+                "operationId": "v1.schools.promotion-rules.activate",
+                "description": "Activates a rule when no other active rule exists for the same source and target levels.",
+                "summary": "Activate a promotion rule",
+                "tags": [
+                    "School Access"
+                ],
+                "parameters": [
+                    {
+                        "name": "school",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the school selected by the authenticated session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001"
+                    },
+                    {
+                        "name": "rule",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public request value used to select the requested resource.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "source_level_id": {
+                                                    "type": "string"
+                                                },
+                                                "target_level_id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "criteria": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "metric": {
+                                                                "type": "string"
+                                                            },
+                                                            "operator": {
+                                                                "type": "string"
+                                                            },
+                                                            "threshold": {
+                                                                "type": "string"
+                                                            },
+                                                            "required": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "sequence": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "metric",
+                                                            "operator",
+                                                            "threshold",
+                                                            "required",
+                                                            "sequence"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "source_level_id",
+                                                "target_level_id",
+                                                "name",
+                                                "description",
+                                                "status",
+                                                "criteria"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/schools/{school}/promotion-rules/{rule}/deactivate": {
+            "post": {
+                "operationId": "v1.schools.promotion-rules.deactivate",
+                "description": "Deactivates an active rule while retaining its configuration for later review.",
+                "summary": "Deactivate a promotion rule",
+                "tags": [
+                    "School Access"
+                ],
+                "parameters": [
+                    {
+                        "name": "school",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the school selected by the authenticated session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001"
+                    },
+                    {
+                        "name": "rule",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public request value used to select the requested resource.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "source_level_id": {
+                                                    "type": "string"
+                                                },
+                                                "target_level_id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "criteria": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "metric": {
+                                                                "type": "string"
+                                                            },
+                                                            "operator": {
+                                                                "type": "string"
+                                                            },
+                                                            "threshold": {
+                                                                "type": "string"
+                                                            },
+                                                            "required": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "sequence": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "metric",
+                                                            "operator",
+                                                            "threshold",
+                                                            "required",
+                                                            "sequence"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "source_level_id",
+                                                "target_level_id",
+                                                "name",
+                                                "description",
+                                                "status",
+                                                "criteria"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/schools/{school}/academic-readiness": {
+            "get": {
+                "operationId": "v1.schools.academic-readiness",
+                "description": "Checks whether the selected school has the academic configuration needed for future assessment capture and report publication. This read-only response identifies missing or invalid configuration without exposing internal records or student data.",
+                "summary": "Check academic readiness",
+                "tags": [
+                    "School Access"
+                ],
+                "parameters": [
+                    {
+                        "name": "school",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the school selected by the authenticated session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "ready": {
+                                                    "type": "boolean"
+                                                },
+                                                "checks": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "key": {
+                                                                        "type": "string",
+                                                                        "const": "school_lifecycle"
+                                                                    },
+                                                                    "status": {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "ready",
+                                                                            "invalid"
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "key",
+                                                                    "status"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "key": {
+                                                                        "type": "string",
+                                                                        "const": "active_academic_period"
+                                                                    },
+                                                                    "status": {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "missing",
+                                                                            "invalid",
+                                                                            "ready"
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "key",
+                                                                    "status"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "key": {
+                                                                        "type": "string",
+                                                                        "const": "academic_structure"
+                                                                    },
+                                                                    "status": {
+                                                                        "type": "string",
+                                                                        "const": "invalid"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "key",
+                                                                    "status"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "key": {
+                                                                        "type": "string",
+                                                                        "const": "subject_offerings"
+                                                                    },
+                                                                    "status": {
+                                                                        "type": "string",
+                                                                        "const": "invalid"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "key",
+                                                                    "status"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "key": {
+                                                                        "type": "string",
+                                                                        "const": "assessment_policies"
+                                                                    },
+                                                                    "status": {
+                                                                        "type": "string",
+                                                                        "const": "invalid"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "key",
+                                                                    "status"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "key": {
+                                                                        "type": "string",
+                                                                        "const": "grading_scales"
+                                                                    },
+                                                                    "status": {
+                                                                        "type": "string",
+                                                                        "const": "invalid"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "key",
+                                                                    "status"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "ready",
+                                                "checks"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/schools/{school}/academic-levels": {
             "get": {
                 "operationId": "v1.schools.academic-levels.index",
@@ -30444,6 +32801,87 @@
                     "status"
                 ],
                 "title": "UpdateSchoolSetupItemRequest"
+            },
+            "UpsertAcademicPromotionRuleRequest": {
+                "type": "object",
+                "properties": {
+                    "source_level_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Input value for this operation. Server-managed ownership, actor, lifecycle and timestamp fields are not trusted."
+                    },
+                    "target_level_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Input value for this operation. Server-managed ownership, actor, lifecycle and timestamp fields are not trusted."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Human-readable name for this school-owned academic record.",
+                        "examples": [
+                            "Year 2025/2026"
+                        ],
+                        "maxLength": 120
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Input value for this operation. Server-managed ownership, actor, lifecycle and timestamp fields are not trusted.",
+                        "maxLength": 1000
+                    },
+                    "criteria": {
+                        "type": "array",
+                        "description": "Input value for this operation. Server-managed ownership, actor, lifecycle and timestamp fields are not trusted.",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "metric": {
+                                    "type": "string",
+                                    "enum": [
+                                        "overall_percentage",
+                                        "minimum_passing_subjects",
+                                        "attendance_percentage"
+                                    ]
+                                },
+                                "operator": {
+                                    "type": "string",
+                                    "enum": [
+                                        "gte"
+                                    ]
+                                },
+                                "threshold": {
+                                    "type": "number"
+                                },
+                                "required": {
+                                    "type": "boolean"
+                                },
+                                "sequence": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 10
+                                }
+                            },
+                            "required": [
+                                "metric",
+                                "operator",
+                                "threshold",
+                                "required",
+                                "sequence"
+                            ]
+                        },
+                        "minItems": 1,
+                        "maxItems": 10
+                    }
+                },
+                "required": [
+                    "source_level_id",
+                    "target_level_id",
+                    "name",
+                    "criteria"
+                ],
+                "title": "UpsertAcademicPromotionRuleRequest"
             }
         },
         "responses": {

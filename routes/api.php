@@ -5,6 +5,7 @@ use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentSchemeContro
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicClassArmController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicGradingScaleController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPromotionRuleController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStructureController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectOfferingController;
@@ -16,6 +17,7 @@ use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolContextController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolInvitationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolMembershipController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolRoleController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\AcademicReadinessController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ReadinessController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolLifecycleController;
@@ -241,6 +243,9 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/academic-context', [AcademicPeriodController::class, 'context'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-context');
+    Route::get('/schools/{school}/academic-readiness', AcademicReadinessController::class)
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-readiness');
     Route::get('/schools/{school}/academic-levels', [AcademicStructureController::class, 'levels'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.index');
     Route::post('/schools/{school}/academic-levels', [AcademicStructureController::class, 'storeLevel'])
@@ -289,4 +294,16 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.subjects.activate');
     Route::post('/schools/{school}/subjects/{subject}/deactivate', [AcademicSubjectController::class, 'deactivate'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.subjects.deactivate');
+    Route::get('/schools/{school}/promotion-rules', [AcademicPromotionRuleController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-rules.index');
+    Route::post('/schools/{school}/promotion-rules', [AcademicPromotionRuleController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-rules.store');
+    Route::get('/schools/{school}/promotion-rules/{rule}', [AcademicPromotionRuleController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-rules.show');
+    Route::put('/schools/{school}/promotion-rules/{rule}', [AcademicPromotionRuleController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-rules.update');
+    Route::post('/schools/{school}/promotion-rules/{rule}/activate', [AcademicPromotionRuleController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-rules.activate');
+    Route::post('/schools/{school}/promotion-rules/{rule}/deactivate', [AcademicPromotionRuleController::class, 'deactivate'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-rules.deactivate');
 });
