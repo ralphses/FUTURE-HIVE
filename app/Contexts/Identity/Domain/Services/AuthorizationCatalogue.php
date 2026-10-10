@@ -56,6 +56,7 @@ final class AuthorizationCatalogue
             'academic.readiness.read' => ['label' => 'Read academic readiness', 'description' => 'Check whether academic configuration is ready for future assessment workflows.'],
             'students.read' => ['label' => 'Read students', 'description' => 'View students in the selected school.'],
             'students.export' => ['label' => 'Export students', 'description' => 'Export permitted student registry fields from the selected school.'],
+            'students.audit.read' => ['label' => 'Read student audit history', 'description' => 'View safe history of sensitive student changes in the selected school.'],
             'students.admit' => ['label' => 'Admit students', 'description' => 'Create student admission records in the selected school.'],
             'students.manage' => ['label' => 'Manage students', 'description' => 'Update and manage student admission lifecycle in the selected school.'],
             'students.profile.read' => ['label' => 'Read student profiles', 'description' => 'View approved student profile information in the selected school.'],
@@ -80,6 +81,7 @@ final class AuthorizationCatalogue
             'guardian.links.manage' => ['label' => 'Manage guardian links', 'description' => 'Create, update and revoke school-scoped guardian relationships.'],
             'guardians.read' => ['label' => 'Read guardians', 'description' => 'View approved guardian profile information in the selected school.'],
             'guardians.manage' => ['label' => 'Manage guardians', 'description' => 'Create and update approved guardian profile information.'],
+            'guardians.audit.read' => ['label' => 'Read guardian audit history', 'description' => 'View safe history of guardian relationship and invitation changes in the selected school.'],
             'student.self.read' => ['label' => 'Read student self records', 'description' => 'Read the authenticated student’s permitted records.'],
             'staff.read' => ['label' => 'Read staff profiles', 'description' => 'View staff profiles and employment state in the selected school.'],
             'staff.manage' => ['label' => 'Manage staff profiles', 'description' => 'Create and update profiles for existing school members.'],
@@ -106,6 +108,8 @@ final class AuthorizationCatalogue
 
         foreach (['school_admin', 'principal', 'proprietor'] as $role) {
             $permissions[$role][] = 'students.export';
+            $permissions[$role][] = 'students.audit.read';
+            $permissions[$role][] = 'guardians.audit.read';
         }
 
         return $permissions;

@@ -6,11 +6,13 @@ namespace App\Contexts\Registry\Http\Controllers\Api\V1;
 
 use App\Contexts\Identity\Domain\Models\UserIdentity;
 use App\Contexts\Registry\Application\Actions\GuardianRelationshipAction;
+use App\Contexts\Registry\Application\Actions\StudentGuardianAuditTrailAction;
 use App\Contexts\Registry\Http\Requests\CreateGuardianRelationshipRequest;
 use App\Contexts\Registry\Http\Requests\RevokeGuardianRelationshipRequest;
 use App\Contexts\Registry\Http\Requests\UpdateGuardianRelationshipRequest;
 use App\Support\Http\ApiResponse;
 use Dedoc\Scramble\Attributes\Endpoint;
+use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -26,6 +28,13 @@ final class GuardianRelationshipController
     public function showGuardian(Request $request, string $school, string $guardian, GuardianRelationshipAction $action): JsonResponse
     {
         return ApiResponse::data($action->showGuardian($this->identity($request), $school, $guardian));
+    }
+
+    #[Endpoint(operationId: 'v1.schools.guardians.audit-history', title: 'View guardian audit history', description: 'Lists safe, read-only history for guardian relationship and invitation changes in the selected school. The trusted school context controls visibility.')]
+    #[Response(status: 200, description: 'A paginated safe audit history response.', type: 'array')]
+    public function auditHistory(Request $request, string $school, string $guardian, StudentGuardianAuditTrailAction $action): JsonResponse
+    {
+        return ApiResponse::paginated($action->forGuardian($this->identity($request), $school, $guardian));
     }
 
     #[Endpoint(title: 'List a student’s guardian relationships', description: 'Lists pending or active guardian relationships for one student in the selected school. Pending relationships do not grant access.')]

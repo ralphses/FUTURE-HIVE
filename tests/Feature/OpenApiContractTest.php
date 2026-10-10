@@ -94,6 +94,7 @@ final class OpenApiContractTest extends TestCase
             '/schools/{school}/guardian-invitations/{invitation}/revoke',
             '/schools/{school}/guardians',
             '/schools/{school}/guardians/{guardian}',
+            '/schools/{school}/guardians/{guardian}/audit-history',
             '/schools/{school}/students/{student}/guardian-relationships',
             '/schools/{school}/students/{student}/guardian-relationships/{relationship}',
             '/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke',
@@ -129,6 +130,7 @@ final class OpenApiContractTest extends TestCase
             '/schools/{school}/staff/{staff}/suspend',
             '/schools/{school}/staff/{staff}/end',
             '/schools/{school}/students',
+            '/schools/{school}/students/{student}/audit-history',
             '/schools/{school}/students/{student}',
             '/schools/{school}/students/{student}/activate',
             '/schools/{school}/students/{student}/withdraw',
@@ -175,7 +177,7 @@ final class OpenApiContractTest extends TestCase
         }
 
         $this->assertSame([['bearerAuth' => []]], $document['paths']['/schools/{school}/academic-readiness']['get']['security']);
-        foreach (['/schools/{school}/students', '/schools/{school}/students/export', '/schools/{school}/students/search', '/schools/{school}/students/{student}', '/schools/{school}/students/{student}/activate', '/schools/{school}/students/{student}/withdraw', '/schools/{school}/students/{student}/profile', '/schools/{school}/students/{student}/documents', '/schools/{school}/students/{student}/documents/{document}', '/schools/{school}/students/{student}/documents/{document}/revoke', '/schools/{school}/guardians', '/schools/{school}/guardians/{guardian}', '/schools/{school}/students/{student}/guardian-relationships', '/schools/{school}/students/{student}/guardian-relationships/{relationship}', '/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke'] as $studentPath) {
+        foreach (['/schools/{school}/students', '/schools/{school}/students/export', '/schools/{school}/students/search', '/schools/{school}/students/{student}', '/schools/{school}/students/{student}/audit-history', '/schools/{school}/students/{student}/activate', '/schools/{school}/students/{student}/withdraw', '/schools/{school}/students/{student}/profile', '/schools/{school}/students/{student}/documents', '/schools/{school}/students/{student}/documents/{document}', '/schools/{school}/students/{student}/documents/{document}/revoke', '/schools/{school}/guardians', '/schools/{school}/guardians/{guardian}', '/schools/{school}/guardians/{guardian}/audit-history', '/schools/{school}/students/{student}/guardian-relationships', '/schools/{school}/students/{student}/guardian-relationships/{relationship}', '/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke'] as $studentPath) {
             foreach ($document['paths'][$studentPath] as $operation) {
                 $this->assertSame([['bearerAuth' => []]], $operation['security']);
             }

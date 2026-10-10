@@ -37,7 +37,7 @@ final class PlatformAuthorizationTest extends TestCase
 
         self::assertSame('platform', $assignment->role->scope);
         self::assertSame(12, Role::query()->count());
-        self::assertSame(67, Permission::query()->count());
+        self::assertSame(69, Permission::query()->count());
         self::assertSame(1, PlatformRoleAssignment::query()->where('user_id', $support->id)->count());
         self::assertSame(0, $support->schoolMemberships()->count());
         self::assertNotSame('', $adminAssignment->public_id);

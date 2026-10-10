@@ -33,6 +33,7 @@ final class AuditEvent extends Model
             'authorization_context' => 'array',
             'state_transition' => 'array',
             'metadata' => 'array',
+            'created_at' => 'datetime',
         ];
     }
 

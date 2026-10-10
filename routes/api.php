@@ -317,6 +317,9 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/students/export', [StudentSearchExportController::class, 'export'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.export');
+    Route::get('/schools/{school}/students/{student}/audit-history', [StudentController::class, 'auditHistory'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.audit-history');
     Route::get('/schools/{school}/students/{student}', [StudentController::class, 'show'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.show');
@@ -388,6 +391,9 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/guardians/{guardian}', [GuardianRelationshipController::class, 'showGuardian'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.guardians.show');
+    Route::get('/schools/{school}/guardians/{guardian}/audit-history', [GuardianRelationshipController::class, 'auditHistory'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.guardians.audit-history');
     Route::get('/schools/{school}/students/{student}/guardian-relationships', [GuardianRelationshipController::class, 'studentRelationships'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.guardian-relationships.index');
