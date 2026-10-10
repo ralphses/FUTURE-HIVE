@@ -125,6 +125,10 @@ final class FoundationContractDocumentTransformer
                     'v1.schools.students.guardian-relationships.store',
                     'v1.schools.students.guardian-relationships.update',
                     'v1.schools.students.guardian-relationships.revoke',
+                    'v1.schools.students.guardian-relationships.invitation.request',
+                    'v1.guardian-invitations.confirm',
+                    'v1.schools.guardian-links.index',
+                    'v1.schools.guardian-invitations.revoke',
                     'v1.schools.academic-levels.index',
                     'v1.schools.academic-levels.store',
                     'v1.schools.academic-levels.show',
@@ -273,6 +277,10 @@ final class FoundationContractDocumentTransformer
             'v1.schools.students.guardian-relationships.store' => ['Add a guardian relationship', 'Links an existing IAM identity to a student as a pending relationship. It does not send an invitation or verify access.'],
             'v1.schools.students.guardian-relationships.update' => ['Update a guardian relationship', 'Updates the relationship type or safe display metadata while keeping verification and lifecycle state server-controlled.'],
             'v1.schools.students.guardian-relationships.revoke' => ['Revoke a guardian relationship', 'Revokes a relationship while retaining its history. It does not delete the guardian profile or identity.'],
+            'v1.schools.students.guardian-relationships.invitation.request' => ['Request guardian access', 'Creates a short-lived invitation for a pending relationship. The relationship remains pending until the invited identity confirms the one-time code.'],
+            'v1.guardian-invitations.confirm' => ['Confirm guardian access', 'Confirms an invitation code for the signed-in invited guardian and activates only the bound relationship. No school membership or student JWT claims are created.'],
+            'v1.schools.guardian-links.index' => ['List my active student links', 'Lists active, verified student relationships for the signed-in guardian in the selected school. Pending and revoked relationships are excluded.'],
+            'v1.schools.guardian-invitations.revoke' => ['Revoke a guardian invitation', 'Revokes an unused invitation while retaining its history. It does not delete the guardian identity or relationship.'],
         ];
 
         if (isset($fixed[$operationId])) {
@@ -363,6 +371,9 @@ final class FoundationContractDocumentTransformer
             str_contains((string) $operationId, 'guardian-relationships') && str_ends_with((string) $operationId, '.store') => 'Send the existing guardian identity public ID, approved relationship type and optional safe display metadata. The server creates only a pending school-scoped relationship.',
             str_contains((string) $operationId, 'guardian-relationships') && str_ends_with((string) $operationId, '.update') => 'Send the approved relationship type and optional safe display metadata. Verification, school ownership and lifecycle status remain server-controlled.',
             str_contains((string) $operationId, 'guardian-relationships') && str_ends_with((string) $operationId, '.revoke') => 'Send a bounded administrative reason. The relationship is retained as revoked and no invitation or identity is deleted.',
+            str_contains((string) $operationId, 'guardian-relationships.invitation.request') => 'No request body is required. The server uses the pending relationship and trusted school context to create the invitation.',
+            $operationId === 'v1.guardian-invitations.confirm' => 'Send the six-digit code delivered to the invited guardian. The signed-in identity must match the bound guardian profile.',
+            $operationId === 'v1.schools.guardian-invitations.revoke' => 'Send a bounded administrative reason. The invitation is retained as revoked and its code is never returned or stored in plaintext.',
             str_contains((string) $operationId, 'lifecycle.') => 'Send a bounded administrative reason for the requested school lifecycle transition. The server validates the current state and allowed transition.',
             str_contains((string) $operationId, 'setup.update') => 'Send the approved setup item status. The selected school, item ownership and completion timestamp are controlled by the server.',
             str_contains((string) $operationId, 'profile.update') => 'Send the school contact, bounded address fields and IANA timezone. The selected school and audit actor come from trusted server context.',
@@ -549,6 +560,8 @@ final class FoundationContractDocumentTransformer
             'document' => ['File to upload. It is scanned before private authenticated storage and is limited to approved formats and size.', null],
             'guardian_id' => ['Public identifier of an existing IAM identity to link as a pending guardian. It is not an internal user ID.', '0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1010'],
             'relationship_type' => ['School-defined relationship between the guardian and student.', 'parent'],
+            'code' => ['Six-digit one-time code delivered for the guardian invitation.', null],
+            'reason' => ['Short administrative reason for revoking the invitation.', 'Fictional administrative change'],
             default => ['Request field for this operation. The server controls ownership, actor, lifecycle and timestamps.', null],
         };
     }
@@ -648,6 +661,10 @@ final class FoundationContractDocumentTransformer
             'v1.schools.students.guardian-relationships.store',
             'v1.schools.students.guardian-relationships.update',
             'v1.schools.students.guardian-relationships.revoke',
+            'v1.schools.students.guardian-relationships.invitation.request',
+            'v1.guardian-invitations.confirm',
+            'v1.schools.guardian-links.index',
+            'v1.schools.guardian-invitations.revoke',
         ], true)) {
             return 'Student Registry';
         }

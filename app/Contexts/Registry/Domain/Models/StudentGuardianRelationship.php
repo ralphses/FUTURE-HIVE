@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contexts\Registry\Domain\Models;
 
+use App\Contexts\Identity\Domain\Models\School;
 use App\Support\Tenancy\TenantScoped;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -33,6 +34,12 @@ final class StudentGuardianRelationship extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
+    }
+
+    /** @return BelongsTo<School, $this> */
+    public function school(): BelongsTo
+    {
+        return $this->belongsTo(School::class);
     }
 
     /** @return BelongsTo<GuardianProfile, $this> */

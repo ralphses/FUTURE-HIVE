@@ -8,6 +8,8 @@ use App\Contexts\Identity\Infrastructure\ContactVerification\UnavailableContactV
 use App\Contexts\Identity\Infrastructure\PasswordReset\UnavailablePasswordResetCodeDelivery;
 use App\Contexts\Platform\Application\Contracts\RegistrationVerificationCodeDelivery;
 use App\Contexts\Platform\Infrastructure\Verification\UnavailableRegistrationVerificationCodeDelivery;
+use App\Contexts\Registry\Application\Contracts\GuardianInvitationCodeDelivery;
+use App\Contexts\Registry\Infrastructure\Invitations\UnavailableGuardianInvitationCodeDelivery;
 use App\Support\Contacts\ContactNormalizer;
 use App\Support\Contacts\IdentityContactNormalizer;
 use App\Support\Files\CloudinaryAssetClient;
@@ -46,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PasswordResetCodeDelivery::class, UnavailablePasswordResetCodeDelivery::class);
         $this->app->singleton(ContactVerificationCodeDelivery::class, UnavailableContactVerificationCodeDelivery::class);
         $this->app->singleton(RegistrationVerificationCodeDelivery::class, UnavailableRegistrationVerificationCodeDelivery::class);
+        $this->app->singleton(GuardianInvitationCodeDelivery::class, UnavailableGuardianInvitationCodeDelivery::class);
         $this->app->singleton(MetricsRecorder::class, StructuredLogMetricsRecorder::class);
         $this->app->singleton(PhoneNumberUtil::class, static fn (): PhoneNumberUtil => PhoneNumberUtil::getInstance());
         $this->app->singleton(ContactNormalizer::class, IdentityContactNormalizer::class);
@@ -202,6 +205,10 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.students.guardian-relationships.store',
                     'api.v1.schools.students.guardian-relationships.update',
                     'api.v1.schools.students.guardian-relationships.revoke',
+                    'api.v1.schools.students.guardian-relationships.invitation.request',
+                    'api.v1.guardian-invitations.confirm',
+                    'api.v1.schools.guardian-links.index',
+                    'api.v1.schools.guardian-invitations.revoke',
                     'api.v1.schools.academic-levels.index',
                     'api.v1.schools.academic-levels.store',
                     'api.v1.schools.academic-levels.show',

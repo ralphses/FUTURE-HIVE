@@ -25,6 +25,7 @@ use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolProfileController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationVerificationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolSetupController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianInvitationController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianRelationshipController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentProfileController;
@@ -102,6 +103,8 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/invitations/{invitation}/revoke', [SchoolInvitationController::class, 'revoke'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.invitations.revoke');
+    Route::post('/guardian-invitations/{invitation}/confirm', [GuardianInvitationController::class, 'confirm'])
+        ->name('api.v1.guardian-invitations.confirm');
     Route::get('/schools/{school}/roles', [SchoolRoleController::class, 'catalogue'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.roles.catalogue');
@@ -315,6 +318,14 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke', [GuardianRelationshipController::class, 'revoke'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.guardian-relationships.revoke');
+    Route::post('/schools/{school}/students/{student}/guardian-relationships/{relationship}/invitation', [GuardianInvitationController::class, 'request'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.guardian-relationships.invitation.request');
+    Route::get('/me/guardian-links', [GuardianInvitationController::class, 'links'])
+        ->name('api.v1.schools.guardian-links.index');
+    Route::post('/schools/{school}/guardian-invitations/{invitation}/revoke', [GuardianInvitationController::class, 'revoke'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.guardian-invitations.revoke');
 
     // Academic Structure: levels, sections, class arms and subject catalogues.
     Route::get('/schools/{school}/academic-levels', [AcademicStructureController::class, 'levels'])
