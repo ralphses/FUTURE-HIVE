@@ -295,6 +295,15 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/students/{student}/enrollments/{enrollment}/end', [StudentEnrollmentController::class, 'end'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.enrollments.end');
+    Route::post('/schools/{school}/students/{student}/enrollments/{enrollment}/transfer', [StudentEnrollmentController::class, 'transfer'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.enrollments.transfer');
+    Route::post('/schools/{school}/students/{student}/enrollments/{enrollment}/withdraw', [StudentEnrollmentController::class, 'withdraw'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.enrollments.withdraw');
+    Route::get('/schools/{school}/students/{student}/enrollment-history', [StudentEnrollmentController::class, 'history'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.enrollment-history');
     Route::get('/schools/{school}/students/{student}/profile', [StudentProfileController::class, 'showProfile'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.profile.show');

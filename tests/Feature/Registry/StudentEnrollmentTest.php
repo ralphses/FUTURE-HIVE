@@ -10,6 +10,7 @@ use App\Contexts\Identity\Domain\Models\School;
 use App\Contexts\Identity\Domain\Models\SchoolMembership;
 use App\Contexts\Identity\Domain\Models\UserIdentity;
 use App\Contexts\Registry\Domain\Models\StudentEnrollment;
+use App\Contexts\Registry\Domain\Models\StudentEnrollmentChange;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -58,6 +59,26 @@ final class StudentEnrollmentTest extends TestCase
         $path = $this->studentPath($school).'/'.$student.'/enrollments';
         $this->withToken($token)->postJson($path, $payload)->assertCreated();
         $this->withToken($token)->postJson($path, $payload)->assertUnprocessable();
+    }
+
+    public function test_transfer_replaces_placement_and_withdrawal_retains_history(): void
+    {
+        [$school, $identity] = $this->schoolWithRole('school_admin', 'transfer-password');
+        $token = $this->loginAndSelect($identity, $school, 'transfer-password');
+        $student = $this->withToken($token)->postJson($this->studentPath($school), ['student_number' => 'ENR-003', 'display_name' => 'Transfer Learner'])->assertCreated()->json('data.id');
+        $this->withToken($token)->postJson($this->studentPath($school).'/'.$student.'/activate')->assertOk();
+        [$session, $term, $level, $section, $classArm] = $this->academicSetup($school, $token, 2);
+        $secondClassArm = $this->withToken($token)->postJson('/api/v1/schools/'.$school->public_id.'/academic-levels/'.$level.'/sections/'.$section.'/class-arms', ['name' => 'Green Arm', 'code' => 'GREEN', 'capacity' => 2])->assertCreated()->json('data.id');
+        $path = $this->studentPath($school).'/'.$student.'/enrollments';
+        $enrollment = $this->withToken($token)->postJson($path, ['session_id' => $session, 'term_id' => $term, 'level_id' => $level, 'section_id' => $section, 'class_arm_id' => $classArm, 'start_date' => '2025-09-10'])->assertCreated()->json('data.id');
+
+        $replacement = $this->withToken($token)->postJson($path.'/'.$enrollment.'/transfer', ['session_id' => $session, 'term_id' => $term, 'level_id' => $level, 'section_id' => $section, 'class_arm_id' => $secondClassArm, 'effective_date' => '2025-10-01', 'reason' => 'Fictional class placement change'])->assertOk()->json('data.id');
+        self::assertNotSame($enrollment, $replacement);
+        $this->withToken($token)->postJson($path.'/'.$replacement.'/withdraw', ['reason' => 'Fictional administrative withdrawal'])->assertOk()->assertJsonPath('data.status', 'ended');
+
+        self::assertSame(2, StudentEnrollment::query()->count());
+        self::assertSame(2, StudentEnrollmentChange::query()->count());
+        $this->withToken($token)->getJson($this->studentPath($school).'/'.$student.'/enrollment-history')->assertOk()->assertJsonCount(2, 'data.items');
     }
 
     /** @return array{0: School, 1: UserIdentity} */

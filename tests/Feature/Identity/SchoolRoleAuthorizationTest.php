@@ -51,7 +51,7 @@ final class SchoolRoleAuthorizationTest extends TestCase
             ->assertJsonFragment(['guardian.links.read']);
 
         self::assertSame(12, Role::query()->count());
-        self::assertSame(55, Permission::query()->count());
+        self::assertSame(57, Permission::query()->count());
     }
 
     public function test_admin_can_assign_multiple_roles_and_revoke_one_with_audit_history(): void

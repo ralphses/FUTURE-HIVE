@@ -76,4 +76,10 @@ final class StudentEnrollment extends Model
     {
         return $this->belongsTo(UserIdentity::class, 'created_by');
     }
+
+    /** @return BelongsTo<UserIdentity, $this> */
+    public function ender(): BelongsTo
+    {
+        return $this->belongsTo(UserIdentity::class, 'ended_by');
+    }
 }

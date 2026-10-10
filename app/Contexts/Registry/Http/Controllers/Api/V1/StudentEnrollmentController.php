@@ -8,6 +8,8 @@ use App\Contexts\Identity\Domain\Models\UserIdentity;
 use App\Contexts\Registry\Application\Actions\StudentEnrollmentAction;
 use App\Contexts\Registry\Http\Requests\EndStudentEnrollmentRequest;
 use App\Contexts\Registry\Http\Requests\StoreStudentEnrollmentRequest;
+use App\Contexts\Registry\Http\Requests\TransferStudentEnrollmentRequest;
+use App\Contexts\Registry\Http\Requests\WithdrawStudentEnrollmentRequest;
 use App\Support\Http\ApiResponse;
 use Dedoc\Scramble\Attributes\Endpoint;
 use Illuminate\Http\JsonResponse;
@@ -37,6 +39,24 @@ final class StudentEnrollmentController
     public function end(EndStudentEnrollmentRequest $request, string $school, string $student, string $enrollment, StudentEnrollmentAction $action): JsonResponse
     {
         return ApiResponse::data($action->end($this->identity($request), $school, $student, $enrollment, $request->string('reason')->toString()));
+    }
+
+    #[Endpoint(title: 'Transfer a student enrollment', description: 'Moves an active student enrollment to another available class arm in the same school and academic term. The original placement is retained as history and the change is atomic.')]
+    public function transfer(TransferStudentEnrollmentRequest $request, string $school, string $student, string $enrollment, StudentEnrollmentAction $action): JsonResponse
+    {
+        return ApiResponse::data($action->transfer($this->identity($request), $school, $student, $enrollment, $request->validated()));
+    }
+
+    #[Endpoint(title: 'Withdraw a student enrollment', description: 'Ends an active placement for an administrative withdrawal reason while retaining the enrollment history. It does not change the student admission record.')]
+    public function withdraw(WithdrawStudentEnrollmentRequest $request, string $school, string $student, string $enrollment, StudentEnrollmentAction $action): JsonResponse
+    {
+        return ApiResponse::data($action->withdraw($this->identity($request), $school, $student, $enrollment, $request->string('reason')->toString()));
+    }
+
+    #[Endpoint(title: 'View enrollment history', description: 'Lists sanitized transfer and withdrawal changes for a student in the selected school. Internal identifiers and sensitive metadata are excluded.')]
+    public function history(Request $request, string $school, string $student, StudentEnrollmentAction $action): JsonResponse
+    {
+        return ApiResponse::data($action->history($this->identity($request), $school, $student));
     }
 
     private function identity(Request $request): UserIdentity
