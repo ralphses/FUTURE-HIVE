@@ -164,6 +164,8 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.show',
                     'api.v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.update',
                     'api.v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.revoke',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.show',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.update',
                     'api.v1.schools.academic-context',
                     'api.v1.schools.academic-levels.index',
                     'api.v1.schools.academic-levels.store',

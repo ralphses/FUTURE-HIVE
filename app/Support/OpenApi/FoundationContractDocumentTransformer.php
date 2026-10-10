@@ -86,6 +86,8 @@ final class FoundationContractDocumentTransformer
                     'v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.show',
                     'v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.update',
                     'v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.revoke',
+                    'v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.show',
+                    'v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.update',
                     'v1.schools.academic-context',
                     'v1.schools.academic-levels.index',
                     'v1.schools.academic-levels.store',
@@ -194,6 +196,8 @@ final class FoundationContractDocumentTransformer
             'v1.public.school-registrations' => ['Submit a school registration', 'Creates a provisional intake record only. It does not create a school, identity, membership, password, session or tenant context.'],
             'v1.public.school-registrations.verification.request' => ['Request registration verification', 'Requests a verification code for the contact stored on a provisional registration. The response does not reveal registration state.'],
             'v1.public.school-registrations.verification.confirm' => ['Confirm registration verification', 'Confirms a six-digit code and changes only the registration status to verified.'],
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.show' => ['View an assessment scheme', 'Shows the school-defined assessment components and maximum marks for a subject offering and term. This endpoint does not return student scores or calculate grades.'],
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.update' => ['Replace an assessment scheme', 'Replaces the complete assessment component configuration for a subject offering and term. Component maximum marks must add up to the configured total, and the entire update is rejected if validation fails.'],
         ];
 
         if (isset($fixed[$operationId])) {
@@ -225,6 +229,7 @@ final class FoundationContractDocumentTransformer
 
         return match (true) {
             str_contains($operationId, 'teaching-assignments') => 'teaching assignments',
+            str_contains($operationId, 'assessment-scheme') => 'assessment scheme',
             str_contains($operationId, 'subject-offerings') => 'subject offerings',
             str_contains($operationId, 'class-arms') => 'class arms',
             str_contains($operationId, 'academic-levels.sections') => 'academic sections',
@@ -274,6 +279,7 @@ final class FoundationContractDocumentTransformer
             $operationId === 'v1.auth.login' => 'Send a verified email address or international phone number and the password for the identity.',
             str_contains((string) $operationId, 'school-registrations') && str_ends_with((string) $operationId, 'verification.confirm') => 'Send the six-digit code delivered for this provisional registration.',
             str_contains((string) $operationId, 'teaching-assignments') => 'Send the teacher public ID, term-contained effective dates and an optional administrative reason.',
+            str_contains((string) $operationId, 'assessment-scheme') => 'Send the school-defined scheme name, total marks and at least one component. Component names and sequence values must be unique and their maximum marks must equal the total.',
             str_contains((string) $operationId, 'academic-sessions') => 'Send the academic period name, optional code and inclusive date range. Lifecycle state is managed by the server.',
             str_contains((string) $operationId, 'subject-offerings') => 'Send the subject and class-arm public IDs. The selected school, term and lifecycle state are server-controlled.',
             str_contains((string) $operationId, 'school-registrations') => 'Send fictional school details, a normalized email or international phone contact, and the consent version.',
@@ -418,6 +424,8 @@ final class FoundationContractDocumentTransformer
             'v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.show',
             'v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.update',
             'v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.revoke',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.show',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.update',
             'v1.schools.academic-context',
             'v1.schools.academic-levels.index',
             'v1.schools.academic-levels.store',

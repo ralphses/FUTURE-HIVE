@@ -1,5 +1,6 @@
 <?php
 
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentSchemeController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicClassArmController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStructureController;
@@ -199,6 +200,12 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}/revoke', [AcademicTeachingAssignmentController::class, 'revoke'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-sessions.terms.subject-offerings.teaching-assignments.revoke');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-scheme', [AcademicAssessmentSchemeController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.show');
+    Route::put('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-scheme', [AcademicAssessmentSchemeController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.update');
     Route::get('/schools/{school}/academic-context', [AcademicPeriodController::class, 'context'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-context');

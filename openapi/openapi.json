@@ -29,6 +29,718 @@
         }
     ],
     "paths": {
+        "/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-scheme": {
+            "get": {
+                "operationId": "v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.show",
+                "description": "Shows the school-defined assessment components and maximum marks for a subject offering and term. This endpoint does not return student scores or calculate grades.",
+                "summary": "View an assessment scheme",
+                "tags": [
+                    "School Access"
+                ],
+                "parameters": [
+                    {
+                        "name": "school",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the school selected by the authenticated session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001"
+                    },
+                    {
+                        "name": "session",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the academic session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1002"
+                    },
+                    {
+                        "name": "term",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the academic term.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1003"
+                    },
+                    {
+                        "name": "offering",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the subject offering.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1004"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "scheme": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "session_id": {
+                                                            "type": "string"
+                                                        },
+                                                        "term_id": {
+                                                            "type": "string"
+                                                        },
+                                                        "offering_id": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "total_marks": {
+                                                            "type": "integer"
+                                                        },
+                                                        "components": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "category": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "max_marks": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "sequence": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "name",
+                                                                    "category",
+                                                                    "max_marks",
+                                                                    "sequence"
+                                                                ]
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "session_id",
+                                                        "term_id",
+                                                        "offering_id",
+                                                        "name",
+                                                        "total_marks",
+                                                        "components"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "scheme"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "operationId": "v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.update",
+                "description": "Replaces the complete assessment component configuration for a subject offering and term. Component maximum marks must add up to the configured total, and the entire update is rejected if validation fails.",
+                "summary": "Replace an assessment scheme",
+                "tags": [
+                    "School Access"
+                ],
+                "parameters": [
+                    {
+                        "name": "school",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the school selected by the authenticated session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001"
+                    },
+                    {
+                        "name": "session",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the academic session.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1002"
+                    },
+                    {
+                        "name": "term",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the academic term.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1003"
+                    },
+                    {
+                        "name": "offering",
+                        "in": "path",
+                        "required": true,
+                        "description": "Public identifier of the subject offering.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1004"
+                    }
+                ],
+                "requestBody": {
+                    "description": "Send the school-defined scheme name, total marks and at least one component. Component names and sequence values must be unique and their maximum marks must equal the total.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateAcademicAssessmentSchemeRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "scheme": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "session_id": {
+                                                            "type": "string"
+                                                        },
+                                                        "term_id": {
+                                                            "type": "string"
+                                                        },
+                                                        "offering_id": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "total_marks": {
+                                                            "type": "integer"
+                                                        },
+                                                        "components": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "category": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "max_marks": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "sequence": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "name",
+                                                                    "category",
+                                                                    "max_marks",
+                                                                    "sequence"
+                                                                ]
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "session_id",
+                                                        "term_id",
+                                                        "offering_id",
+                                                        "name",
+                                                        "total_marks",
+                                                        "components"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "scheme"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required or the supplied credentials are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated actor is not authorized for this operation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The requested resource was not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "The HTTP method is not supported for this route.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The service is temporarily unavailable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Request-ID": {
+                                "description": "Request correlation identifier.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/schools/{school}/academic-levels/{level}/sections/{section}/class-arms": {
             "get": {
                 "operationId": "v1.schools.academic-levels.sections.class-arms.index",
@@ -25426,6 +26138,70 @@
                     "school_id"
                 ],
                 "title": "SwitchSchoolContextRequest"
+            },
+            "UpdateAcademicAssessmentSchemeRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Human-readable name for this school-owned academic record.",
+                        "examples": [
+                            "Year 2025/2026"
+                        ],
+                        "maxLength": 120
+                    },
+                    "total_marks": {
+                        "type": "integer",
+                        "description": "Input value for this operation. Server-managed ownership, actor, lifecycle and timestamp fields are not trusted.",
+                        "minimum": 1,
+                        "maximum": 10000
+                    },
+                    "components": {
+                        "type": "array",
+                        "description": "Input value for this operation. Server-managed ownership, actor, lifecycle and timestamp fields are not trusted.",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "maxLength": 80
+                                },
+                                "category": {
+                                    "type": "string",
+                                    "enum": [
+                                        "ca",
+                                        "test",
+                                        "exam"
+                                    ]
+                                },
+                                "max_marks": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 10000
+                                },
+                                "sequence": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 999
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "category",
+                                "max_marks",
+                                "sequence"
+                            ]
+                        },
+                        "minItems": 1,
+                        "maxItems": 50
+                    }
+                },
+                "required": [
+                    "name",
+                    "total_marks",
+                    "components"
+                ],
+                "title": "UpdateAcademicAssessmentSchemeRequest"
             },
             "UpdateAcademicClassArmRequest": {
                 "type": "object",

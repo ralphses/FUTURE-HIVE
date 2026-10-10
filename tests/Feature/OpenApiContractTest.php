@@ -31,6 +31,7 @@ final class OpenApiContractTest extends TestCase
 
         $this->assertSame('3.1.0', $document['openapi']);
         $this->assertSame([
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-scheme',
             '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms',
             '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}',
             '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/activate',
