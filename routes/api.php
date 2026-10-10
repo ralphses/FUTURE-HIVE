@@ -1,7 +1,9 @@
 <?php
 
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentPolicyVersionController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentSchemeController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicClassArmController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicGradingScaleController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStructureController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectController;
@@ -206,6 +208,36 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::put('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-scheme', [AcademicAssessmentSchemeController::class, 'update'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.update');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies', [AcademicAssessmentPolicyVersionController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.index');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}', [AcademicAssessmentPolicyVersionController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.show');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies', [AcademicAssessmentPolicyVersionController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.store');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/activate', [AcademicAssessmentPolicyVersionController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.activate');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/retire', [AcademicAssessmentPolicyVersionController::class, 'retire'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.retire');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales', [AcademicGradingScaleController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.index');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales/{scale}', [AcademicGradingScaleController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.show');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales', [AcademicGradingScaleController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.store');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales/{scale}/activate', [AcademicGradingScaleController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.activate');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales/{scale}/retire', [AcademicGradingScaleController::class, 'retire'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.retire');
     Route::get('/schools/{school}/academic-context', [AcademicPeriodController::class, 'context'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-context');
