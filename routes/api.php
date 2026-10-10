@@ -25,7 +25,9 @@ use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolProfileController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationVerificationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolSetupController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianRelationshipController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\StudentProfileController;
 use App\Http\Middleware\JwtAuthenticate;
 use App\Http\Middleware\RefreshCookieCsrf;
 use App\Http\Middleware\RequireSchoolContext;
@@ -33,12 +35,14 @@ use App\Http\Middleware\RequireSchoolLifecycleContext;
 use App\Support\Files\CloudinaryFileDownloadController;
 use Illuminate\Support\Facades\Route;
 
+// Platform: liveness, readiness and private file delivery.
 Route::get('/health', HealthController::class)->name('api.v1.health');
 Route::get('/health/readiness', ReadinessController::class)->name('api.v1.health.readiness');
 Route::get('/files/download', CloudinaryFileDownloadController::class)
     ->middleware([JwtAuthenticate::class, RequireSchoolContext::class, 'signed'])
     ->name('api.v1.files.download');
 
+// School Registration: public provisional intake and contact verification.
 Route::post('/public/school-registrations', [SchoolRegistrationController::class, 'store'])
     ->middleware('throttle:public-school-registration')
     ->name('api.v1.public.school-registrations');
@@ -51,6 +55,7 @@ Route::post('/public/school-registrations/{registration}/verification/confirm', 
     ->middleware('throttle:public-registration-verification-confirm')
     ->name('api.v1.public.school-registrations.verification.confirm');
 
+// Identity & Authentication: sign-in, sessions, credentials and contact verification.
 Route::post('/auth/login', [AuthenticationController::class, 'login'])
     ->middleware('throttle:auth-login')
     ->name('api.v1.auth.login');
@@ -76,6 +81,7 @@ Route::post('/auth/verification/confirm', [ContactVerificationController::class,
     ->name('api.v1.auth.verification.confirm');
 
 Route::middleware(JwtAuthenticate::class)->group(function (): void {
+    // Identity & Authentication: authenticated identity and session operations.
     Route::get('/auth/me', [AuthenticationController::class, 'me'])->name('api.v1.auth.me');
     Route::post('/auth/logout', [AuthenticationController::class, 'logout'])->name('api.v1.auth.logout');
     Route::post('/auth/logout-all', [AuthenticationController::class, 'logoutAll'])->name('api.v1.auth.logout_all');
@@ -84,6 +90,8 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/auth/password/change', [PasswordController::class, 'change'])
         ->middleware('throttle:auth-password-change')
         ->name('api.v1.auth.password.change');
+
+    // School Context & Memberships: membership, invitation, role and permission access.
     Route::get('/me/memberships', [SchoolMembershipController::class, 'index'])
         ->name('api.v1.me.memberships');
     Route::post('/schools/{school}/invitations', [SchoolInvitationController::class, 'create'])
@@ -109,6 +117,8 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/me/schools/{school}/permissions', [SchoolRoleController::class, 'permissions'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.me.schools.permissions');
+
+    // School Administration: setup progress, profile/branding and lifecycle controls.
     Route::get('/schools/{school}/setup', [SchoolSetupController::class, 'index'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.setup.index');
@@ -139,6 +149,8 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/lifecycle/archive', [SchoolLifecycleController::class, 'archive'])
         ->middleware(RequireSchoolLifecycleContext::class)
         ->name('api.v1.schools.lifecycle.archive');
+
+    // Academic Structure and Assessment: periods, offerings, assignments, policies and scales.
     Route::get('/schools/{school}/academic-sessions', [AcademicPeriodController::class, 'sessions'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-sessions.index');
@@ -247,6 +259,8 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/academic-readiness', AcademicReadinessController::class)
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-readiness');
+
+    // Student Registry: admissions, profiles, private documents and guardian relationships.
     Route::get('/schools/{school}/students', [StudentController::class, 'index'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.index');
@@ -265,6 +279,44 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/students/{student}/withdraw', [StudentController::class, 'withdraw'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.withdraw');
+    Route::get('/schools/{school}/students/{student}/profile', [StudentProfileController::class, 'showProfile'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.profile.show');
+    Route::put('/schools/{school}/students/{student}/profile', [StudentProfileController::class, 'updateProfile'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.profile.update');
+    Route::get('/schools/{school}/students/{student}/documents', [StudentProfileController::class, 'documents'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.documents.index');
+    Route::post('/schools/{school}/students/{student}/documents', [StudentProfileController::class, 'uploadDocument'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.documents.store');
+    Route::get('/schools/{school}/students/{student}/documents/{document}', [StudentProfileController::class, 'downloadDocument'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.students.documents.download');
+    Route::post('/schools/{school}/students/{student}/documents/{document}/revoke', [StudentProfileController::class, 'revokeDocument'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.documents.revoke');
+    Route::get('/schools/{school}/guardians', [GuardianRelationshipController::class, 'guardians'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.guardians.index');
+    Route::get('/schools/{school}/guardians/{guardian}', [GuardianRelationshipController::class, 'showGuardian'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.guardians.show');
+    Route::get('/schools/{school}/students/{student}/guardian-relationships', [GuardianRelationshipController::class, 'studentRelationships'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.guardian-relationships.index');
+    Route::post('/schools/{school}/students/{student}/guardian-relationships', [GuardianRelationshipController::class, 'create'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.guardian-relationships.store');
+    Route::patch('/schools/{school}/students/{student}/guardian-relationships/{relationship}', [GuardianRelationshipController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.guardian-relationships.update');
+    Route::post('/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke', [GuardianRelationshipController::class, 'revoke'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.guardian-relationships.revoke');
+
+    // Academic Structure: levels, sections, class arms and subject catalogues.
     Route::get('/schools/{school}/academic-levels', [AcademicStructureController::class, 'levels'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.index');
     Route::post('/schools/{school}/academic-levels', [AcademicStructureController::class, 'storeLevel'])

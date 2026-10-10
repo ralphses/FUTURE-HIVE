@@ -85,6 +85,11 @@ final class OpenApiContractTest extends TestCase
             '/files/download',
             '/auth/verification/request',
             '/auth/verification/confirm',
+            '/schools/{school}/guardians',
+            '/schools/{school}/guardians/{guardian}',
+            '/schools/{school}/students/{student}/guardian-relationships',
+            '/schools/{school}/students/{student}/guardian-relationships/{relationship}',
+            '/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke',
             '/health',
             '/auth/password/forgot',
             '/auth/password/reset',
@@ -115,6 +120,10 @@ final class OpenApiContractTest extends TestCase
             '/schools/{school}/students/{student}',
             '/schools/{school}/students/{student}/activate',
             '/schools/{school}/students/{student}/withdraw',
+            '/schools/{school}/students/{student}/profile',
+            '/schools/{school}/students/{student}/documents',
+            '/schools/{school}/students/{student}/documents/{document}',
+            '/schools/{school}/students/{student}/documents/{document}/revoke',
         ], array_keys($document['paths']));
         $this->assertArrayNotHasKey('/students', $document['paths']);
     }
@@ -130,7 +139,7 @@ final class OpenApiContractTest extends TestCase
         }
 
         $this->assertSame([['bearerAuth' => []]], $document['paths']['/schools/{school}/academic-readiness']['get']['security']);
-        foreach (['/schools/{school}/students', '/schools/{school}/students/{student}', '/schools/{school}/students/{student}/activate', '/schools/{school}/students/{student}/withdraw'] as $studentPath) {
+        foreach (['/schools/{school}/students', '/schools/{school}/students/{student}', '/schools/{school}/students/{student}/activate', '/schools/{school}/students/{student}/withdraw', '/schools/{school}/students/{student}/profile', '/schools/{school}/students/{student}/documents', '/schools/{school}/students/{student}/documents/{document}', '/schools/{school}/students/{student}/documents/{document}/revoke', '/schools/{school}/guardians', '/schools/{school}/guardians/{guardian}', '/schools/{school}/students/{student}/guardian-relationships', '/schools/{school}/students/{student}/guardian-relationships/{relationship}', '/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke'] as $studentPath) {
             foreach ($document['paths'][$studentPath] as $operation) {
                 $this->assertSame([['bearerAuth' => []]], $operation['security']);
             }
@@ -173,7 +182,16 @@ final class OpenApiContractTest extends TestCase
     public function test_operations_use_only_the_bounded_context_documentation_groups(): void
     {
         $document = $this->document();
-        $expectedTags = ['Platform', 'Identity & Authentication', 'School Access', 'School Registration'];
+        $expectedTags = [
+            'Platform',
+            'Identity & Authentication',
+            'School Registration',
+            'School Context & Memberships',
+            'School Administration',
+            'Academic Structure',
+            'Academic Assessment',
+            'Student Registry',
+        ];
 
         $this->assertSame($expectedTags, array_column($document['tags'], 'name'));
 
@@ -185,7 +203,7 @@ final class OpenApiContractTest extends TestCase
         }
 
         $contents = json_encode($document, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
-        foreach (['Authentication', 'SchoolInvitation', 'SchoolMembership', 'SchoolRole', 'Health', 'Readiness'] as $controllerTag) {
+        foreach (['School Access', 'Authentication', 'SchoolInvitation', 'SchoolMembership', 'SchoolRole', 'Health', 'Readiness'] as $controllerTag) {
             self::assertStringNotContainsString('"'.$controllerTag.'"', $contents);
         }
     }
@@ -205,6 +223,7 @@ final class OpenApiContractTest extends TestCase
 
                 if (isset($operation['requestBody'])) {
                     self::assertNotSame('', trim((string) ($operation['requestBody']['description'] ?? '')));
+                    self::assertStringNotContainsString('Send the fields required for this operation.', $operation['requestBody']['description']);
                 }
             }
         }
@@ -221,6 +240,7 @@ final class OpenApiContractTest extends TestCase
 
             foreach ($schema['properties'] ?? [] as $property) {
                 self::assertNotSame('', trim((string) ($property['description'] ?? '')), $schemaName);
+                self::assertNotSame('', trim((string) ($property['x-field-label'] ?? '')), $schemaName);
 
                 foreach ($property['examples'] ?? [] as $example) {
                     self::assertIsScalar($example);
@@ -228,6 +248,10 @@ final class OpenApiContractTest extends TestCase
                 }
             }
         }
+
+        $contents = json_encode($document, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+        self::assertStringNotContainsString('Input value for this operation.', $contents);
+        self::assertStringNotContainsString('Server-managed ownership, actor, lifecycle and timestamp fields are not trusted.', $contents);
     }
 
     public function test_documentation_contains_no_deployment_secrets_or_connection_strings(): void

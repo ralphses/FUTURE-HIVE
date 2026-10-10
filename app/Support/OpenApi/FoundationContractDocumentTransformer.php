@@ -15,6 +15,7 @@ use Dedoc\Scramble\Support\Generator\Schema;
 use Dedoc\Scramble\Support\Generator\SecurityRequirement;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Dedoc\Scramble\Support\Generator\Tag;
+use Dedoc\Scramble\Support\Generator\Types\ArrayType;
 use Dedoc\Scramble\Support\Generator\Types\ObjectType;
 use Dedoc\Scramble\Support\Generator\Types\StringType;
 
@@ -112,6 +113,18 @@ final class FoundationContractDocumentTransformer
                     'v1.schools.students.update',
                     'v1.schools.students.activate',
                     'v1.schools.students.withdraw',
+                    'v1.schools.students.profile.show',
+                    'v1.schools.students.profile.update',
+                    'v1.schools.students.documents.index',
+                    'v1.schools.students.documents.store',
+                    'v1.students.documents.download',
+                    'v1.schools.students.documents.revoke',
+                    'v1.schools.guardians.index',
+                    'v1.schools.guardians.show',
+                    'v1.schools.students.guardian-relationships.index',
+                    'v1.schools.students.guardian-relationships.store',
+                    'v1.schools.students.guardian-relationships.update',
+                    'v1.schools.students.guardian-relationships.revoke',
                     'v1.schools.academic-levels.index',
                     'v1.schools.academic-levels.store',
                     'v1.schools.academic-levels.show',
@@ -155,8 +168,12 @@ final class FoundationContractDocumentTransformer
         $document->tags = [
             new Tag('Platform', 'Infrastructure health, readiness and private file delivery.'),
             new Tag('Identity & Authentication', 'Global identity authentication, credentials and contact verification.'),
-            new Tag('School Access', 'Authenticated school context, memberships, invitations, roles and permissions.'),
             new Tag('School Registration', 'Unauthenticated provisional registration and registration-bound verification.'),
+            new Tag('School Context & Memberships', 'School selection, memberships, invitations, roles and permissions for authenticated users.'),
+            new Tag('School Administration', 'School setup, profile, branding and lifecycle settings managed within a trusted school context.'),
+            new Tag('Academic Structure', 'School-defined academic periods, structure, subjects, offerings and teaching assignments.'),
+            new Tag('Academic Assessment', 'School-defined assessment schemes, policy versions, grading scales, promotion rules and readiness checks.'),
+            new Tag('Student Registry', 'School-owned student admissions, profiles and private student documents.'),
         ];
     }
 
@@ -244,6 +261,18 @@ final class FoundationContractDocumentTransformer
             'v1.schools.students.update' => ['Update student admission details', 'Updates the school-owned admission number and display details without changing lifecycle state.'],
             'v1.schools.students.activate' => ['Activate a student admission', 'Moves a pending student admission to active. Withdrawn and archived records cannot be reactivated.'],
             'v1.schools.students.withdraw' => ['Withdraw a student', 'Marks an active student admission as withdrawn while retaining the historical record.'],
+            'v1.schools.students.profile.show' => ['View a student profile', 'Returns approved profile fields for one student in the selected school. It does not include guardian, enrolment or attendance data.'],
+            'v1.schools.students.profile.update' => ['Update a student profile', 'Creates or replaces the bounded profile for an admitted student without changing admission status or school ownership.'],
+            'v1.schools.students.documents.index' => ['List student documents', 'Lists active private documents attached to a student. Download links are short-lived and school-authorized.'],
+            'v1.schools.students.documents.store' => ['Upload a student document', 'Scans and stores a controlled student document as a private authenticated Cloudinary asset.'],
+            'v1.students.documents.download' => ['Get a student document link', 'Returns a short-lived application-signed download link. The provider URL is never exposed.'],
+            'v1.schools.students.documents.revoke' => ['Revoke a student document', 'Revokes a private student document while retaining its audit and historical metadata.'],
+            'v1.schools.guardians.index' => ['List school guardians', 'Lists existing guardian profiles linked to students in the selected school. It does not create identities or activate guardian access.'],
+            'v1.schools.guardians.show' => ['View a guardian profile', 'Returns bounded display information for a guardian linked to the selected school without exposing contacts or credentials.'],
+            'v1.schools.students.guardian-relationships.index' => ['List student guardian relationships', 'Lists pending or active guardian relationships for a student. Pending relationships do not grant student-data access.'],
+            'v1.schools.students.guardian-relationships.store' => ['Add a guardian relationship', 'Links an existing IAM identity to a student as a pending relationship. It does not send an invitation or verify access.'],
+            'v1.schools.students.guardian-relationships.update' => ['Update a guardian relationship', 'Updates the relationship type or safe display metadata while keeping verification and lifecycle state server-controlled.'],
+            'v1.schools.students.guardian-relationships.revoke' => ['Revoke a guardian relationship', 'Revokes a relationship while retaining its history. It does not delete the guardian profile or identity.'],
         ];
 
         if (isset($fixed[$operationId])) {
@@ -326,10 +355,28 @@ final class FoundationContractDocumentTransformer
             str_contains((string) $operationId, 'school-registrations') && str_ends_with((string) $operationId, 'verification.confirm') => 'Send the six-digit code delivered for this provisional registration.',
             str_contains((string) $operationId, 'teaching-assignments') => 'Send the teacher public ID, term-contained effective dates and an optional administrative reason.',
             str_contains((string) $operationId, 'assessment-scheme') => 'Send the school-defined scheme name, total marks and at least one component. Component names and sequence values must be unique and their maximum marks must equal the total.',
+            str_contains((string) $operationId, 'grading-scales') && str_ends_with((string) $operationId, '.store') => 'Send the scale name, effective dates and contiguous grading bands covering the inclusive 0–100 percentage range.',
+            str_contains((string) $operationId, 'promotion-rules') && str_ends_with((string) $operationId, '.store') => 'Send the source and target academic levels, rule description and approved promotion criteria. The server controls school ownership and lifecycle.',
+            str_contains((string) $operationId, 'students.profile') => 'Send the student profile names, optional date of birth, bounded gender value and internal notes. Admission status and school ownership remain server-controlled.',
+            str_contains((string) $operationId, 'students.documents.store') => 'Upload one approved student document category and file. The file is malware-scanned before private authenticated Cloudinary storage; the server controls the student and school references.',
+            str_contains((string) $operationId, 'students.documents.revoke') => 'Send the bounded administrative reason for revoking the document. Revocation retains the document record and does not expose the provider URL.',
+            str_contains((string) $operationId, 'guardian-relationships') && str_ends_with((string) $operationId, '.store') => 'Send the existing guardian identity public ID, approved relationship type and optional safe display metadata. The server creates only a pending school-scoped relationship.',
+            str_contains((string) $operationId, 'guardian-relationships') && str_ends_with((string) $operationId, '.update') => 'Send the approved relationship type and optional safe display metadata. Verification, school ownership and lifecycle status remain server-controlled.',
+            str_contains((string) $operationId, 'guardian-relationships') && str_ends_with((string) $operationId, '.revoke') => 'Send a bounded administrative reason. The relationship is retained as revoked and no invitation or identity is deleted.',
+            str_contains((string) $operationId, 'lifecycle.') => 'Send a bounded administrative reason for the requested school lifecycle transition. The server validates the current state and allowed transition.',
+            str_contains((string) $operationId, 'setup.update') => 'Send the approved setup item status. The selected school, item ownership and completion timestamp are controlled by the server.',
+            str_contains((string) $operationId, 'profile.update') => 'Send the school contact, bounded address fields and IANA timezone. The selected school and audit actor come from trusted server context.',
+            str_contains((string) $operationId, 'roles.assign') => 'Send predefined school role public identifiers to assign to the selected membership. The server resolves the membership and school context.',
+            str_contains((string) $operationId, 'invitations') => 'Send the invitee contact or bounded invitation action fields. The server resolves the school, inviter and invitation state from trusted context.',
+            str_contains((string) $operationId, 'auth.password') => 'Send the credentials or one-time recovery values required for this password operation. Passwords and codes are never returned or logged.',
+            str_contains((string) $operationId, 'auth.verification') => 'Send the canonical contact and six-digit code required for this contact-verification operation.',
+            str_contains((string) $operationId, 'auth.context.switch') => 'Send the public school selector to choose an active membership for this session. The server validates ownership and membership status.',
+            str_contains((string) $operationId, 'auth.logout') => 'No request body is required. The authenticated session is identified from the bearer token or protected browser flow.',
+            str_contains((string) $operationId, 'auth.refresh') => 'Send the opaque refresh token and client transport type. The server rotates the token and invalidates the previous value.',
             str_contains((string) $operationId, 'academic-sessions') => 'Send the academic period name, optional code and inclusive date range. Lifecycle state is managed by the server.',
             str_contains((string) $operationId, 'subject-offerings') => 'Send the subject and class-arm public IDs. The selected school, term and lifecycle state are server-controlled.',
             str_contains((string) $operationId, 'school-registrations') => 'Send fictional school details, a normalized email or international phone contact, and the consent version.',
-            default => 'Send the fields required for this operation. Server-managed identifiers, ownership, actor, lifecycle and timestamp fields are not accepted as authority.',
+            default => 'Send the documented request fields for this operation. Public selectors identify the requested resource, while school ownership, actor identity, lifecycle state and timestamps are controlled by the server.',
         };
     }
 
@@ -347,12 +394,78 @@ final class FoundationContractDocumentTransformer
 
                 [$description, $example] = $this->requestPropertyDocumentation($schemaName, $propertyName);
                 $property->setDescription($description);
+                $property->setExtensionProperty('field-label', $this->fieldLabel($schemaName, $propertyName));
 
                 if ($example !== null) {
                     $property->example($example);
                 }
+
+                $this->documentNestedRequestProperties($schemaName, $property);
             }
         }
+    }
+
+    private function documentNestedRequestProperties(string $schemaName, object $property): void
+    {
+        if ($property instanceof ObjectType) {
+            foreach ($property->properties as $nestedName => $nestedProperty) {
+                if ($nestedProperty === null) {
+                    continue;
+                }
+
+                [$description, $example] = $this->requestPropertyDocumentation($schemaName, $nestedName);
+                $nestedProperty->setDescription($description);
+                $nestedProperty->setExtensionProperty('field-label', $this->fieldLabel($schemaName, $nestedName));
+
+                if ($example !== null) {
+                    $nestedProperty->example($example);
+                }
+
+                $this->documentNestedRequestProperties($schemaName, $nestedProperty);
+            }
+        }
+
+        if ($property instanceof ArrayType) {
+            $this->documentNestedRequestProperties($schemaName, $property->items);
+        }
+    }
+
+    private function fieldLabel(string $schemaName, string $propertyName): string
+    {
+        return match ($propertyName) {
+            'student_number' => 'Student number',
+            'display_name' => 'Display name',
+            'admission_date' => 'Admission date',
+            'metadata' => 'Admission metadata',
+            'legal_name' => 'Legal name',
+            'preferred_name' => 'Preferred name',
+            'date_of_birth' => 'Date of birth',
+            'gender' => 'Gender',
+            'notes' => 'Internal notes',
+            'total_marks' => 'Total marks',
+            'components' => 'Assessment components',
+            'bands' => 'Grading bands',
+            'criteria' => 'Promotion criteria',
+            'source_level_id' => 'Source academic level',
+            'target_level_id' => 'Target academic level',
+            'max_marks' => 'Maximum marks',
+            'grade' => 'Grade key',
+            'minimum_percentage' => 'Minimum percentage',
+            'maximum_percentage' => 'Maximum percentage',
+            'is_passing' => 'Passing grade',
+            'min_percentage' => 'Minimum percentage',
+            'max_percentage' => 'Maximum percentage',
+            'grade_key' => 'Grade key',
+            'label' => 'Display label',
+            'passing' => 'Passing grade',
+            'remark' => 'Optional remark',
+            'metric' => 'Promotion metric',
+            'operator' => 'Comparison operator',
+            'threshold' => 'Required threshold',
+            'required' => 'Required criterion',
+            'document' => 'Document file',
+            default => str($propertyName)->replace('_', ' ')->title()->toString(),
+        };
     }
 
     /** @return array{0: string, 1: scalar|null} */
@@ -401,7 +514,42 @@ final class FoundationContractDocumentTransformer
             'timezone' => ['IANA timezone for school-local dates and times.', 'Africa/Lagos'],
             'status' => ['Requested setup state; the server accepts only the approved state transitions.', 'completed'],
             'school_id' => ['Public school selector. The authenticated session context remains the authority.', '0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001'],
-            default => ['Input value for this operation. Server-managed ownership, actor, lifecycle and timestamp fields are not trusted.', null],
+            'student_number' => ['School-local admission or student number. It must be unique within the selected school.', 'STU-2025-001'],
+            'display_name' => ['Name shown in school records and lists.', 'Amina Example'],
+            'admission_date' => ['Date the student was admitted, in YYYY-MM-DD format.', '2025-09-01'],
+            'metadata' => ['Optional non-sensitive admission metadata defined by the school.', null],
+            'legal_name' => ['Student’s legal name as recorded by the school.', 'Amina Example'],
+            'preferred_name' => ['Optional name the student prefers to use in school communications.', 'Mina'],
+            'date_of_birth' => ['Optional date of birth, in YYYY-MM-DD format.', '2014-04-12'],
+            'gender' => ['Optional bounded gender value used by the school record.', 'undisclosed'],
+            'notes' => ['Optional bounded internal profile note. Do not include credentials or unnecessary sensitive data.', null],
+            'total_marks' => ['Total marks available for the school-defined assessment scheme.', 100],
+            'components' => ['Assessment components whose maximum marks must add up to total_marks.', null],
+            'bands' => ['Grading bands that must cover the complete inclusive 0–100 percentage range.', null],
+            'max_marks' => ['Maximum marks assigned to this assessment component.', 20],
+            'criteria' => ['Ordered criteria used by a later promotion-evaluation workflow.', null],
+            'grade' => ['Stable school-defined key for the grading band.', 'D'],
+            'minimum_percentage' => ['Inclusive lower percentage boundary for this grading band.', 0],
+            'maximum_percentage' => ['Inclusive upper percentage boundary for this grading band.', 49.99],
+            'is_passing' => ['Whether this grading band counts as passing.', false],
+            'label' => ['Human-readable label for the grading band.', 'Needs improvement'],
+            'passing' => ['Whether this band counts as passing.', false],
+            'remark' => ['Optional bounded remark displayed with this grade band.', 'Keep practising'],
+            'source_level_id' => ['Public identifier of the academic level students move from.', '0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1008'],
+            'target_level_id' => ['Public identifier of the academic level students move to.', '0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1009'],
+            'metric' => ['Approved promotion metric evaluated later by the promotion workflow.', 'overall_percentage'],
+            'operator' => ['Comparison used for the criterion threshold.', 'gte'],
+            'threshold' => ['Numeric value required for the selected promotion metric.', 50],
+            'required' => ['Whether this criterion is required for a future promotion decision.', true],
+            'description' => ['Optional plain-language explanation of the school-defined rule.', 'Learners must meet the listed academic criteria.'],
+            'category' => [
+                str_contains($schemaName, 'Assessment') ? 'Assessment component category: continuous assessment, test or examination.' : 'Student-document category accepted by the private document store.',
+                str_contains($schemaName, 'Assessment') ? 'exam' : 'birth_certificate',
+            ],
+            'document' => ['File to upload. It is scanned before private authenticated storage and is limited to approved formats and size.', null],
+            'guardian_id' => ['Public identifier of an existing IAM identity to link as a pending guardian. It is not an internal user ID.', '0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1010'],
+            'relationship_type' => ['School-defined relationship between the guardian and student.', 'parent'],
+            default => ['Request field for this operation. The server controls ownership, actor, lifecycle and timestamps.', null],
         };
     }
 
@@ -424,6 +572,84 @@ final class FoundationContractDocumentTransformer
             'v1.auth.verification.confirm',
         ], true)) {
             return 'Identity & Authentication';
+        }
+
+        if (in_array($operationId, [
+            'v1.auth.context.switch',
+            'v1.auth.context',
+            'v1.me.memberships',
+            'v1.schools.invitations.create',
+            'v1.invitations.accept',
+            'v1.invitations.revoke',
+            'v1.schools.roles.catalogue',
+            'v1.schools.memberships.roles',
+            'v1.schools.memberships.roles.assign',
+            'v1.schools.memberships.roles.revoke',
+            'v1.me.schools.permissions',
+        ], true)) {
+            return 'School Context & Memberships';
+        }
+
+        if (in_array($operationId, [
+            'v1.schools.setup.index',
+            'v1.schools.setup.update',
+            'v1.schools.profile.show',
+            'v1.schools.profile.update',
+            'v1.schools.profile.logo.upload',
+            'v1.schools.profile.logo.remove',
+            'v1.schools.lifecycle.show',
+            'v1.schools.lifecycle.suspend',
+            'v1.schools.lifecycle.reactivate',
+            'v1.schools.lifecycle.archive',
+        ], true)) {
+            return 'School Administration';
+        }
+
+        if (in_array($operationId, [
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.show',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.update',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.index',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.show',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.store',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.activate',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.retire',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.index',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.show',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.store',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.activate',
+            'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.retire',
+            'v1.schools.promotion-rules.index',
+            'v1.schools.promotion-rules.store',
+            'v1.schools.promotion-rules.show',
+            'v1.schools.promotion-rules.update',
+            'v1.schools.promotion-rules.activate',
+            'v1.schools.promotion-rules.deactivate',
+            'v1.schools.academic-readiness',
+        ], true)) {
+            return 'Academic Assessment';
+        }
+
+        if (in_array($operationId, [
+            'v1.schools.students.index',
+            'v1.schools.students.store',
+            'v1.schools.students.show',
+            'v1.schools.students.update',
+            'v1.schools.students.activate',
+            'v1.schools.students.withdraw',
+            'v1.schools.students.profile.show',
+            'v1.schools.students.profile.update',
+            'v1.schools.students.documents.index',
+            'v1.schools.students.documents.store',
+            'v1.students.documents.download',
+            'v1.schools.students.documents.revoke',
+            'v1.schools.guardians.index',
+            'v1.schools.guardians.show',
+            'v1.schools.students.guardian-relationships.index',
+            'v1.schools.students.guardian-relationships.store',
+            'v1.schools.students.guardian-relationships.update',
+            'v1.schools.students.guardian-relationships.revoke',
+        ], true)) {
+            return 'Student Registry';
         }
 
         if (in_array($operationId, [
@@ -496,6 +722,12 @@ final class FoundationContractDocumentTransformer
             'v1.schools.students.update',
             'v1.schools.students.activate',
             'v1.schools.students.withdraw',
+            'v1.schools.students.profile.show',
+            'v1.schools.students.profile.update',
+            'v1.schools.students.documents.index',
+            'v1.schools.students.documents.store',
+            'v1.students.documents.download',
+            'v1.schools.students.documents.revoke',
             'v1.schools.academic-levels.index',
             'v1.schools.academic-levels.store',
             'v1.schools.academic-levels.show',
@@ -521,7 +753,7 @@ final class FoundationContractDocumentTransformer
             'v1.schools.subjects.activate',
             'v1.schools.subjects.deactivate',
         ], true)) {
-            return 'School Access';
+            return 'Academic Structure';
         }
 
         if (in_array($operationId, [
