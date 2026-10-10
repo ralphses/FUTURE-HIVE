@@ -25,6 +25,7 @@ use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolProfileController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationVerificationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolSetupController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\ClassTeacherAssignmentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianInvitationController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianRelationshipController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StaffProfileController;
@@ -176,6 +177,21 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/staff/{staff}/end', [StaffProfileController::class, 'end'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.staff.end');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments', [ClassTeacherAssignmentController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.class-teacher-assignments.index');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments', [ClassTeacherAssignmentController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.class-teacher-assignments.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments/{assignment}', [ClassTeacherAssignmentController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.class-teacher-assignments.show');
+    Route::patch('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments/{assignment}', [ClassTeacherAssignmentController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.class-teacher-assignments.update');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments/{assignment}/revoke', [ClassTeacherAssignmentController::class, 'revoke'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.class-teacher-assignments.revoke');
 
     // Academic Structure and Assessment: periods, offerings, assignments, policies and scales.
     Route::get('/schools/{school}/academic-sessions', [AcademicPeriodController::class, 'sessions'])

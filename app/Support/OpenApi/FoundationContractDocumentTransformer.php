@@ -181,6 +181,11 @@ final class FoundationContractDocumentTransformer
                     'v1.schools.staff.activate',
                     'v1.schools.staff.suspend',
                     'v1.schools.staff.end',
+                    'v1.schools.class-teacher-assignments.index',
+                    'v1.schools.class-teacher-assignments.store',
+                    'v1.schools.class-teacher-assignments.show',
+                    'v1.schools.class-teacher-assignments.update',
+                    'v1.schools.class-teacher-assignments.revoke',
                 ], true)) {
                     $operation->addSecurity(new SecurityRequirement(['bearerAuth' => []]));
                 }
@@ -323,6 +328,11 @@ final class FoundationContractDocumentTransformer
             'v1.schools.staff.activate' => ['Activate staff employment', 'Moves pending or suspended employment to active after revalidating the membership and school context.'],
             'v1.schools.staff.suspend' => ['Suspend staff employment', 'Temporarily suspends employment while retaining the staff profile and historical audit record.'],
             'v1.schools.staff.end' => ['End staff employment', 'Ends employment permanently for this slice while retaining the profile and employment history. Ended records cannot be reopened.'],
+            'v1.schools.class-teacher-assignments.index' => ['List class-teacher assignments', 'Lists class-teacher assignments for a class arm and term. Teachers see only assignments in their trusted school scope.'],
+            'v1.schools.class-teacher-assignments.store' => ['Assign a class teacher', 'Assigns an active teacher staff profile to a class arm for a term. The server controls school ownership, role eligibility, dates and conflicts.'],
+            'v1.schools.class-teacher-assignments.show' => ['View a class-teacher assignment', 'Returns one class-teacher assignment without exposing internal IDs, credentials or contact records.'],
+            'v1.schools.class-teacher-assignments.update' => ['Update assignment dates', 'Updates the effective dates or administrative reason for an active class-teacher assignment. Staff, class-arm and school ownership cannot change.'],
+            'v1.schools.class-teacher-assignments.revoke' => ['Revoke a class-teacher assignment', 'Revokes an assignment while retaining historical records. A revoked assignment cannot be reactivated.'],
         ];
 
         if (isset($fixed[$operationId])) {
@@ -418,6 +428,9 @@ final class FoundationContractDocumentTransformer
             str_contains((string) $operationId, 'schools.staff.activate') => 'No request body is required unless the client wants to include a safe administrative reason. The server controls the employment transition and dates.',
             str_contains((string) $operationId, 'schools.staff.suspend') => 'Send a bounded administrative reason for suspending employment. The server retains the profile and controls the status transition.',
             str_contains((string) $operationId, 'schools.staff.end') => 'Send a bounded administrative reason for ending employment. Ended records are retained and cannot be reopened in this slice.',
+            str_contains((string) $operationId, 'class-teacher-assignments.store') => 'Send the public ID of an active teacher staff profile and term-contained effective dates. The server controls class-arm ownership, teacher eligibility and conflict checks.',
+            str_contains((string) $operationId, 'class-teacher-assignments.update') => 'Send revised term-contained effective dates or an administrative reason. Staff, class-arm and school ownership remain server-controlled.',
+            str_contains((string) $operationId, 'class-teacher-assignments.revoke') => 'Send a bounded administrative reason. Revocation preserves the assignment history and cannot be undone in this slice.',
             str_contains((string) $operationId, 'guardian-relationships.invitation.request') => 'No request body is required. The server uses the pending relationship and trusted school context to create the invitation.',
             $operationId === 'v1.guardian-invitations.confirm' => 'Send the six-digit code delivered to the invited guardian. The signed-in identity must match the bound guardian profile.',
             $operationId === 'v1.schools.guardian-invitations.revoke' => 'Send a bounded administrative reason. The invitation is retained as revoked and its code is never returned or stored in plaintext.',
@@ -580,6 +593,7 @@ final class FoundationContractDocumentTransformer
             'staff_number' => ['School-local staff identifier. It must be unique within the selected school.', 'STAFF-2025-001'],
             'job_title' => ['Optional bounded job title for the staff profile.', 'Teacher'],
             'department' => ['Optional bounded school department or work area.', 'Academic'],
+            'staff_id' => ['Public identifier of an existing active staff profile whose membership has the teacher role.', '0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1012'],
             'legal_name' => ['Student’s legal name as recorded by the school.', 'Amina Example'],
             'preferred_name' => ['Optional name the student prefers to use in school communications.', 'Mina'],
             'date_of_birth' => ['Optional date of birth, in YYYY-MM-DD format.', '2014-04-12'],
@@ -672,6 +686,11 @@ final class FoundationContractDocumentTransformer
             'v1.schools.staff.activate',
             'v1.schools.staff.suspend',
             'v1.schools.staff.end',
+            'v1.schools.class-teacher-assignments.index',
+            'v1.schools.class-teacher-assignments.store',
+            'v1.schools.class-teacher-assignments.show',
+            'v1.schools.class-teacher-assignments.update',
+            'v1.schools.class-teacher-assignments.revoke',
         ], true)) {
             return 'School Administration';
         }

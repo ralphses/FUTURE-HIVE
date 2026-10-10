@@ -82,6 +82,9 @@ final class OpenApiContractTest extends TestCase
             '/auth/me',
             '/auth/logout',
             '/auth/logout-all',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments/{assignment}',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments/{assignment}/revoke',
             '/files/download',
             '/auth/verification/request',
             '/auth/verification/confirm',
@@ -161,6 +164,12 @@ final class OpenApiContractTest extends TestCase
 
         foreach (['/schools/{school}/staff', '/schools/{school}/staff/{staff}', '/schools/{school}/staff/{staff}/activate', '/schools/{school}/staff/{staff}/suspend', '/schools/{school}/staff/{staff}/end'] as $staffPath) {
             $this->assertSame([['bearerAuth' => []]], $document['paths'][$staffPath][array_key_first($document['paths'][$staffPath])]['security']);
+        }
+
+        foreach (['/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments', '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments/{assignment}', '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments/{assignment}/revoke'] as $classTeacherPath) {
+            foreach ($document['paths'][$classTeacherPath] as $operation) {
+                $this->assertSame([['bearerAuth' => []]], $operation['security']);
+            }
         }
 
         $this->assertSame([['bearerAuth' => []]], $document['paths']['/schools/{school}/academic-readiness']['get']['security']);
