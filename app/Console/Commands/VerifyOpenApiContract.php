@@ -18,6 +18,10 @@ final class VerifyOpenApiContract extends Command
 
     public function handle(): int
     {
+        if (app()->environment('testing')) {
+            Artisan::call('migrate', ['--force' => true, '--quiet' => true]);
+        }
+
         $artifactPath = base_path((string) $this->option('artifact'));
 
         if (! File::exists($artifactPath)) {

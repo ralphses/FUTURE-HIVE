@@ -28,6 +28,7 @@ use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolSetupController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianInvitationController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianRelationshipController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\StudentEnrollmentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentProfileController;
 use App\Http\Middleware\JwtAuthenticate;
 use App\Http\Middleware\RefreshCookieCsrf;
@@ -282,6 +283,18 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/students/{student}/withdraw', [StudentController::class, 'withdraw'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.withdraw');
+    Route::get('/schools/{school}/students/{student}/enrollments', [StudentEnrollmentController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.enrollments.index');
+    Route::post('/schools/{school}/students/{student}/enrollments', [StudentEnrollmentController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.enrollments.store');
+    Route::get('/schools/{school}/students/{student}/enrollments/{enrollment}', [StudentEnrollmentController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.enrollments.show');
+    Route::post('/schools/{school}/students/{student}/enrollments/{enrollment}/end', [StudentEnrollmentController::class, 'end'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.enrollments.end');
     Route::get('/schools/{school}/students/{student}/profile', [StudentProfileController::class, 'showProfile'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.profile.show');
