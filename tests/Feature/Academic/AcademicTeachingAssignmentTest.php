@@ -122,7 +122,7 @@ final class AcademicTeachingAssignmentTest extends TestCase
         $offeringPath = '/api/v1/schools/'.$school->public_id.'/academic-sessions/'.$configuration['session'].'/terms/'.$configuration['term'].'/subject-offerings/'.$configuration['offering'];
         $this->withToken($token)->postJson($offeringPath.'/deactivate')->assertOk();
         $this->withToken($token)->postJson($basePath.'/teaching-assignments', ['teacher_id' => $teacher->public_id, 'effective_start' => '2025-09-01'])->assertUnprocessable();
-        self::assertFalse(Schema::hasTable('students'));
+        self::assertSame(0, Schema::getConnection()->table('students')->count());
         self::assertFalse(Schema::hasTable('assessments'));
     }
 

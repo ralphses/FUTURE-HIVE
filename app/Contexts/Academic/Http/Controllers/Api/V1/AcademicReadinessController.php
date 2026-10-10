@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Contexts\Platform\Http\Controllers\Api\V1;
+namespace App\Contexts\Academic\Http\Controllers\Api\V1;
 
 use App\Contexts\Academic\Application\Actions\AcademicReadinessAction;
 use App\Contexts\Identity\Domain\Models\UserIdentity;

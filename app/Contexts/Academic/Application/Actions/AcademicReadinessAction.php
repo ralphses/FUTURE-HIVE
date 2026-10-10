@@ -39,7 +39,7 @@ final class AcademicReadinessAction
         $classArms = AcademicClassArm::query()->where('status', 'active')->with(['level', 'section'])->get();
         $structureStatus = $classArms->isEmpty() ? 'missing' : 'ready';
         foreach ($classArms as $classArm) {
-            if ($classArm->level?->status !== 'active' || $classArm->section?->status !== 'active' || $classArm->section?->academic_level_id !== $classArm->academic_level_id) {
+            if ($classArm->level->status !== 'active' || $classArm->section->status !== 'active' || $classArm->section->academic_level_id !== $classArm->academic_level_id) {
                 $structureStatus = 'invalid';
                 break;
             }
@@ -49,7 +49,7 @@ final class AcademicReadinessAction
         $offerings = AcademicSubjectOffering::query()->where('status', 'active')->with(['session', 'term', 'level', 'section', 'classArm', 'subject'])->get();
         $offeringStatus = $offerings->isEmpty() ? 'missing' : 'ready';
         foreach ($offerings as $offering) {
-            if ($offering->session?->status !== 'active' || $offering->term?->status !== 'active' || $offering->term?->academic_session_id !== $offering->academic_session_id || $offering->level?->status !== 'active' || $offering->section?->status !== 'active' || $offering->classArm?->status !== 'active' || $offering->subject?->status !== 'active') {
+            if ($offering->session->status !== 'active' || $offering->term->status !== 'active' || $offering->term->academic_session_id !== $offering->academic_session_id || $offering->level->status !== 'active' || $offering->section->status !== 'active' || $offering->classArm->status !== 'active' || $offering->subject->status !== 'active') {
                 $offeringStatus = 'invalid';
                 break;
             }

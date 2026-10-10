@@ -116,7 +116,7 @@ final class AcademicSubjectOfferingTest extends TestCase
         $this->withToken($token)->postJson($path.'/'.$offering.'/deactivate')->assertOk()->assertJsonPath('data.status', 'inactive');
         $this->withToken($token)->postJson($path.'/'.$offering.'/activate')->assertOk()->assertJsonPath('data.status', 'active');
 
-        self::assertFalse(Schema::hasTable('students'));
+        self::assertSame(0, Schema::getConnection()->table('students')->count());
         self::assertFalse(Schema::hasTable('enrolments'));
         self::assertFalse(Schema::hasTable('assessments'));
     }

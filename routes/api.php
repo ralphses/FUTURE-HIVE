@@ -6,6 +6,7 @@ use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicClassArmController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicGradingScaleController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPromotionRuleController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicReadinessController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStructureController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectOfferingController;
@@ -17,7 +18,6 @@ use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolContextController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolInvitationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolMembershipController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolRoleController;
-use App\Contexts\Platform\Http\Controllers\Api\V1\AcademicReadinessController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ReadinessController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolLifecycleController;
@@ -25,6 +25,7 @@ use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolProfileController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationVerificationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolSetupController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\StudentController;
 use App\Http\Middleware\JwtAuthenticate;
 use App\Http\Middleware\RefreshCookieCsrf;
 use App\Http\Middleware\RequireSchoolContext;
@@ -246,6 +247,24 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/academic-readiness', AcademicReadinessController::class)
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-readiness');
+    Route::get('/schools/{school}/students', [StudentController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.index');
+    Route::post('/schools/{school}/students', [StudentController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.store');
+    Route::get('/schools/{school}/students/{student}', [StudentController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.show');
+    Route::patch('/schools/{school}/students/{student}', [StudentController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.update');
+    Route::post('/schools/{school}/students/{student}/activate', [StudentController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.activate');
+    Route::post('/schools/{school}/students/{student}/withdraw', [StudentController::class, 'withdraw'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.students.withdraw');
     Route::get('/schools/{school}/academic-levels', [AcademicStructureController::class, 'levels'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-levels.index');
     Route::post('/schools/{school}/academic-levels', [AcademicStructureController::class, 'storeLevel'])

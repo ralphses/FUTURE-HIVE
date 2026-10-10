@@ -111,6 +111,10 @@ final class OpenApiContractTest extends TestCase
             '/me/schools/{school}/permissions',
             '/schools/{school}/setup',
             '/schools/{school}/setup/{item}',
+            '/schools/{school}/students',
+            '/schools/{school}/students/{student}',
+            '/schools/{school}/students/{student}/activate',
+            '/schools/{school}/students/{student}/withdraw',
         ], array_keys($document['paths']));
         $this->assertArrayNotHasKey('/students', $document['paths']);
     }
@@ -126,6 +130,11 @@ final class OpenApiContractTest extends TestCase
         }
 
         $this->assertSame([['bearerAuth' => []]], $document['paths']['/schools/{school}/academic-readiness']['get']['security']);
+        foreach (['/schools/{school}/students', '/schools/{school}/students/{student}', '/schools/{school}/students/{student}/activate', '/schools/{school}/students/{student}/withdraw'] as $studentPath) {
+            foreach ($document['paths'][$studentPath] as $operation) {
+                $this->assertSame([['bearerAuth' => []]], $operation['security']);
+            }
+        }
 
         foreach ($document['paths'] as $path) {
             foreach ($path as $operation) {
