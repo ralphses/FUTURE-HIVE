@@ -27,9 +27,11 @@ use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationVerification
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolSetupController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianInvitationController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianRelationshipController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\StaffProfileController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentEnrollmentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentProfileController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\StudentPromotionController;
 use App\Http\Middleware\JwtAuthenticate;
 use App\Http\Middleware\RefreshCookieCsrf;
 use App\Http\Middleware\RequireSchoolContext;
@@ -153,6 +155,27 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/lifecycle/archive', [SchoolLifecycleController::class, 'archive'])
         ->middleware(RequireSchoolLifecycleContext::class)
         ->name('api.v1.schools.lifecycle.archive');
+    Route::get('/schools/{school}/staff', [StaffProfileController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.staff.index');
+    Route::post('/schools/{school}/staff', [StaffProfileController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.staff.store');
+    Route::get('/schools/{school}/staff/{staff}', [StaffProfileController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.staff.show');
+    Route::patch('/schools/{school}/staff/{staff}', [StaffProfileController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.staff.update');
+    Route::post('/schools/{school}/staff/{staff}/activate', [StaffProfileController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.staff.activate');
+    Route::post('/schools/{school}/staff/{staff}/suspend', [StaffProfileController::class, 'suspend'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.staff.suspend');
+    Route::post('/schools/{school}/staff/{staff}/end', [StaffProfileController::class, 'end'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.staff.end');
 
     // Academic Structure and Assessment: periods, offerings, assignments, policies and scales.
     Route::get('/schools/{school}/academic-sessions', [AcademicPeriodController::class, 'sessions'])
@@ -304,6 +327,20 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/students/{student}/enrollment-history', [StudentEnrollmentController::class, 'history'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.enrollment-history');
+    Route::get('/schools/{school}/promotion-cycles', [StudentPromotionController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-cycles.index');
+    Route::post('/schools/{school}/promotion-cycles', [StudentPromotionController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-cycles.store');
+    Route::get('/schools/{school}/promotion-cycles/{cycle}', [StudentPromotionController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-cycles.show');
+    Route::post('/schools/{school}/promotion-cycles/{cycle}/decisions', [StudentPromotionController::class, 'decision'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-cycles.decisions');
+    Route::post('/schools/{school}/promotion-cycles/{cycle}/approve', [StudentPromotionController::class, 'approve'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-cycles.approve');
+    Route::post('/schools/{school}/promotion-cycles/{cycle}/apply', [StudentPromotionController::class, 'apply'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-cycles.apply');
+    Route::post('/schools/{school}/promotion-cycles/{cycle}/rollback', [StudentPromotionController::class, 'rollback'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.promotion-cycles.rollback');
     Route::get('/schools/{school}/students/{student}/profile', [StudentProfileController::class, 'showProfile'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.students.profile.show');

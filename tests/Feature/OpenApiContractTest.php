@@ -120,6 +120,11 @@ final class OpenApiContractTest extends TestCase
             '/me/schools/{school}/permissions',
             '/schools/{school}/setup',
             '/schools/{school}/setup/{item}',
+            '/schools/{school}/staff',
+            '/schools/{school}/staff/{staff}',
+            '/schools/{school}/staff/{staff}/activate',
+            '/schools/{school}/staff/{staff}/suspend',
+            '/schools/{school}/staff/{staff}/end',
             '/schools/{school}/students',
             '/schools/{school}/students/{student}',
             '/schools/{school}/students/{student}/activate',
@@ -134,6 +139,12 @@ final class OpenApiContractTest extends TestCase
             '/schools/{school}/students/{student}/documents',
             '/schools/{school}/students/{student}/documents/{document}',
             '/schools/{school}/students/{student}/documents/{document}/revoke',
+            '/schools/{school}/promotion-cycles',
+            '/schools/{school}/promotion-cycles/{cycle}',
+            '/schools/{school}/promotion-cycles/{cycle}/decisions',
+            '/schools/{school}/promotion-cycles/{cycle}/approve',
+            '/schools/{school}/promotion-cycles/{cycle}/apply',
+            '/schools/{school}/promotion-cycles/{cycle}/rollback',
         ], array_keys($document['paths']));
         $this->assertArrayNotHasKey('/students', $document['paths']);
     }
@@ -146,6 +157,10 @@ final class OpenApiContractTest extends TestCase
         $this->assertArrayHasKey('ApiError', $document['components']['schemas']);
         foreach (['/auth/me', '/auth/logout', '/auth/context/switch', '/auth/context', '/auth/password/change', '/schools/{school}/invitations', '/invitations/{invitation}/accept', '/invitations/{invitation}/revoke', '/schools/{school}/lifecycle', '/schools/{school}/lifecycle/suspend', '/schools/{school}/lifecycle/reactivate', '/schools/{school}/lifecycle/archive', '/schools/{school}/academic-levels', '/schools/{school}/academic-levels/{level}', '/schools/{school}/academic-levels/{level}/sections', '/schools/{school}/academic-levels/{level}/sections/{section}', '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms', '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}', '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/activate', '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/deactivate', '/schools/{school}/subjects', '/schools/{school}/subjects/{subject}', '/schools/{school}/subjects/{subject}/activate', '/schools/{school}/subjects/{subject}/deactivate', '/schools/{school}/academic-sessions', '/schools/{school}/academic-sessions/{session}', '/schools/{school}/academic-sessions/{session}/terms', '/schools/{school}/academic-sessions/{session}/terms/{term}', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/activate', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/deactivate', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}/revoke', '/schools/{school}/academic-context', '/me/memberships', '/schools/{school}/roles', '/schools/{school}/memberships/{membership}/roles', '/schools/{school}/memberships/{membership}/roles/{role}', '/me/schools/{school}/permissions', '/schools/{school}/setup', '/schools/{school}/setup/{item}', '/schools/{school}/profile', '/schools/{school}/profile/logo', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales/{scale}', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales/{scale}/activate', '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales/{scale}/retire'] as $protectedPath) {
             $this->assertSame([['bearerAuth' => []]], $document['paths'][$protectedPath][array_key_first($document['paths'][$protectedPath])]['security']);
+        }
+
+        foreach (['/schools/{school}/staff', '/schools/{school}/staff/{staff}', '/schools/{school}/staff/{staff}/activate', '/schools/{school}/staff/{staff}/suspend', '/schools/{school}/staff/{staff}/end'] as $staffPath) {
+            $this->assertSame([['bearerAuth' => []]], $document['paths'][$staffPath][array_key_first($document['paths'][$staffPath])]['security']);
         }
 
         $this->assertSame([['bearerAuth' => []]], $document['paths']['/schools/{school}/academic-readiness']['get']['security']);
