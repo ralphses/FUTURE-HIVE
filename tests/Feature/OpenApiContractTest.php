@@ -172,6 +172,7 @@ final class OpenApiContractTest extends TestCase
             '/schools/{school}/promotion-cycles/{cycle}/rollback',
             '/schools/{school}/students/search',
             '/schools/{school}/students/export',
+            '/schools/{school}/teacher-worklist',
         ], array_keys($document['paths']));
         $this->assertArrayNotHasKey('/students', $document['paths']);
     }
@@ -195,6 +196,8 @@ final class OpenApiContractTest extends TestCase
                 $this->assertSame([['bearerAuth' => []]], $operation['security']);
             }
         }
+
+        $this->assertSame([['bearerAuth' => []]], $document['paths']['/schools/{school}/teacher-worklist']['get']['security']);
 
         $this->assertSame([['bearerAuth' => []]], $document['paths']['/schools/{school}/academic-readiness']['get']['security']);
         foreach (['/schools/{school}/students', '/schools/{school}/students/export', '/schools/{school}/students/search', '/schools/{school}/students/{student}', '/schools/{school}/students/{student}/audit-history', '/schools/{school}/students/{student}/activate', '/schools/{school}/students/{student}/withdraw', '/schools/{school}/students/{student}/profile', '/schools/{school}/students/{student}/documents', '/schools/{school}/students/{student}/documents/{document}', '/schools/{school}/students/{student}/documents/{document}/revoke', '/schools/{school}/guardians', '/schools/{school}/guardians/{guardian}', '/schools/{school}/guardians/{guardian}/audit-history', '/schools/{school}/students/{student}/guardian-relationships', '/schools/{school}/students/{student}/guardian-relationships/{relationship}', '/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke'] as $studentPath) {

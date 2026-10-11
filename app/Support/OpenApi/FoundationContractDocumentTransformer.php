@@ -216,6 +216,7 @@ final class FoundationContractDocumentTransformer
                     'v1.schools.class-teacher-assignments.show',
                     'v1.schools.class-teacher-assignments.update',
                     'v1.schools.class-teacher-assignments.revoke',
+                    'v1.schools.teacher-worklist.index',
                 ], true)) {
                     $operation->addSecurity(new SecurityRequirement(['bearerAuth' => []]));
                 }
@@ -367,6 +368,7 @@ final class FoundationContractDocumentTransformer
             'v1.schools.class-teacher-assignments.show' => ['View a class-teacher assignment', 'Returns one class-teacher assignment without exposing internal IDs, credentials or contact records.'],
             'v1.schools.class-teacher-assignments.update' => ['Update assignment dates', 'Updates the effective dates or administrative reason for an active class-teacher assignment. Staff, class-arm and school ownership cannot change.'],
             'v1.schools.class-teacher-assignments.revoke' => ['Revoke a class-teacher assignment', 'Revokes an assignment while retaining historical records. A revoked assignment cannot be reactivated.'],
+            'v1.schools.teacher-worklist.index' => ['View teacher worklist', 'Lists the authenticated teacher’s active class-teacher and subject-teaching assignments in the selected school. Pending actions appear only when their owning records exist; this endpoint is read-only.'],
             'v1.schools.import-templates.index' => ['List import templates', 'Lists versioned CSV and Excel templates available to authorized school administrators. Templates describe future imports and do not create or change school records.'],
             'v1.schools.import-templates.download' => ['Download an import template', 'Downloads a stable fictional-example template for a future student, guardian or staff import. The selected school context authorizes access; this download does not upload or mutate records.'],
             'v1.schools.imports.store' => ['Upload and stage an import file', 'Uploads a CSV or Excel file that matches an approved template, scans and stores it privately, then stages its rows without changing school records.'],
@@ -777,6 +779,7 @@ final class FoundationContractDocumentTransformer
             'v1.schools.class-teacher-assignments.show',
             'v1.schools.class-teacher-assignments.update',
             'v1.schools.class-teacher-assignments.revoke',
+            'v1.schools.teacher-worklist.index',
         ], true)) {
             return 'School Administration';
         }

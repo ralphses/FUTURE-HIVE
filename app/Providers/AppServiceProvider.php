@@ -186,6 +186,7 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.class-teacher-assignments.show',
                     'api.v1.schools.class-teacher-assignments.update',
                     'api.v1.schools.class-teacher-assignments.revoke',
+                    'api.v1.schools.teacher-worklist.index',
                     'api.v1.schools.academic-sessions.index',
                     'api.v1.schools.academic-sessions.store',
                     'api.v1.schools.academic-sessions.show',

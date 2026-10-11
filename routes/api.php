@@ -11,6 +11,7 @@ use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStructureController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectOfferingController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicTeachingAssignmentController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\TeacherWorklistController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\AuthenticationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\ContactVerificationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\PasswordController;
@@ -282,6 +283,9 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments/{assignment}/revoke', [ClassTeacherAssignmentController::class, 'revoke'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.class-teacher-assignments.revoke');
+    Route::get('/schools/{school}/teacher-worklist', [TeacherWorklistController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.teacher-worklist.index');
 
     // Academic Structure and Assessment: periods, offerings, assignments, policies and scales.
     Route::get('/schools/{school}/academic-sessions', [AcademicPeriodController::class, 'sessions'])

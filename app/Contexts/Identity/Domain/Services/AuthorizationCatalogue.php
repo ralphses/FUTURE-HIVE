@@ -110,6 +110,7 @@ final class AuthorizationCatalogue
             'staff.employment.manage' => ['label' => 'Manage staff employment', 'description' => 'Activate, suspend or end staff employment in the selected school.'],
             'staff.class-teachers.read' => ['label' => 'Read class-teacher assignments', 'description' => 'View class-teacher assignments in the selected school.'],
             'staff.class-teachers.manage' => ['label' => 'Manage class-teacher assignments', 'description' => 'Assign and revoke class teachers for school class arms.'],
+            'teaching.worklist.read' => ['label' => 'Read teacher worklist', 'description' => 'View the authenticated teacher’s assigned classes and subject offerings.'],
         ];
     }
 
@@ -154,6 +155,10 @@ final class AuthorizationCatalogue
             $permissions[$role][] = 'imports.report.read';
             $permissions[$role][] = 'students.audit.read';
             $permissions[$role][] = 'guardians.audit.read';
+        }
+
+        foreach (['school_admin', 'teacher', 'hod_reviewer', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'teaching.worklist.read';
         }
 
         return $permissions;
