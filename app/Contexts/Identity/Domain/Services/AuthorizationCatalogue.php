@@ -72,6 +72,8 @@ final class AuthorizationCatalogue
             'imports.commit.generate' => ['label' => 'Commit imports', 'description' => 'Create validated, explicitly resolved import records in the selected school.'],
             'imports.recovery.read' => ['label' => 'Read import recovery', 'description' => 'View safe retry results for partial import commits in the selected school.'],
             'imports.recovery.execute' => ['label' => 'Recover import failures', 'description' => 'Retry failed rows from a partial import commit without duplicating successful rows.'],
+            'imports.historical-academic.read' => ['label' => 'Read historical academic imports', 'description' => 'View safe historical academic import status in the selected school.'],
+            'imports.historical-academic.manage' => ['label' => 'Manage historical academic imports', 'description' => 'Archive approved historical academic values without changing current academic results.'],
             'students.audit.read' => ['label' => 'Read student audit history', 'description' => 'View safe history of sensitive student changes in the selected school.'],
             'students.admit' => ['label' => 'Admit students', 'description' => 'Create student admission records in the selected school.'],
             'students.manage' => ['label' => 'Manage students', 'description' => 'Update and manage student admission lifecycle in the selected school.'],
@@ -140,6 +142,8 @@ final class AuthorizationCatalogue
             $permissions[$role][] = 'imports.commit.generate';
             $permissions[$role][] = 'imports.recovery.read';
             $permissions[$role][] = 'imports.recovery.execute';
+            $permissions[$role][] = 'imports.historical-academic.read';
+            $permissions[$role][] = 'imports.historical-academic.manage';
             $permissions[$role][] = 'students.audit.read';
             $permissions[$role][] = 'guardians.audit.read';
         }

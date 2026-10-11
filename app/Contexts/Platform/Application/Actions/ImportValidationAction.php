@@ -150,6 +150,15 @@ final class ImportValidationAction
             'job_title' => 120,
             'department' => 120,
             'metadata' => 1000,
+            'academic_session' => 64,
+            'academic_term' => 64,
+            'subject_offering' => 64,
+            'policy_version' => 64,
+            'score' => 32,
+            'max_marks' => 32,
+            'grade' => 32,
+            'remark' => 255,
+            'provenance_reference' => 160,
         ];
         if (isset($maxLengths[$field]) && mb_strlen($value) > $maxLengths[$field]) {
             return ['value' => null, 'error' => ['code' => 'too_long', 'message' => 'This field exceeds the allowed length.']];
@@ -182,6 +191,14 @@ final class ImportValidationAction
 
         if ($field === 'employment_status' && ! in_array($value, ['pending', 'active', 'suspended', 'ended'], true)) {
             return ['value' => null, 'error' => ['code' => 'unsupported_value', 'message' => 'The employment state is not supported.']];
+        }
+
+        if (in_array($field, ['academic_session', 'academic_term', 'subject_offering', 'policy_version'], true) && ! preg_match('/^[0-9a-f-]{36}$/i', $value)) {
+            return ['value' => null, 'error' => ['code' => 'invalid_public_id', 'message' => 'Use a valid public identifier.']];
+        }
+
+        if (in_array($field, ['score', 'max_marks'], true) && (! is_numeric($value) || (float) $value < 0)) {
+            return ['value' => null, 'error' => ['code' => 'invalid_number', 'message' => 'Use a non-negative number.']];
         }
 
         return ['value' => $value, 'error' => null];

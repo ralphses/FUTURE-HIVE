@@ -54,6 +54,24 @@ final class ImportTemplateCatalog
                     ['name' => 'employment_status', 'required' => false, 'description' => 'A proposed employment state for later validation; the server controls lifecycle state.', 'example' => 'pending'],
                 ],
             ],
+            'historical_academic_results' => [
+                'key' => 'historical_academic_results',
+                'name' => 'Historical academic results',
+                'version' => 'v1',
+                'formats' => ['csv', 'xlsx'],
+                'fields' => [
+                    ['name' => 'student_number', 'required' => true, 'description' => 'The school-local student number for an existing admitted student.', 'example' => 'STU-001'],
+                    ['name' => 'academic_session', 'required' => true, 'description' => 'The public identifier of the existing academic session.', 'example' => '0192f8d2-7b2f-72e8-9a00-123456789001'],
+                    ['name' => 'academic_term', 'required' => true, 'description' => 'The public identifier of the existing academic term.', 'example' => '0192f8d2-7b2f-72e8-9a00-123456789002'],
+                    ['name' => 'subject_offering', 'required' => true, 'description' => 'The public identifier of the existing subject offering.', 'example' => '0192f8d2-7b2f-72e8-9a00-123456789003'],
+                    ['name' => 'policy_version', 'required' => false, 'description' => 'The public identifier of the historical assessment policy version, when available.', 'example' => '0192f8d2-7b2f-72e8-9a00-123456789004'],
+                    ['name' => 'score', 'required' => true, 'description' => 'The imported historical score. It is retained as unverified provenance and is not calculated or published.', 'example' => '72.50'],
+                    ['name' => 'max_marks', 'required' => true, 'description' => 'The maximum marks used by the historical source record.', 'example' => '100'],
+                    ['name' => 'grade', 'required' => false, 'description' => 'The source grade label, if supplied.', 'example' => 'B'],
+                    ['name' => 'remark', 'required' => false, 'description' => 'The source remark, if supplied.', 'example' => 'Historical record'],
+                    ['name' => 'provenance_reference', 'required' => true, 'description' => 'A bounded reference to the source document or school archive; do not include a private URL or contact.', 'example' => 'ARCHIVE-2025-001'],
+                ],
+            ],
         ];
     }
 

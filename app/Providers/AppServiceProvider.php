@@ -175,6 +175,8 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.imports.commit.show',
                     'api.v1.schools.imports.recovery.retry',
                     'api.v1.schools.imports.recovery.show',
+                    'api.v1.schools.imports.historical-academic.store',
+                    'api.v1.schools.imports.historical-academic.show',
                     'api.v1.schools.class-teacher-assignments.index',
                     'api.v1.schools.class-teacher-assignments.store',
                     'api.v1.schools.class-teacher-assignments.show',

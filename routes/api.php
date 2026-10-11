@@ -19,6 +19,7 @@ use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolInvitationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolMembershipController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolRoleController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\HistoricalAcademicImportController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportBatchController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportCommitController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportDryRunController;
@@ -246,6 +247,12 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/imports/{import}/recovery', [ImportRecoveryController::class, 'show'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.imports.recovery.show');
+    Route::post('/schools/{school}/imports/{import}/historical-academic', [HistoricalAcademicImportController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.historical-academic.store');
+    Route::get('/schools/{school}/imports/{import}/historical-academic', [HistoricalAcademicImportController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.historical-academic.show');
     Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments', [ClassTeacherAssignmentController::class, 'index'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.class-teacher-assignments.index');
