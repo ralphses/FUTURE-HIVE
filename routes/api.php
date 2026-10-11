@@ -18,8 +18,10 @@ use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolContextController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolInvitationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolMembershipController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolRoleController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\FinancialOpeningBalanceImportController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HistoricalAcademicImportController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\ImportAuditReportController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportBatchController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportCommitController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportDryRunController;
@@ -253,6 +255,18 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/imports/{import}/historical-academic', [HistoricalAcademicImportController::class, 'show'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.imports.historical-academic.show');
+    Route::post('/schools/{school}/imports/{import}/financial-opening-balances', [FinancialOpeningBalanceImportController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.financial-opening-balances.store');
+    Route::get('/schools/{school}/imports/{import}/financial-opening-balances', [FinancialOpeningBalanceImportController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.financial-opening-balances.show');
+    Route::get('/schools/{school}/imports/{import}/audit', [ImportAuditReportController::class, 'audit'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.audit.show');
+    Route::get('/schools/{school}/imports/{import}/report', [ImportAuditReportController::class, 'report'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.report.download');
     Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments', [ClassTeacherAssignmentController::class, 'index'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.class-teacher-assignments.index');

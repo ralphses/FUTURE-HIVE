@@ -88,6 +88,7 @@ final class OpenApiContractTest extends TestCase
             '/files/download',
             '/auth/verification/request',
             '/auth/verification/confirm',
+            '/schools/{school}/imports/{import}/financial-opening-balances',
             '/guardian-invitations/{invitation}/confirm',
             '/schools/{school}/students/{student}/guardian-relationships/{relationship}/invitation',
             '/me/guardian-links',
@@ -100,6 +101,8 @@ final class OpenApiContractTest extends TestCase
             '/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke',
             '/health',
             '/schools/{school}/imports/{import}/historical-academic',
+            '/schools/{school}/imports/{import}/audit',
+            '/schools/{school}/imports/{import}/report',
             '/schools/{school}/imports',
             '/schools/{school}/imports/{import}',
             '/schools/{school}/imports/{import}/cancel',
@@ -183,7 +186,7 @@ final class OpenApiContractTest extends TestCase
             $this->assertSame([['bearerAuth' => []]], $document['paths'][$protectedPath][array_key_first($document['paths'][$protectedPath])]['security']);
         }
 
-        foreach (['/schools/{school}/staff', '/schools/{school}/staff/{staff}', '/schools/{school}/staff/{staff}/activate', '/schools/{school}/staff/{staff}/suspend', '/schools/{school}/staff/{staff}/end', '/schools/{school}/import-templates', '/schools/{school}/import-templates/{template}', '/schools/{school}/imports', '/schools/{school}/imports/{import}', '/schools/{school}/imports/{import}/cancel', '/schools/{school}/imports/{import}/mapping', '/schools/{school}/imports/{import}/preview', '/schools/{school}/imports/{import}/validate', '/schools/{school}/imports/{import}/validation', '/schools/{school}/imports/{import}/duplicates', '/schools/{school}/imports/{import}/duplicates/{duplicate}/resolve', '/schools/{school}/imports/{import}/dry-run', '/schools/{school}/imports/{import}/commit/retry', '/schools/{school}/imports/{import}/recovery', '/schools/{school}/imports/{import}/historical-academic'] as $staffPath) {
+        foreach (['/schools/{school}/staff', '/schools/{school}/staff/{staff}', '/schools/{school}/staff/{staff}/activate', '/schools/{school}/staff/{staff}/suspend', '/schools/{school}/staff/{staff}/end', '/schools/{school}/import-templates', '/schools/{school}/import-templates/{template}', '/schools/{school}/imports', '/schools/{school}/imports/{import}', '/schools/{school}/imports/{import}/cancel', '/schools/{school}/imports/{import}/mapping', '/schools/{school}/imports/{import}/preview', '/schools/{school}/imports/{import}/validate', '/schools/{school}/imports/{import}/validation', '/schools/{school}/imports/{import}/duplicates', '/schools/{school}/imports/{import}/duplicates/{duplicate}/resolve', '/schools/{school}/imports/{import}/dry-run', '/schools/{school}/imports/{import}/commit/retry', '/schools/{school}/imports/{import}/recovery', '/schools/{school}/imports/{import}/historical-academic', '/schools/{school}/imports/{import}/financial-opening-balances', '/schools/{school}/imports/{import}/audit', '/schools/{school}/imports/{import}/report'] as $staffPath) {
             $this->assertSame([['bearerAuth' => []]], $document['paths'][$staffPath][array_key_first($document['paths'][$staffPath])]['security']);
         }
 

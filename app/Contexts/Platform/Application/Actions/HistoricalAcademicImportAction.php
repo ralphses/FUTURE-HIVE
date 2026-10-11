@@ -26,7 +26,15 @@ final class HistoricalAcademicImportAction
         private readonly RecordAuditEventAction $audit,
     ) {}
 
-    /** @return array<string, mixed> */
+    /**
+     * @return array{
+     *     id: string,
+     *     status: string,
+     *     counts: array<string, int>,
+     *     errors: array<string, int>,
+     *     rows: list<array{row_number: int, status: string, error_code: ?string, id: string}>
+     * }
+     */
     public function import(Authenticatable $actor, string $school, string $batchPublicId): array
     {
         $this->authorize($actor, $school, 'imports.historical-academic.manage');
@@ -97,7 +105,15 @@ final class HistoricalAcademicImportAction
         });
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @return array{
+     *     id: string,
+     *     status: string,
+     *     counts: array<string, int>,
+     *     errors: array<string, int>,
+     *     rows: list<array{row_number: int, status: string, error_code: ?string, id: string}>
+     * }
+     */
     public function show(Authenticatable $actor, string $school, string $batchPublicId): array
     {
         $this->authorize($actor, $school, 'imports.historical-academic.read');
@@ -110,10 +126,33 @@ final class HistoricalAcademicImportAction
         return $this->data($historical->load('records'));
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @return array{
+     *     id: string,
+     *     status: string,
+     *     counts: array<string, int>,
+     *     errors: array<string, int>,
+     *     rows: list<array{row_number: int, status: string, error_code: ?string, id: string}>
+     * }
+     */
     private function data(HistoricalAcademicImport $historical): array
     {
-        return ['id' => (string) $historical->public_id, 'status' => (string) $historical->status, 'counts' => $historical->counts ?? [], 'errors' => $historical->error_summary ?? [], 'rows' => $historical->records->map(fn (HistoricalAcademicRecord $record): array => ['row_number' => (int) $record->row_number, 'status' => (string) $record->status, 'error_code' => $record->error_code, 'id' => (string) $record->public_id])->values()->all()];
+        $counts = [];
+        foreach ((array) ($historical->counts ?? []) as $key => $value) {
+            $counts[(string) $key] = (int) $value;
+        }
+        $errors = [];
+        foreach ((array) ($historical->error_summary ?? []) as $key => $value) {
+            $errors[(string) $key] = (int) $value;
+        }
+        $rows = $historical->records->map(static fn (HistoricalAcademicRecord $record): array => [
+            'row_number' => (int) $record->row_number,
+            'status' => (string) $record->status,
+            'error_code' => $record->error_code === null ? null : (string) $record->error_code,
+            'id' => (string) $record->public_id,
+        ])->values()->all();
+
+        return ['id' => (string) $historical->public_id, 'status' => (string) $historical->status, 'counts' => $counts, 'errors' => $errors, 'rows' => $rows];
     }
 
     private function authorize(Authenticatable $actor, string $school, string $permission): void

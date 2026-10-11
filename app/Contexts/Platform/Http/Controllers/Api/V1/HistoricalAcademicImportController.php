@@ -22,6 +22,7 @@ final class HistoricalAcademicImportController
     }
 
     #[Endpoint(title: 'View historical academic import', description: 'Returns safe status, counts and row outcome codes for the historical archive without exposing source values or internal identifiers.')]
+    #[Response(status: 200, description: 'The safe historical import result.', type: 'object')]
     public function show(Request $request, string $school, string $import, HistoricalAcademicImportAction $action): JsonResponse
     {
         return ApiResponse::data($action->show($this->identity($request), $school, $import));

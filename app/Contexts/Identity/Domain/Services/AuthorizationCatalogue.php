@@ -74,6 +74,10 @@ final class AuthorizationCatalogue
             'imports.recovery.execute' => ['label' => 'Recover import failures', 'description' => 'Retry failed rows from a partial import commit without duplicating successful rows.'],
             'imports.historical-academic.read' => ['label' => 'Read historical academic imports', 'description' => 'View safe historical academic import status in the selected school.'],
             'imports.historical-academic.manage' => ['label' => 'Manage historical academic imports', 'description' => 'Archive approved historical academic values without changing current academic results.'],
+            'imports.financial-opening-balances.read' => ['label' => 'Read financial opening-balance imports', 'description' => 'View safe historical opening-balance import status in the selected school.'],
+            'imports.financial-opening-balances.manage' => ['label' => 'Manage financial opening-balance imports', 'description' => 'Archive unverified opening balances without creating payments or ledger transactions.'],
+            'imports.audit.read' => ['label' => 'Read import audit history', 'description' => 'View safe audit history for import processing stages in the selected school.'],
+            'imports.report.read' => ['label' => 'Download import reports', 'description' => 'Download bounded safe audit reports for import processing in the selected school.'],
             'students.audit.read' => ['label' => 'Read student audit history', 'description' => 'View safe history of sensitive student changes in the selected school.'],
             'students.admit' => ['label' => 'Admit students', 'description' => 'Create student admission records in the selected school.'],
             'students.manage' => ['label' => 'Manage students', 'description' => 'Update and manage student admission lifecycle in the selected school.'],
@@ -144,6 +148,10 @@ final class AuthorizationCatalogue
             $permissions[$role][] = 'imports.recovery.execute';
             $permissions[$role][] = 'imports.historical-academic.read';
             $permissions[$role][] = 'imports.historical-academic.manage';
+            $permissions[$role][] = 'imports.financial-opening-balances.read';
+            $permissions[$role][] = 'imports.financial-opening-balances.manage';
+            $permissions[$role][] = 'imports.audit.read';
+            $permissions[$role][] = 'imports.report.read';
             $permissions[$role][] = 'students.audit.read';
             $permissions[$role][] = 'guardians.audit.read';
         }

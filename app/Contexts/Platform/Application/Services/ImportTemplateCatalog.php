@@ -72,6 +72,19 @@ final class ImportTemplateCatalog
                     ['name' => 'provenance_reference', 'required' => true, 'description' => 'A bounded reference to the source document or school archive; do not include a private URL or contact.', 'example' => 'ARCHIVE-2025-001'],
                 ],
             ],
+            'financial_opening_balances' => [
+                'key' => 'financial_opening_balances',
+                'name' => 'Financial opening balances',
+                'version' => 'v1',
+                'formats' => ['csv', 'xlsx'],
+                'fields' => [
+                    ['name' => 'student_number', 'required' => true, 'description' => 'The school-local student number for an existing active student.', 'example' => 'STU-001'],
+                    ['name' => 'opening_balance', 'required' => true, 'description' => 'The historical outstanding amount at the as-of date. This is archived as an opening position, not a payment or invoice.', 'example' => '35000.00'],
+                    ['name' => 'currency', 'required' => true, 'description' => 'The three-letter currency code for the opening balance.', 'example' => 'NGN'],
+                    ['name' => 'as_of_date', 'required' => true, 'description' => 'The date on which the opening balance was observed, in YYYY-MM-DD format.', 'example' => '2026-08-31'],
+                    ['name' => 'provenance_reference', 'required' => true, 'description' => 'A bounded reference to the source financial archive; do not include a private URL or contact.', 'example' => 'FIN-ARCHIVE-2025-001'],
+                ],
+            ],
         ];
     }
 

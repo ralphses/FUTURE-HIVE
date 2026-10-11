@@ -159,12 +159,27 @@ final class ImportValidationAction
             'grade' => 32,
             'remark' => 255,
             'provenance_reference' => 160,
+            'currency' => 3,
+            'opening_balance' => 32,
         ];
         if (isset($maxLengths[$field]) && mb_strlen($value) > $maxLengths[$field]) {
             return ['value' => null, 'error' => ['code' => 'too_long', 'message' => 'This field exceeds the allowed length.']];
         }
 
         if ($field === 'admission_date') {
+            try {
+                $date = CarbonImmutable::createFromFormat('!Y-m-d', $value);
+            } catch (InvalidFormatException) {
+                return ['value' => null, 'error' => ['code' => 'invalid_date', 'message' => 'Use a valid date in YYYY-MM-DD format.']];
+            }
+            if ($date === null || $date->format('Y-m-d') !== $value) {
+                return ['value' => null, 'error' => ['code' => 'invalid_date', 'message' => 'Use a valid date in YYYY-MM-DD format.']];
+            }
+
+            return ['value' => $date->format('Y-m-d'), 'error' => null];
+        }
+
+        if ($field === 'as_of_date') {
             try {
                 $date = CarbonImmutable::createFromFormat('!Y-m-d', $value);
             } catch (InvalidFormatException) {
@@ -199,6 +214,14 @@ final class ImportValidationAction
 
         if (in_array($field, ['score', 'max_marks'], true) && (! is_numeric($value) || (float) $value < 0)) {
             return ['value' => null, 'error' => ['code' => 'invalid_number', 'message' => 'Use a non-negative number.']];
+        }
+
+        if ($field === 'opening_balance' && (! preg_match('/^\d{1,10}(?:\.\d{1,2})?$/', $value) || (float) $value < 0)) {
+            return ['value' => null, 'error' => ['code' => 'invalid_amount', 'message' => 'Use a non-negative amount with up to two decimal places.']];
+        }
+
+        if ($field === 'currency' && ! preg_match('/^[A-Z]{3}$/', $value)) {
+            return ['value' => null, 'error' => ['code' => 'invalid_currency', 'message' => 'Use a three-letter uppercase currency code.']];
         }
 
         return ['value' => $value, 'error' => null];

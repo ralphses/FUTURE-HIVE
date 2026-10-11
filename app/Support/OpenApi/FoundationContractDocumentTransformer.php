@@ -207,6 +207,10 @@ final class FoundationContractDocumentTransformer
                     'v1.schools.imports.recovery.show',
                     'v1.schools.imports.historical-academic.store',
                     'v1.schools.imports.historical-academic.show',
+                    'v1.schools.imports.financial-opening-balances.store',
+                    'v1.schools.imports.financial-opening-balances.show',
+                    'v1.schools.imports.audit.show',
+                    'v1.schools.imports.report.download',
                     'v1.schools.class-teacher-assignments.index',
                     'v1.schools.class-teacher-assignments.store',
                     'v1.schools.class-teacher-assignments.show',
@@ -385,6 +389,10 @@ final class FoundationContractDocumentTransformer
             'v1.schools.imports.recovery.show' => ['View import recovery', 'Returns the latest safe recovery attempt for an import commit and excludes source values, contacts, credentials, private URLs and internal identifiers.'],
             'v1.schools.imports.historical-academic.store' => ['Archive historical academic results', 'Archives validated historical academic rows as unverified provenance. It requires current import snapshots and does not affect current scores, calculations, readiness or published reports.'],
             'v1.schools.imports.historical-academic.show' => ['View historical academic import', 'Returns safe status, counts and row outcome codes for an unverified historical archive without exposing source values or internal identifiers.'],
+            'v1.schools.imports.financial-opening-balances.store' => ['Archive financial opening balances', 'Archives validated school opening balances as unverified historical positions. It does not create payments, invoices, receipts or ledger transactions.'],
+            'v1.schools.imports.financial-opening-balances.show' => ['View financial opening-balance import', 'Returns safe archive status, counts and row outcome codes without exposing balances, source values or internal identifiers.'],
+            'v1.schools.imports.audit.show' => ['View import audit history', 'Lists safe, read-only events for every stage of an import in the selected school. Source cells, contacts, credentials, private URLs and internal identifiers are excluded.'],
+            'v1.schools.imports.report.download' => ['Download an import audit report', 'Downloads a bounded CSV, PDF or Excel report of safe import audit events. The report is read-only and excludes source values, contacts, balances, credentials and private URLs.'],
         ];
 
         if (isset($fixed[$operationId])) {
@@ -760,6 +768,10 @@ final class FoundationContractDocumentTransformer
             'v1.schools.imports.recovery.show',
             'v1.schools.imports.historical-academic.store',
             'v1.schools.imports.historical-academic.show',
+            'v1.schools.imports.financial-opening-balances.store',
+            'v1.schools.imports.financial-opening-balances.show',
+            'v1.schools.imports.audit.show',
+            'v1.schools.imports.report.download',
             'v1.schools.class-teacher-assignments.index',
             'v1.schools.class-teacher-assignments.store',
             'v1.schools.class-teacher-assignments.show',
