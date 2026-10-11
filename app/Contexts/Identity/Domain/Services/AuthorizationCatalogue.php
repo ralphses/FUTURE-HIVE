@@ -56,6 +56,20 @@ final class AuthorizationCatalogue
             'academic.readiness.read' => ['label' => 'Read academic readiness', 'description' => 'Check whether academic configuration is ready for future assessment workflows.'],
             'students.read' => ['label' => 'Read students', 'description' => 'View students in the selected school.'],
             'students.export' => ['label' => 'Export students', 'description' => 'Export permitted student registry fields from the selected school.'],
+            'imports.templates.read' => ['label' => 'Read import templates', 'description' => 'View and download approved versioned import templates for the selected school.'],
+            'imports.upload' => ['label' => 'Upload imports', 'description' => 'Upload approved CSV or Excel files for staging in the selected school.'],
+            'imports.read' => ['label' => 'Read imports', 'description' => 'View import staging metadata for the selected school.'],
+            'imports.cancel' => ['label' => 'Cancel imports', 'description' => 'Cancel an uploaded or staged import in the selected school.'],
+            'imports.mapping.read' => ['label' => 'Read import mappings', 'description' => 'View saved column mappings and safe import previews.'],
+            'imports.mapping.manage' => ['label' => 'Manage import mappings', 'description' => 'Create a new immutable column mapping for a staged import.'],
+            'imports.validation.read' => ['label' => 'Read import validation', 'description' => 'View row validation results and normalized previews.'],
+            'imports.validation.manage' => ['label' => 'Validate imports', 'description' => 'Run validation and normalization over a mapped staged import.'],
+            'imports.duplicates.read' => ['label' => 'Read import duplicates', 'description' => 'View safe duplicate candidates for a validated staged import.'],
+            'imports.duplicates.manage' => ['label' => 'Manage import duplicates', 'description' => 'Detect and explicitly resolve duplicate candidates before later import steps.'],
+            'imports.dry-run.read' => ['label' => 'Read import dry-run reports', 'description' => 'View safe impact reports for staged imports.'],
+            'imports.dry-run.generate' => ['label' => 'Generate import dry-run reports', 'description' => 'Analyze validated imports without changing canonical school records.'],
+            'imports.commit.read' => ['label' => 'Read import commits', 'description' => 'View safe results for controlled import commits in the selected school.'],
+            'imports.commit.generate' => ['label' => 'Commit imports', 'description' => 'Create validated, explicitly resolved import records in the selected school.'],
             'students.audit.read' => ['label' => 'Read student audit history', 'description' => 'View safe history of sensitive student changes in the selected school.'],
             'students.admit' => ['label' => 'Admit students', 'description' => 'Create student admission records in the selected school.'],
             'students.manage' => ['label' => 'Manage students', 'description' => 'Update and manage student admission lifecycle in the selected school.'],
@@ -108,6 +122,20 @@ final class AuthorizationCatalogue
 
         foreach (['school_admin', 'principal', 'proprietor'] as $role) {
             $permissions[$role][] = 'students.export';
+            $permissions[$role][] = 'imports.templates.read';
+            $permissions[$role][] = 'imports.upload';
+            $permissions[$role][] = 'imports.read';
+            $permissions[$role][] = 'imports.cancel';
+            $permissions[$role][] = 'imports.mapping.read';
+            $permissions[$role][] = 'imports.mapping.manage';
+            $permissions[$role][] = 'imports.validation.read';
+            $permissions[$role][] = 'imports.validation.manage';
+            $permissions[$role][] = 'imports.duplicates.read';
+            $permissions[$role][] = 'imports.duplicates.manage';
+            $permissions[$role][] = 'imports.dry-run.read';
+            $permissions[$role][] = 'imports.dry-run.generate';
+            $permissions[$role][] = 'imports.commit.read';
+            $permissions[$role][] = 'imports.commit.generate';
             $permissions[$role][] = 'students.audit.read';
             $permissions[$role][] = 'guardians.audit.read';
         }

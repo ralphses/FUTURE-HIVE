@@ -19,6 +19,13 @@ use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolInvitationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolMembershipController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolRoleController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\ImportBatchController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\ImportCommitController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\ImportDryRunController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\ImportDuplicateController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\ImportMappingController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\ImportTemplateController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\ImportValidationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ReadinessController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolLifecycleController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolProfileController;
@@ -178,6 +185,60 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/staff/{staff}/end', [StaffProfileController::class, 'end'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.staff.end');
+    Route::get('/schools/{school}/import-templates', [ImportTemplateController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.import-templates.index');
+    Route::get('/schools/{school}/import-templates/{template}', [ImportTemplateController::class, 'download'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.import-templates.download');
+    Route::post('/schools/{school}/imports', [ImportBatchController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.store');
+    Route::get('/schools/{school}/imports', [ImportBatchController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.index');
+    Route::get('/schools/{school}/imports/{import}', [ImportBatchController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.show');
+    Route::post('/schools/{school}/imports/{import}/cancel', [ImportBatchController::class, 'cancel'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.cancel');
+    Route::get('/schools/{school}/imports/{import}/mapping', [ImportMappingController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.mapping.show');
+    Route::put('/schools/{school}/imports/{import}/mapping', [ImportMappingController::class, 'replace'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.mapping.replace');
+    Route::get('/schools/{school}/imports/{import}/preview', [ImportMappingController::class, 'preview'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.preview');
+    Route::post('/schools/{school}/imports/{import}/validate', [ImportValidationController::class, 'validate'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.validation.validate');
+    Route::get('/schools/{school}/imports/{import}/validation', [ImportValidationController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.validation.show');
+    Route::post('/schools/{school}/imports/{import}/duplicates/detect', [ImportDuplicateController::class, 'detect'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.duplicates.detect');
+    Route::get('/schools/{school}/imports/{import}/duplicates', [ImportDuplicateController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.duplicates.show');
+    Route::post('/schools/{school}/imports/{import}/duplicates/{duplicate}/resolve', [ImportDuplicateController::class, 'resolve'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.duplicates.resolve');
+    Route::post('/schools/{school}/imports/{import}/dry-run', [ImportDryRunController::class, 'generate'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.dry-run.generate');
+    Route::get('/schools/{school}/imports/{import}/dry-run', [ImportDryRunController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.dry-run.show');
+    Route::post('/schools/{school}/imports/{import}/commit', [ImportCommitController::class, 'commit'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.commit.generate');
+    Route::get('/schools/{school}/imports/{import}/commit', [ImportCommitController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.commit.show');
     Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments', [ClassTeacherAssignmentController::class, 'index'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.class-teacher-assignments.index');

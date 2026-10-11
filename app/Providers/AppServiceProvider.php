@@ -6,9 +6,11 @@ use App\Contexts\Identity\Application\Contracts\ContactVerificationCodeDelivery;
 use App\Contexts\Identity\Application\Contracts\PasswordResetCodeDelivery;
 use App\Contexts\Identity\Infrastructure\ContactVerification\UnavailableContactVerificationCodeDelivery;
 use App\Contexts\Identity\Infrastructure\PasswordReset\UnavailablePasswordResetCodeDelivery;
+use App\Contexts\Platform\Application\Contracts\ImportCanonicalRecordWriter;
 use App\Contexts\Platform\Application\Contracts\RegistrationVerificationCodeDelivery;
 use App\Contexts\Platform\Infrastructure\Verification\UnavailableRegistrationVerificationCodeDelivery;
 use App\Contexts\Registry\Application\Contracts\GuardianInvitationCodeDelivery;
+use App\Contexts\Registry\Application\Services\RegistryImportCanonicalRecordWriter;
 use App\Contexts\Registry\Infrastructure\Invitations\UnavailableGuardianInvitationCodeDelivery;
 use App\Support\Contacts\ContactNormalizer;
 use App\Support\Contacts\IdentityContactNormalizer;
@@ -38,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(ImportCanonicalRecordWriter::class, RegistryImportCanonicalRecordWriter::class);
         $this->app->singleton(
             CloudinaryAssetClient::class,
             static fn (): CloudinarySdkClient => new CloudinarySdkClient(
@@ -152,6 +155,24 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.staff.activate',
                     'api.v1.schools.staff.suspend',
                     'api.v1.schools.staff.end',
+                    'api.v1.schools.import-templates.index',
+                    'api.v1.schools.import-templates.download',
+                    'api.v1.schools.imports.store',
+                    'api.v1.schools.imports.index',
+                    'api.v1.schools.imports.show',
+                    'api.v1.schools.imports.cancel',
+                    'api.v1.schools.imports.mapping.show',
+                    'api.v1.schools.imports.mapping.replace',
+                    'api.v1.schools.imports.preview',
+                    'api.v1.schools.imports.validation.validate',
+                    'api.v1.schools.imports.validation.show',
+                    'api.v1.schools.imports.duplicates.detect',
+                    'api.v1.schools.imports.duplicates.show',
+                    'api.v1.schools.imports.duplicates.resolve',
+                    'api.v1.schools.imports.dry-run.generate',
+                    'api.v1.schools.imports.dry-run.show',
+                    'api.v1.schools.imports.commit.generate',
+                    'api.v1.schools.imports.commit.show',
                     'api.v1.schools.class-teacher-assignments.index',
                     'api.v1.schools.class-teacher-assignments.store',
                     'api.v1.schools.class-teacher-assignments.show',
