@@ -123,7 +123,8 @@ final class ImportCommitAction
     }
 
     /** @return array{0: ImportMapping, 1: Collection<int, ImportStagedRow>, 2: Collection<int, ImportDuplicateFinding>, 3: ImportDryRunReport} */
-    private function readyInputs(ImportBatch $batch): array
+    /** @return array{0: ImportMapping, 1: Collection<int, ImportStagedRow>, 2: Collection<int, ImportDuplicateFinding>, 3: ImportDryRunReport} */
+    public function readyInputs(ImportBatch $batch): array
     {
         $mapping = ImportMapping::query()->where('import_batch_id', $batch->getKey())->latest('mapping_version')->first();
         $rows = $batch->rows()->orderBy('row_number')->limit((int) config('imports.max_rows', 5000))->get();
@@ -247,13 +248,15 @@ final class ImportCommitAction
     }
 
     /** @param Collection<int, ImportStagedRow> $rows */
-    private function validationHash(Collection $rows): string
+    /** @param Collection<int, ImportStagedRow> $rows */
+    public function validationHash(Collection $rows): string
     {
         return hash('sha256', json_encode($rows->map(fn (ImportStagedRow $row): array => [(int) $row->row_number, (string) $row->status, $row->error_metadata])->values()->all(), JSON_THROW_ON_ERROR));
     }
 
     /** @param Collection<int, ImportDuplicateFinding> $findings */
-    private function duplicateHash(Collection $findings): string
+    /** @param Collection<int, ImportDuplicateFinding> $findings */
+    public function duplicateHash(Collection $findings): string
     {
         return hash('sha256', json_encode($findings->map(fn (ImportDuplicateFinding $finding): array => [(string) $finding->public_id, (string) $finding->resolution_state])->values()->all(), JSON_THROW_ON_ERROR));
     }

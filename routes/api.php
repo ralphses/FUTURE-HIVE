@@ -24,6 +24,7 @@ use App\Contexts\Platform\Http\Controllers\Api\V1\ImportCommitController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportDryRunController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportDuplicateController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportMappingController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\ImportRecoveryController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportTemplateController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportValidationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ReadinessController;
@@ -239,6 +240,12 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/imports/{import}/commit', [ImportCommitController::class, 'show'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.imports.commit.show');
+    Route::post('/schools/{school}/imports/{import}/commit/retry', [ImportRecoveryController::class, 'retry'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.recovery.retry');
+    Route::get('/schools/{school}/imports/{import}/recovery', [ImportRecoveryController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.imports.recovery.show');
     Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments', [ClassTeacherAssignmentController::class, 'index'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.class-teacher-assignments.index');

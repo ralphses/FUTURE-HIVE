@@ -203,6 +203,8 @@ final class FoundationContractDocumentTransformer
                     'v1.schools.imports.dry-run.show',
                     'v1.schools.imports.commit.generate',
                     'v1.schools.imports.commit.show',
+                    'v1.schools.imports.recovery.retry',
+                    'v1.schools.imports.recovery.show',
                     'v1.schools.class-teacher-assignments.index',
                     'v1.schools.class-teacher-assignments.store',
                     'v1.schools.class-teacher-assignments.show',
@@ -377,6 +379,8 @@ final class FoundationContractDocumentTransformer
             'v1.schools.imports.dry-run.show' => ['View an import dry run', 'Returns the latest safe impact report for a staged import. It excludes raw row values, contacts, credentials and internal identifiers.'],
             'v1.schools.imports.commit.generate' => ['Commit a prepared import', 'Creates only validated and explicitly resolved records from a staged import after explicit COMMIT confirmation. Repeated requests return the existing safe result and do not duplicate canonical records.'],
             'v1.schools.imports.commit.show' => ['View an import commit', 'Returns safe counts and row outcomes for an import commit without exposing source values, contacts, credentials, private URLs or internal identifiers.'],
+            'v1.schools.imports.recovery.retry' => ['Retry failed import rows', 'Retries only failed rows from the latest partial import commit after explicit RETRY_FAILED confirmation. Successful, linked and skipped rows remain unchanged and are never duplicated.'],
+            'v1.schools.imports.recovery.show' => ['View import recovery', 'Returns the latest safe recovery attempt for an import commit and excludes source values, contacts, credentials, private URLs and internal identifiers.'],
         ];
 
         if (isset($fixed[$operationId])) {
@@ -748,6 +752,8 @@ final class FoundationContractDocumentTransformer
             'v1.schools.imports.dry-run.show',
             'v1.schools.imports.commit.generate',
             'v1.schools.imports.commit.show',
+            'v1.schools.imports.recovery.retry',
+            'v1.schools.imports.recovery.show',
             'v1.schools.class-teacher-assignments.index',
             'v1.schools.class-teacher-assignments.store',
             'v1.schools.class-teacher-assignments.show',

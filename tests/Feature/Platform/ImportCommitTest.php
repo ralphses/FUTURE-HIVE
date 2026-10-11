@@ -75,6 +75,38 @@ final class ImportCommitTest extends TestCase
         self::assertDatabaseCount('student_guardian_relationships', 0);
     }
 
+    public function test_recovery_retries_only_failed_rows_and_is_idempotent(): void
+    {
+        [$school, $token] = $this->schoolToken('school_admin');
+        $batch = $this->prepareGuardian($school->public_id, $token);
+        $base = '/api/v1/schools/'.$school->public_id.'/imports/'.$batch;
+        $this->withToken($token)->postJson($base.'/commit', ['confirm' => 'COMMIT'])
+            ->assertOk()->assertJsonPath('data.status', 'completed_with_errors');
+
+        $first = $this->withToken($token)->postJson($base.'/commit/retry', ['confirm' => 'RETRY_FAILED'])
+            ->assertOk()->assertJsonPath('data.status', 'completed_with_errors')
+            ->assertJsonPath('data.counts.failed', 1);
+        $recoveryId = (string) $first->json('data.id');
+
+        $this->withToken($token)->postJson($base.'/commit/retry', ['confirm' => 'RETRY_FAILED'])
+            ->assertOk()->assertJsonPath('data.id', $recoveryId);
+
+        self::assertDatabaseCount('import_recovery_attempts', 1);
+        self::assertDatabaseCount('import_recovery_rows', 1);
+        self::assertDatabaseCount('students', 0);
+    }
+
+    public function test_recovery_requires_explicit_confirmation(): void
+    {
+        [$school, $token] = $this->schoolToken('school_admin');
+        $batch = $this->prepareGuardian($school->public_id, $token);
+        $base = '/api/v1/schools/'.$school->public_id.'/imports/'.$batch;
+        $this->withToken($token)->postJson($base.'/commit', ['confirm' => 'COMMIT'])->assertOk();
+
+        $this->withToken($token)->postJson($base.'/commit/retry', ['confirm' => 'COMMIT'])->assertStatus(422);
+        self::assertDatabaseCount('import_recovery_attempts', 0);
+    }
+
     /** @return array{0: School, 1: string} */
     private function schoolToken(string $role): array
     {
