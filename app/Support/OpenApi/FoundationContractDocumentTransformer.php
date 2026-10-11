@@ -217,6 +217,14 @@ final class FoundationContractDocumentTransformer
                     'v1.schools.class-teacher-assignments.update',
                     'v1.schools.class-teacher-assignments.revoke',
                     'v1.schools.teacher-worklist.index',
+                    'v1.schools.attendance.show',
+                    'v1.schools.attendance.replace',
+                    'v1.schools.attendance.submit',
+                    'v1.schools.attendance.lock',
+                    'v1.schools.attendance.submission',
+                    'v1.schools.attendance.corrections.index',
+                    'v1.schools.attendance.corrections.store',
+                    'v1.schools.attendance.report',
                 ], true)) {
                     $operation->addSecurity(new SecurityRequirement(['bearerAuth' => []]));
                 }
@@ -369,6 +377,14 @@ final class FoundationContractDocumentTransformer
             'v1.schools.class-teacher-assignments.update' => ['Update assignment dates', 'Updates the effective dates or administrative reason for an active class-teacher assignment. Staff, class-arm and school ownership cannot change.'],
             'v1.schools.class-teacher-assignments.revoke' => ['Revoke a class-teacher assignment', 'Revokes an assignment while retaining historical records. A revoked assignment cannot be reactivated.'],
             'v1.schools.teacher-worklist.index' => ['View teacher worklist', 'Lists the authenticated teacher’s active class-teacher and subject-teaching assignments in the selected school. Pending actions appear only when their owning records exist; this endpoint is read-only.'],
+            'v1.schools.attendance.show' => ['View daily class attendance', 'Shows the selected class arm roster for one date. Students without a mark remain unrecorded and are never treated as absent.'],
+            'v1.schools.attendance.replace' => ['Record daily class attendance', 'Records attendance marks for active students enrolled in the selected class arm. The register remains a server-controlled draft until a later submission workflow.'],
+            'v1.schools.attendance.submit' => ['Submit daily class attendance', 'Submits a complete attendance draft for the selected class arm. Every enrolled student must have an explicit status, including unrecorded; absence is never inferred.'],
+            'v1.schools.attendance.lock' => ['Lock daily class attendance', 'Locks a submitted attendance register so it cannot be edited. Only authorized school leadership can lock a register in this slice.'],
+            'v1.schools.attendance.submission' => ['View attendance submission status', 'Shows whether the selected attendance register is draft, submitted or locked without changing the register.'],
+            'v1.schools.attendance.corrections.index' => ['View attendance correction history', 'Lists append-only corrections for a submitted attendance register using safe public references and state transitions. Locked registers have no correction history changes.'],
+            'v1.schools.attendance.corrections.store' => ['Correct submitted attendance', 'Corrects one submitted attendance entry with a required bounded reason. The previous state remains retained in correction history; locked registers cannot be changed.'],
+            'v1.schools.attendance.report' => ['View attendance report', 'Shows a read-only aggregate attendance summary for submitted and locked registers in a selected class arm and date range. Draft and missing registers are excluded from attendance-rate calculations.'],
             'v1.schools.import-templates.index' => ['List import templates', 'Lists versioned CSV and Excel templates available to authorized school administrators. Templates describe future imports and do not create or change school records.'],
             'v1.schools.import-templates.download' => ['Download an import template', 'Downloads a stable fictional-example template for a future student, guardian or staff import. The selected school context authorizes access; this download does not upload or mutate records.'],
             'v1.schools.imports.store' => ['Upload and stage an import file', 'Uploads a CSV or Excel file that matches an approved template, scans and stores it privately, then stages its rows without changing school records.'],
@@ -493,6 +509,9 @@ final class FoundationContractDocumentTransformer
             str_contains((string) $operationId, 'class-teacher-assignments.store') => 'Send the public ID of an active teacher staff profile and term-contained effective dates. The server controls class-arm ownership, teacher eligibility and conflict checks.',
             str_contains((string) $operationId, 'class-teacher-assignments.update') => 'Send revised term-contained effective dates or an administrative reason. Staff, class-arm and school ownership remain server-controlled.',
             str_contains((string) $operationId, 'class-teacher-assignments.revoke') => 'Send a bounded administrative reason. Revocation preserves the assignment history and cannot be undone in this slice.',
+            str_contains((string) $operationId, 'attendance.replace') => 'Send attendance entries using each enrolled student public ID and one of present, absent, late, excused or unrecorded. Excused entries require a bounded reason; register ownership, actor, date and lifecycle remain server-controlled.',
+            str_contains((string) $operationId, 'attendance.corrections.store') => 'Send the attendance entry public ID, replacement status, optional excused reason and required bounded correction reason. The server controls the register, school, actor and correction timestamp.',
+            str_contains((string) $operationId, 'attendance.report') => 'Send the inclusive from and to dates within the selected active term. The server controls school ownership, class-arm scope and report calculations.',
             str_contains((string) $operationId, 'guardian-relationships.invitation.request') => 'No request body is required. The server uses the pending relationship and trusted school context to create the invitation.',
             $operationId === 'v1.guardian-invitations.confirm' => 'Send the six-digit code delivered to the invited guardian. The signed-in identity must match the bound guardian profile.',
             $operationId === 'v1.schools.guardian-invitations.revoke' => 'Send a bounded administrative reason. The invitation is retained as revoked and its code is never returned or stored in plaintext.',
@@ -597,6 +616,9 @@ final class FoundationContractDocumentTransformer
             'threshold' => 'Required threshold',
             'required' => 'Required criterion',
             'document' => 'Document file',
+            'entries' => 'Attendance entries',
+            'student_id' => 'Student public identifier',
+            'status' => 'Attendance status',
             default => str($propertyName)->replace('_', ' ')->title()->toString(),
         };
     }
@@ -645,7 +667,7 @@ final class FoundationContractDocumentTransformer
             'city' => ['School city or town.', 'Lagos'],
             'postal_code' => ['Optional postal code.', '100001'],
             'timezone' => ['IANA timezone for school-local dates and times.', 'Africa/Lagos'],
-            'status' => ['Requested setup state; the server accepts only the approved state transitions.', 'completed'],
+            'status' => [str_contains($schemaName, 'Attendance') ? 'Attendance mark: present, absent, late, excused or unrecorded.' : 'Requested setup state; the server accepts only the approved state transitions.', str_contains($schemaName, 'Attendance') ? 'present' : 'completed'],
             'school_id' => ['Public school selector. The authenticated session context remains the authority.', '0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1001'],
             'student_number' => ['School-local admission or student number. It must be unique within the selected school.', 'STU-2025-001'],
             'display_name' => ['Name shown in school records and lists.', 'Amina Example'],
@@ -689,6 +711,8 @@ final class FoundationContractDocumentTransformer
             'relationship_type' => ['School-defined relationship between the guardian and student.', 'parent'],
             'code' => ['Six-digit one-time code delivered for the guardian invitation.', null],
             'reason' => ['Short administrative reason for revoking the invitation.', 'Fictional administrative change'],
+            'student_id' => ['Public identifier of an active student currently enrolled in the selected class arm. It is not an internal database ID.', '0192f2a0-7c2b-7b1a-8d31-4f6b9c2a1020'],
+            'entries' => ['Attendance marks for the selected class-arm roster. The server ignores client ownership and register lifecycle fields.', null],
             default => ['Request field for this operation. The server controls ownership, actor, lifecycle and timestamps.', null],
         };
     }
@@ -780,6 +804,14 @@ final class FoundationContractDocumentTransformer
             'v1.schools.class-teacher-assignments.update',
             'v1.schools.class-teacher-assignments.revoke',
             'v1.schools.teacher-worklist.index',
+            'v1.schools.attendance.show',
+            'v1.schools.attendance.replace',
+            'v1.schools.attendance.submit',
+            'v1.schools.attendance.lock',
+            'v1.schools.attendance.submission',
+            'v1.schools.attendance.corrections.index',
+            'v1.schools.attendance.corrections.store',
+            'v1.schools.attendance.report',
         ], true)) {
             return 'School Administration';
         }

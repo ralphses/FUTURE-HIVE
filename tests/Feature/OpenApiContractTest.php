@@ -36,6 +36,12 @@ final class OpenApiContractTest extends TestCase
             '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/activate',
             '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/retire',
             '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-scheme',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/submit',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/lock',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/submission',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/corrections',
+            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance-report',
             '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms',
             '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}',
             '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/activate',
@@ -198,6 +204,16 @@ final class OpenApiContractTest extends TestCase
         }
 
         $this->assertSame([['bearerAuth' => []]], $document['paths']['/schools/{school}/teacher-worklist']['get']['security']);
+        foreach ($document['paths']['/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}'] as $operation) {
+            $this->assertSame([['bearerAuth' => []]], $operation['security']);
+        }
+        foreach (['/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/submit', '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/lock', '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/submission'] as $attendanceLifecyclePath) {
+            $this->assertSame([['bearerAuth' => []]], $document['paths'][$attendanceLifecyclePath][array_key_first($document['paths'][$attendanceLifecyclePath])]['security']);
+        }
+        foreach ($document['paths']['/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/corrections'] as $operation) {
+            $this->assertSame([['bearerAuth' => []]], $operation['security']);
+        }
+        $this->assertSame([['bearerAuth' => []]], $document['paths']['/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance-report']['get']['security']);
 
         $this->assertSame([['bearerAuth' => []]], $document['paths']['/schools/{school}/academic-readiness']['get']['security']);
         foreach (['/schools/{school}/students', '/schools/{school}/students/export', '/schools/{school}/students/search', '/schools/{school}/students/{student}', '/schools/{school}/students/{student}/audit-history', '/schools/{school}/students/{student}/activate', '/schools/{school}/students/{student}/withdraw', '/schools/{school}/students/{student}/profile', '/schools/{school}/students/{student}/documents', '/schools/{school}/students/{student}/documents/{document}', '/schools/{school}/students/{student}/documents/{document}/revoke', '/schools/{school}/guardians', '/schools/{school}/guardians/{guardian}', '/schools/{school}/guardians/{guardian}/audit-history', '/schools/{school}/students/{student}/guardian-relationships', '/schools/{school}/students/{student}/guardian-relationships/{relationship}', '/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke'] as $studentPath) {

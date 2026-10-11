@@ -111,6 +111,9 @@ final class AuthorizationCatalogue
             'staff.class-teachers.read' => ['label' => 'Read class-teacher assignments', 'description' => 'View class-teacher assignments in the selected school.'],
             'staff.class-teachers.manage' => ['label' => 'Manage class-teacher assignments', 'description' => 'Assign and revoke class teachers for school class arms.'],
             'teaching.worklist.read' => ['label' => 'Read teacher worklist', 'description' => 'View the authenticated teacher’s assigned classes and subject offerings.'],
+            'attendance.read' => ['label' => 'Read attendance', 'description' => 'View daily attendance for authorized class arms.'],
+            'attendance.manage' => ['label' => 'Manage attendance', 'description' => 'Record daily attendance for authorized class arms.'],
+            'attendance.reports.read' => ['label' => 'Read attendance reports', 'description' => 'View aggregate attendance summaries for authorized class arms.'],
         ];
     }
 
@@ -159,6 +162,12 @@ final class AuthorizationCatalogue
 
         foreach (['school_admin', 'teacher', 'hod_reviewer', 'principal', 'proprietor'] as $role) {
             $permissions[$role][] = 'teaching.worklist.read';
+        }
+
+        foreach (['school_admin', 'teacher', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'attendance.read';
+            $permissions[$role][] = 'attendance.manage';
+            $permissions[$role][] = 'attendance.reports.read';
         }
 
         return $permissions;

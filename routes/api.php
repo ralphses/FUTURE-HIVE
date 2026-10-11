@@ -2,6 +2,9 @@
 
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentPolicyVersionController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentSchemeController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAttendanceController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAttendanceCorrectionController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAttendanceReportController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicClassArmController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicGradingScaleController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
@@ -286,6 +289,30 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/teacher-worklist', [TeacherWorklistController::class, 'index'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.teacher-worklist.index');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}', [AcademicAttendanceController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.attendance.show');
+    Route::put('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}', [AcademicAttendanceController::class, 'replace'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.attendance.replace');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/submit', [AcademicAttendanceController::class, 'submit'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.attendance.submit');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/lock', [AcademicAttendanceController::class, 'lock'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.attendance.lock');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/submission', [AcademicAttendanceController::class, 'submission'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.attendance.submission');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/corrections', [AcademicAttendanceCorrectionController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.attendance.corrections.index');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/corrections', [AcademicAttendanceCorrectionController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.attendance.corrections.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance-report', [AcademicAttendanceReportController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.attendance.report');
 
     // Academic Structure and Assessment: periods, offerings, assignments, policies and scales.
     Route::get('/schools/{school}/academic-sessions', [AcademicPeriodController::class, 'sessions'])
