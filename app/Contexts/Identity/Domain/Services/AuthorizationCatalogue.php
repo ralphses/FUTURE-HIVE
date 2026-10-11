@@ -114,6 +114,15 @@ final class AuthorizationCatalogue
             'attendance.read' => ['label' => 'Read attendance', 'description' => 'View daily attendance for authorized class arms.'],
             'attendance.manage' => ['label' => 'Manage attendance', 'description' => 'Record daily attendance for authorized class arms.'],
             'attendance.reports.read' => ['label' => 'Read attendance reports', 'description' => 'View aggregate attendance summaries for authorized class arms.'],
+            'teaching.schemes.read' => ['label' => 'Read schemes of work', 'description' => 'View school-owned schemes and topic progress.'],
+            'teaching.schemes.manage' => ['label' => 'Manage schemes of work', 'description' => 'Create and manage school-owned schemes and topic progress.'],
+            'teaching.lessons.read' => ['label' => 'Read lesson records', 'description' => 'View lesson records within the trusted school scope.'],
+            'teaching.lessons.manage' => ['label' => 'Manage lesson records', 'description' => 'Create and edit assigned teacher lesson drafts.'],
+            'teaching.lessons.review' => ['label' => 'Review lesson records', 'description' => 'Approve or return submitted lesson records.'],
+            'teaching.announcements.read' => ['label' => 'Read teacher announcements', 'description' => 'Read announcements within the trusted school audience scope.'],
+            'teaching.announcements.manage' => ['label' => 'Manage teacher announcements', 'description' => 'Create and manage announcements for assigned academic audiences.'],
+            'teaching.announcements.review' => ['label' => 'Review teacher announcements', 'description' => 'Approve or reject submitted announcements.'],
+            'teaching.announcements.publish' => ['label' => 'Publish teacher announcements', 'description' => 'Publish or recall approved school announcements.'],
         ];
     }
 
@@ -168,6 +177,27 @@ final class AuthorizationCatalogue
             $permissions[$role][] = 'attendance.read';
             $permissions[$role][] = 'attendance.manage';
             $permissions[$role][] = 'attendance.reports.read';
+        }
+
+        foreach (['school_admin', 'teacher', 'hod_reviewer', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'teaching.schemes.read';
+            $permissions[$role][] = 'teaching.lessons.read';
+            $permissions[$role][] = 'teaching.announcements.read';
+        }
+
+        foreach (['school_admin', 'teacher', 'principal', 'proprietor', 'hod_reviewer'] as $role) {
+            $permissions[$role][] = 'teaching.schemes.manage';
+            $permissions[$role][] = 'teaching.lessons.review';
+        }
+
+        foreach (['school_admin', 'teacher', 'principal', 'proprietor', 'hod_reviewer'] as $role) {
+            $permissions[$role][] = 'teaching.lessons.manage';
+            $permissions[$role][] = 'teaching.announcements.manage';
+        }
+
+        foreach (['school_admin', 'principal', 'proprietor', 'hod_reviewer'] as $role) {
+            $permissions[$role][] = 'teaching.announcements.review';
+            $permissions[$role][] = 'teaching.announcements.publish';
         }
 
         return $permissions;

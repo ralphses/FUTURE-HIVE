@@ -10,11 +10,13 @@ use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicGradingScaleController
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPromotionRuleController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicReadinessController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSchemeLessonController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStructureController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectOfferingController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicTeachingAssignmentController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\TeacherWorklistController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\TeachingAnnouncementController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\AuthenticationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\ContactVerificationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\PasswordController;
@@ -313,6 +315,52 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance-report', [AcademicAttendanceReportController::class, 'show'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.attendance.report');
+
+    // School Administration: school-owned schemes of work and teacher lesson records.
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/scheme', [AcademicSchemeLessonController::class, 'showScheme'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.schemes.show');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/scheme', [AcademicSchemeLessonController::class, 'storeScheme'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.schemes.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/scheme/topics', [AcademicSchemeLessonController::class, 'topics'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.schemes.topics.index');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/scheme/topics', [AcademicSchemeLessonController::class, 'storeTopic'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.schemes.topics.store');
+    Route::patch('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/scheme/topics/{topic}', [AcademicSchemeLessonController::class, 'updateTopic'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.schemes.topics.update');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/scheme/topics/{topic}/progress', [AcademicSchemeLessonController::class, 'progressTopic'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.schemes.topics.progress');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons', [AcademicSchemeLessonController::class, 'lessons'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.lessons.index');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons', [AcademicSchemeLessonController::class, 'storeLesson'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.lessons.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons/{lesson}', [AcademicSchemeLessonController::class, 'showLesson'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.lessons.show');
+    Route::patch('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons/{lesson}', [AcademicSchemeLessonController::class, 'updateLesson'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.lessons.update');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons/{lesson}/submit', [AcademicSchemeLessonController::class, 'submitLesson'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.lessons.submit');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons/{lesson}/approve', [AcademicSchemeLessonController::class, 'approveLesson'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.lessons.approve');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons/{lesson}/return', [AcademicSchemeLessonController::class, 'returnLesson'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.lessons.return');
+    Route::get('/schools/{school}/announcements', [TeachingAnnouncementController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.index');
+    Route::post('/schools/{school}/announcements', [TeachingAnnouncementController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.store');
+    Route::get('/schools/{school}/announcements/{announcement}', [TeachingAnnouncementController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.show');
+    Route::patch('/schools/{school}/announcements/{announcement}', [TeachingAnnouncementController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.update');
+    Route::post('/schools/{school}/announcements/{announcement}/submit', [TeachingAnnouncementController::class, 'submit'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.submit');
+    Route::post('/schools/{school}/announcements/{announcement}/approve', [TeachingAnnouncementController::class, 'approve'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.approve');
+    Route::post('/schools/{school}/announcements/{announcement}/publish', [TeachingAnnouncementController::class, 'publish'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.publish');
+    Route::post('/schools/{school}/announcements/{announcement}/recall', [TeachingAnnouncementController::class, 'recall'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.recall');
+    Route::post('/schools/{school}/announcements/{announcement}/reject', [TeachingAnnouncementController::class, 'reject'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.reject');
 
     // Academic Structure and Assessment: periods, offerings, assignments, policies and scales.
     Route::get('/schools/{school}/academic-sessions', [AcademicPeriodController::class, 'sessions'])
