@@ -44,9 +44,12 @@ final class ImportBatchAction
     }
 
     /** @return array<string, mixed> */
-    public function upload(Authenticatable $actor, string $school, string $templateKey, string $version, UploadedFile $file): array
+    public function upload(Authenticatable $actor, string $school, string $templateKey, string $version, UploadedFile $file, ?int $assessmentInstanceId = null, string $permission = 'imports.upload'): array
     {
-        $this->authorize($actor, $school, 'imports.upload');
+        $this->authorize($actor, $school, $permission);
+        if ($templateKey === 'assessment_scores' && $assessmentInstanceId === null) {
+            throw new ModelNotFoundException;
+        }
         $template = $this->catalog->get($templateKey);
         if ($template['version'] !== $version) {
             throw ValidationException::withMessages(['version' => ['The requested template version is not available.']]);
@@ -63,8 +66,9 @@ final class ImportBatchAction
         }
 
         $reference = $this->files->store($file, $school);
-        $batch = DB::transaction(function () use ($actor, $checksum, $file, $format, $reference, $template, $templateKey, $version): ImportBatch {
+        $batch = DB::transaction(function () use ($actor, $assessmentInstanceId, $checksum, $file, $format, $permission, $reference, $template, $templateKey, $version): ImportBatch {
             $batch = ImportBatch::query()->create([
+                'academic_assessment_instance_id' => $assessmentInstanceId,
                 'template_key' => $templateKey,
                 'template_version' => $version,
                 'original_filename' => mb_substr(basename($file->getClientOriginalName()), 0, 255),
@@ -90,7 +94,7 @@ final class ImportBatchAction
                 schoolId: TenantContext::require()->schoolId,
                 actorId: (int) $actor->getAuthIdentifier(),
                 requestId: Context::get('request_id'),
-                authorizationContext: ['permission' => 'imports.upload'],
+                authorizationContext: ['permission' => $permission],
                 metadata: ['template' => $template['key'], 'version' => $template['version'], 'format' => $format],
                 requiresSchoolContext: true,
             ));
@@ -100,7 +104,7 @@ final class ImportBatchAction
 
         try {
             $rows = $this->readRows($file, $format, $template);
-            DB::transaction(function () use ($actor, $batch, $rows): void {
+            DB::transaction(function () use ($actor, $batch, $permission, $rows): void {
                 foreach (array_chunk($rows, 250, true) as $chunk) {
                     foreach ($chunk as $rowNumber => $cells) {
                         ImportStagedRow::query()->create([
@@ -120,7 +124,7 @@ final class ImportBatchAction
                     schoolId: TenantContext::require()->schoolId,
                     actorId: (int) $actor->getAuthIdentifier(),
                     requestId: Context::get('request_id'),
-                    authorizationContext: ['permission' => 'imports.upload'],
+                    authorizationContext: ['permission' => $permission],
                     metadata: ['row_count' => count($rows)],
                     requiresSchoolContext: true,
                 ));
@@ -134,7 +138,7 @@ final class ImportBatchAction
                 schoolId: TenantContext::require()->schoolId,
                 actorId: (int) $actor->getAuthIdentifier(),
                 requestId: Context::get('request_id'),
-                authorizationContext: ['permission' => 'imports.upload'],
+                authorizationContext: ['permission' => $permission],
                 metadata: ['reason' => 'staging_failed'],
                 requiresSchoolContext: true,
             ));

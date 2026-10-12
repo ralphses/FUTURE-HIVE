@@ -12,6 +12,9 @@ use App\Contexts\Platform\Domain\Models\ImportStagedRow;
 use App\Support\Authorization\SchoolPermissionChecker;
 use App\Support\Contacts\ContactNormalizer;
 use App\Support\Tenancy\TenantContext;
+use Brick\Math\BigDecimal;
+use Brick\Math\Exception\MathException;
+use Brick\Math\RoundingMode;
 use Carbon\CarbonImmutable;
 use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -133,6 +136,17 @@ final class ImportValidationAction
             $values[$fieldName] = $normalized['value'];
         }
 
+        if ((string) $batch->template_key === 'assessment_scores') {
+            $status = $values['status'] ?? null;
+            $hasScore = array_key_exists('score', $values);
+            if ($status === 'entered' && ! $hasScore) {
+                $errors[] = ['field' => 'score', 'code' => 'required_for_entered', 'message' => 'An entered score is required.'];
+            }
+            if ($status !== null && $status !== 'entered' && $hasScore) {
+                $errors[] = ['field' => 'score', 'code' => 'score_not_allowed', 'message' => 'Only entered rows may contain a numeric score.'];
+            }
+        }
+
         return ['values' => $values, 'errors' => $errors];
     }
 
@@ -208,12 +222,28 @@ final class ImportValidationAction
             return ['value' => null, 'error' => ['code' => 'unsupported_value', 'message' => 'The employment state is not supported.']];
         }
 
+        if ($field === 'status' && $template === 'assessment_scores' && ! in_array($value, ['entered', 'absent', 'exempt', 'missing'], true)) {
+            return ['value' => null, 'error' => ['code' => 'unsupported_value', 'message' => 'The score state is not supported.']];
+        }
+
+        if ($field === 'component_sequence' && (! ctype_digit($value) || (int) $value < 1)) {
+            return ['value' => null, 'error' => ['code' => 'invalid_sequence', 'message' => 'Use a positive component sequence number.']];
+        }
+
         if (in_array($field, ['academic_session', 'academic_term', 'subject_offering', 'policy_version'], true) && ! preg_match('/^[0-9a-f-]{36}$/i', $value)) {
             return ['value' => null, 'error' => ['code' => 'invalid_public_id', 'message' => 'Use a valid public identifier.']];
         }
 
         if (in_array($field, ['score', 'max_marks'], true) && (! is_numeric($value) || (float) $value < 0)) {
             return ['value' => null, 'error' => ['code' => 'invalid_number', 'message' => 'Use a non-negative number.']];
+        }
+
+        if ($field === 'score' && $template === 'assessment_scores') {
+            try {
+                return ['value' => BigDecimal::of($value)->toScale(2, RoundingMode::HalfUp)->toString(), 'error' => null];
+            } catch (MathException) {
+                return ['value' => null, 'error' => ['code' => 'invalid_number', 'message' => 'Use a non-negative score.']];
+            }
         }
 
         if ($field === 'opening_balance' && (! preg_match('/^\d{1,10}(?:\.\d{1,2})?$/', $value) || (float) $value < 0)) {

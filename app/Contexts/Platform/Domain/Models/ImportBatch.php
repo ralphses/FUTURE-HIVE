@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
-#[Fillable(['public_id', 'school_id', 'template_key', 'template_version', 'original_filename', 'format', 'size', 'checksum', 'uploaded_by', 'status', 'row_count', 'failure_reason', 'request_id'])]
-#[Hidden(['id', 'school_id', 'checksum', 'uploaded_by', 'failure_reason', 'request_id'])]
+#[Fillable(['public_id', 'school_id', 'academic_assessment_instance_id', 'template_key', 'template_version', 'original_filename', 'format', 'size', 'checksum', 'uploaded_by', 'status', 'row_count', 'failure_reason', 'request_id'])]
+#[Hidden(['id', 'school_id', 'academic_assessment_instance_id', 'checksum', 'uploaded_by', 'failure_reason', 'request_id'])]
 final class ImportBatch extends Model
 {
     use TenantScoped;

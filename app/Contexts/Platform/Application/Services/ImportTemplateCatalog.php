@@ -85,6 +85,18 @@ final class ImportTemplateCatalog
                     ['name' => 'provenance_reference', 'required' => true, 'description' => 'A bounded reference to the source financial archive; do not include a private URL or contact.', 'example' => 'FIN-ARCHIVE-2025-001'],
                 ],
             ],
+            'assessment_scores' => [
+                'key' => 'assessment_scores',
+                'name' => 'Assessment scores',
+                'version' => 'v1',
+                'formats' => ['csv', 'xlsx'],
+                'fields' => [
+                    ['name' => 'student_number', 'required' => true, 'description' => 'The school-local student number for an actively enrolled learner in the selected assessment instance.', 'example' => 'STU-001'],
+                    ['name' => 'component_sequence', 'required' => true, 'description' => 'The sequence number of a component in the assessment instance policy.', 'example' => '1'],
+                    ['name' => 'status', 'required' => true, 'description' => 'The draft score state: entered, absent, exempt or missing.', 'example' => 'entered'],
+                    ['name' => 'score', 'required' => false, 'description' => 'A non-negative score for an entered row. It is rounded HALF_UP to two decimals; other states must leave it blank.', 'example' => '72.50'],
+                ],
+            ],
         ];
     }
 

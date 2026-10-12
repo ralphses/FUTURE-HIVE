@@ -1,7 +1,12 @@
 <?php
 
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentAccessWindowController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentInstanceController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentPolicyVersionController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentSchemeController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentScoreAuditController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentScoreController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAssessmentSubmissionController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAttendanceController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAttendanceCorrectionController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAttendanceReportController;
@@ -11,6 +16,7 @@ use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPromotionRuleController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicReadinessController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSchemeLessonController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicScoreImportController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStructureController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectOfferingController;
@@ -465,6 +471,52 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales/{scale}/retire', [AcademicGradingScaleController::class, 'retire'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.retire');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances', [AcademicAssessmentInstanceController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.index');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances', [AcademicAssessmentInstanceController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}', [AcademicAssessmentInstanceController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.show');
+    Route::patch('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}', [AcademicAssessmentInstanceController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.update');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/open', [AcademicAssessmentInstanceController::class, 'open'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.open');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/close', [AcademicAssessmentInstanceController::class, 'close'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.close');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/cancel', [AcademicAssessmentInstanceController::class, 'cancel'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.cancel');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/access', [AcademicAssessmentAccessWindowController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.access.show');
+    Route::put('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/access', [AcademicAssessmentAccessWindowController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.access.update');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/access/activate', [AcademicAssessmentAccessWindowController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.access.activate');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/access/close', [AcademicAssessmentAccessWindowController::class, 'close'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.access.close');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/audit-history', [AcademicAssessmentScoreAuditController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.audit-history');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/{student}/{component}/audit-history', [AcademicAssessmentScoreAuditController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.entry-audit-history');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores', [AcademicAssessmentScoreController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.index');
+    Route::put('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores', [AcademicAssessmentScoreController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.update');
+    Route::put('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/{student}/{component}', [AcademicAssessmentScoreController::class, 'updateOne'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.update-one');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/score-imports', [AcademicScoreImportController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.score-imports.store');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submit', [AcademicAssessmentSubmissionController::class, 'submit'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submit');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission', [AcademicAssessmentSubmissionController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission/review', [AcademicAssessmentSubmissionController::class, 'review'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission.review');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission/return', [AcademicAssessmentSubmissionController::class, 'returnSubmission'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission.return');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission/approve', [AcademicAssessmentSubmissionController::class, 'approve'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission.approve');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission/resubmit', [AcademicAssessmentSubmissionController::class, 'resubmit'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission.resubmit');
     Route::get('/schools/{school}/academic-context', [AcademicPeriodController::class, 'context'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-context');

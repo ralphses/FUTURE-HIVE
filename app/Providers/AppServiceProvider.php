@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Contexts\Academic\Application\Actions\AcademicScoreImportAction;
 use App\Contexts\Identity\Application\Contracts\ContactVerificationCodeDelivery;
 use App\Contexts\Identity\Application\Contracts\PasswordResetCodeDelivery;
 use App\Contexts\Identity\Infrastructure\ContactVerification\UnavailableContactVerificationCodeDelivery;
 use App\Contexts\Identity\Infrastructure\PasswordReset\UnavailablePasswordResetCodeDelivery;
 use App\Contexts\Platform\Application\Contracts\ImportCanonicalRecordWriter;
+use App\Contexts\Platform\Application\Contracts\ImportSpecializedCommitter;
 use App\Contexts\Platform\Application\Contracts\RegistrationVerificationCodeDelivery;
 use App\Contexts\Platform\Infrastructure\Verification\UnavailableRegistrationVerificationCodeDelivery;
 use App\Contexts\Registry\Application\Contracts\GuardianInvitationCodeDelivery;
@@ -41,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(ImportCanonicalRecordWriter::class, RegistryImportCanonicalRecordWriter::class);
+        $this->app->bind(ImportSpecializedCommitter::class, AcademicScoreImportAction::class);
         $this->app->singleton(
             CloudinaryAssetClient::class,
             static fn (): CloudinarySdkClient => new CloudinarySdkClient(
@@ -251,6 +254,29 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.store',
                     'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.activate',
                     'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.grading-scales.retire',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.index',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.store',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.show',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.update',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.open',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.close',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.cancel',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.access.show',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.access.update',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.access.activate',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.access.close',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.index',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.update',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.update-one',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.audit-history',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.entry-audit-history',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.score-imports.store',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submit',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission.review',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission.return',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission.approve',
+                    'api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission.resubmit',
                     'api.v1.schools.promotion-rules.index',
                     'api.v1.schools.promotion-rules.store',
                     'api.v1.schools.promotion-rules.show',

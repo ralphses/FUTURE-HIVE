@@ -51,6 +51,19 @@ final class AuthorizationCatalogue
             'academic.assessment-policies.manage' => ['label' => 'Manage assessment policies', 'description' => 'Create, activate and retire assessment policy versions.'],
             'academic.grading-scales.read' => ['label' => 'Read grading scales', 'description' => 'View grading scale versions and remarks for assessment policies.'],
             'academic.grading-scales.manage' => ['label' => 'Manage grading scales', 'description' => 'Create, activate and retire grading scale versions.'],
+            'academic.assessments.read' => ['label' => 'Read assessment instances', 'description' => 'View assessment instances in the selected school.'],
+            'academic.assessments.manage' => ['label' => 'Manage assessment instances', 'description' => 'Create and manage assessment instances in the selected school.'],
+            'academic.scores.read' => ['label' => 'Read draft scores', 'description' => 'View draft scores for authorized assessment instances in the selected school.'],
+            'academic.scores.manage' => ['label' => 'Manage draft scores', 'description' => 'Create and update draft scores for authorized assessment instances in the selected school.'],
+            'academic.scores.submit' => ['label' => 'Submit assessment scores', 'description' => 'Submit a complete set of draft scores for an authorized assessment instance.'],
+            'academic.scores.submission.read' => ['label' => 'Read score submissions', 'description' => 'View safe score-submission status for authorized assessment instances.'],
+            'academic.scores.review' => ['label' => 'Review score submissions', 'description' => 'Review submitted scores within the selected school.'],
+            'academic.scores.return' => ['label' => 'Return score submissions', 'description' => 'Return submitted scores for correction with a bounded reason.'],
+            'academic.scores.approve' => ['label' => 'Approve score submissions', 'description' => 'Approve submitted scores and make them immutable.'],
+            'academic.scores.resubmit' => ['label' => 'Resubmit returned scores', 'description' => 'Resubmit corrected scores after a submission was returned.'],
+            'academic.scores.audit.read' => ['label' => 'Read score audit history', 'description' => 'View safe immutable score-change history within the selected academic scope.'],
+            'academic.assessment-access.read' => ['label' => 'Read assessment access windows', 'description' => 'View assessment score-entry access windows in the selected school.'],
+            'academic.assessment-access.manage' => ['label' => 'Manage assessment access windows', 'description' => 'Create, activate and close assessment score-entry access windows.'],
             'academic.promotion-rules.read' => ['label' => 'Read promotion rules', 'description' => 'View school-defined level-to-level promotion criteria.'],
             'academic.promotion-rules.manage' => ['label' => 'Manage promotion rules', 'description' => 'Create and manage school-defined promotion criteria.'],
             'academic.readiness.read' => ['label' => 'Read academic readiness', 'description' => 'Check whether academic configuration is ready for future assessment workflows.'],
@@ -198,6 +211,42 @@ final class AuthorizationCatalogue
         foreach (['school_admin', 'principal', 'proprietor', 'hod_reviewer'] as $role) {
             $permissions[$role][] = 'teaching.announcements.review';
             $permissions[$role][] = 'teaching.announcements.publish';
+        }
+
+        foreach (array_keys(self::roles()) as $role) {
+            $permissions[$role][] = 'academic.assessments.read';
+        }
+        foreach (['school_admin', 'proprietor'] as $role) {
+            $permissions[$role][] = 'academic.assessments.manage';
+        }
+        foreach (array_keys(self::roles()) as $role) {
+            $permissions[$role][] = 'academic.scores.read';
+        }
+        foreach (['school_admin', 'teacher', 'hod_reviewer', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'academic.scores.manage';
+        }
+        foreach (array_keys(self::roles()) as $role) {
+            $permissions[$role][] = 'academic.scores.submission.read';
+        }
+        foreach (['school_admin', 'teacher', 'hod_reviewer', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'academic.scores.submit';
+        }
+        foreach (['school_admin', 'proprietor', 'principal', 'hod_reviewer'] as $role) {
+            $permissions[$role][] = 'academic.scores.review';
+            $permissions[$role][] = 'academic.scores.return';
+            $permissions[$role][] = 'academic.scores.approve';
+        }
+        foreach (['school_admin', 'teacher', 'proprietor', 'principal', 'hod_reviewer'] as $role) {
+            $permissions[$role][] = 'academic.scores.resubmit';
+        }
+        foreach (array_keys(self::roles()) as $role) {
+            $permissions[$role][] = 'academic.scores.audit.read';
+        }
+        foreach (array_keys(self::roles()) as $role) {
+            $permissions[$role][] = 'academic.assessment-access.read';
+        }
+        foreach (['school_admin', 'proprietor'] as $role) {
+            $permissions[$role][] = 'academic.assessment-access.manage';
         }
 
         return $permissions;

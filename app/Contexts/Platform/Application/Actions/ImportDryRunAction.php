@@ -166,6 +166,7 @@ final class ImportDryRunAction
             'students' => 'student',
             'guardians' => 'guardian_relationship',
             'staff' => 'staff_profile',
+            'assessment_scores' => 'assessment_score',
             default => 'import_record',
         };
     }

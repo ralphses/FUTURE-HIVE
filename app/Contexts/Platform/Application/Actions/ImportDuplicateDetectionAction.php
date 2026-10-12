@@ -99,6 +99,9 @@ final class ImportDuplicateDetectionAction
             if (! $finding instanceof ImportDuplicateFinding) {
                 throw new ModelNotFoundException;
             }
+            if ($batch->template_key === 'assessment_scores' && $resolution !== 'skip') {
+                throw new ModelNotFoundException;
+            }
             if ($resolution === 'link_existing' && ($finding->detection_source !== 'existing_record' || $candidatePublicId === null || $candidatePublicId !== $finding->candidate_public_id)) {
                 throw new ModelNotFoundException;
             }
@@ -160,6 +163,7 @@ final class ImportDuplicateDetectionAction
             'students' => $this->key($values, 'student', 'student_number'),
             'guardians' => $this->key($values, 'guardian_relationship', 'student_number', 'guardian_contact', 'relationship_type'),
             'staff' => array_merge($this->key($values, 'staff_profile', 'staff_number'), $this->key($values, 'staff_profile', 'membership_contact')),
+            'assessment_scores' => $this->key($values, 'assessment_score', 'student_number', 'component_sequence'),
             default => [],
         };
     }
@@ -209,6 +213,16 @@ final class ImportDuplicateDetectionAction
                 $id = DB::table('staff_profiles as sp')->join('school_memberships as sm', 'sm.id', '=', 'sp.school_membership_id')->join('user_contacts as uc', 'uc.user_id', '=', 'sm.user_id')->where('sp.school_id', $schoolId)->where('uc.canonical_value', $values['membership_contact'])->value('sp.public_id');
                 if ($id !== null) {
                     $candidates[] = ['key' => ['type' => 'staff_profile', 'value' => $values['membership_contact']], 'public_id' => (string) $id];
+                }
+            }
+        }
+        if ($batch->template_key === 'assessment_scores' && $batch->academic_assessment_instance_id !== null) {
+            $componentId = DB::table('academic_assessment_policy_components as c')->join('academic_assessment_instances as i', 'i.academic_assessment_policy_version_id', '=', 'c.academic_assessment_policy_version_id')->where('i.id', $batch->academic_assessment_instance_id)->where('c.sequence', (int) ($values['component_sequence'] ?? 0))->value('c.id');
+            $studentId = DB::table('students')->where('school_id', $schoolId)->where('student_number', $values['student_number'] ?? '')->value('id');
+            if ($componentId !== null && $studentId !== null) {
+                $id = DB::table('academic_assessment_score_entries')->where('school_id', $schoolId)->where('academic_assessment_instance_id', $batch->academic_assessment_instance_id)->where('student_id', $studentId)->where('academic_assessment_policy_component_id', $componentId)->where('status', '!=', 'missing')->value('public_id');
+                if ($id !== null) {
+                    $candidates[] = ['key' => ['type' => 'score_entry', 'value' => implode('|', [$values['student_number'], $values['component_sequence']])], 'public_id' => (string) $id];
                 }
             }
         }

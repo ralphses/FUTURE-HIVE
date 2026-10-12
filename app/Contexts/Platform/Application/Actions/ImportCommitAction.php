@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Contexts\Platform\Application\Actions;
 
 use App\Contexts\Platform\Application\Contracts\ImportCanonicalRecordWriter;
+use App\Contexts\Platform\Application\Contracts\ImportSpecializedCommitter;
 use App\Contexts\Platform\Application\DTOs\AuditEventData;
 use App\Contexts\Platform\Domain\Models\ImportBatch;
 use App\Contexts\Platform\Domain\Models\ImportCommit;
@@ -30,6 +31,7 @@ final class ImportCommitAction
         private readonly SchoolPermissionChecker $permissions,
         private readonly RecordAuditEventAction $audit,
         private readonly ImportCanonicalRecordWriter $canonicalRecords,
+        private readonly ImportSpecializedCommitter $scoreImports,
     ) {}
 
     /** @return array<string, mixed> */
@@ -179,6 +181,9 @@ final class ImportCommitAction
 
                         return ['status' => 'completed', 'action' => 'link_existing', 'id' => $id, 'error' => null];
                     }
+                    if ($batch->template_key === 'assessment_scores') {
+                        return $this->scoreImports->commitRow($actor, $batch, $row);
+                    }
                     if ($batch->template_key !== 'students') {
                         return ['status' => 'failed', 'action' => 'create_new', 'id' => null, 'error' => 'create_not_supported'];
                     }
@@ -228,6 +233,10 @@ final class ImportCommitAction
     private function errorCode(Throwable $exception): string
     {
         if ($exception instanceof ValidationException) {
+            if (array_key_exists('score_conflict', $exception->errors())) {
+                return 'score_conflict';
+            }
+
             return 'domain_validation_failed';
         }
         if ($exception instanceof ModelNotFoundException) {
@@ -243,6 +252,7 @@ final class ImportCommitAction
             'students' => 'student',
             'guardians' => 'guardian_relationship',
             'staff' => 'staff_profile',
+            'assessment_scores' => 'assessment_score',
             default => 'import_record',
         };
     }
