@@ -16,6 +16,12 @@ interface CloudinaryAssetClient
 
     /**
      * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
+     */
+    public function uploadPath(string $path, array $options): array;
+
+    /**
+     * @param  array<string, mixed>  $options
      */
     public function privateDownloadUrl(string $publicId, string $format, array $options): string;
 }

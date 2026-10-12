@@ -20,6 +20,7 @@ final class CreateAcademicAssessmentPolicyVersionRequest extends FormRequest
             'name' => ['nullable', 'string', 'max:120'],
             'effective_start' => ['required', 'date_format:Y-m-d'],
             'effective_end' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:effective_start'],
+            'score_state_rule' => ['nullable', 'string', 'in:block,absent_zero_exempt_excluded'],
         ];
     }
 }

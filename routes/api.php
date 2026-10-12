@@ -13,11 +13,22 @@ use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAttendanceReportContro
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicClassArmController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicGradingScaleController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPromotionEligibilityController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPromotionRuleController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicReadinessController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicReportCardTemplateController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicResultCompletenessController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicResultCorrectionController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicResultExportController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicResultGateController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicResultReviewQueueController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicResultRunController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicResultSnapshotController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicResultStatisticsPolicyController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSchemeLessonController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicScoreImportController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStructureController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStudentResultHistoryController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectOfferingController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicTeachingAssignmentController;
@@ -517,6 +528,80 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission.approve');
     Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission/resubmit', [AcademicAssessmentSubmissionController::class, 'resubmit'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.subject-offerings.assessment-instances.scores.submission.resubmit');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs', [AcademicResultRunController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-runs.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs', [AcademicResultRunController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-runs.index');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}', [AcademicResultRunController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-runs.show');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/students/{student}', [AcademicResultRunController::class, 'student'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-runs.students.show');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-completeness', AcademicResultCompletenessController::class)
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-completeness');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-review-queue', [AcademicResultReviewQueueController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-review-queue.index');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-review-queue/{run}', [AcademicResultReviewQueueController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-review-queue.show');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/gate', [AcademicResultGateController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-runs.gate.show');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/approve', [AcademicResultGateController::class, 'approve'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-runs.approve');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/reject', [AcademicResultGateController::class, 'reject'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-runs.reject');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/publish', [AcademicResultGateController::class, 'publish'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-runs.publish');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/snapshot', [AcademicResultSnapshotController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-runs.snapshot.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-snapshots', [AcademicResultSnapshotController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-snapshots.index');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-snapshots/{snapshot}', [AcademicResultSnapshotController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-snapshots.show');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-snapshots/{snapshot}/students/{student}', [AcademicResultSnapshotController::class, 'student'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-snapshots.students.show');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/result-snapshots/{snapshot}/corrections', [AcademicResultCorrectionController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-snapshots.corrections.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-snapshots/{snapshot}/corrections', [AcademicResultCorrectionController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-snapshots.corrections.index');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-corrections/{correction}', [AcademicResultCorrectionController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-corrections.show');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/result-corrections/{correction}/approve', [AcademicResultCorrectionController::class, 'approve'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-corrections.approve');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/result-corrections/{correction}/reject', [AcademicResultCorrectionController::class, 'reject'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-corrections.reject');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/result-corrections/{correction}/republish', [AcademicResultCorrectionController::class, 'republish'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-corrections.republish');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-history', [AcademicStudentResultHistoryController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-history.index');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/students/{student}/result-history', [AcademicStudentResultHistoryController::class, 'student'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.students.result-history');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/ranking-statistics-policies', [AcademicResultStatisticsPolicyController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.ranking-statistics-policies.index');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/ranking-statistics-policies', [AcademicResultStatisticsPolicyController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.ranking-statistics-policies.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/ranking-statistics-policies/{policy}', [AcademicResultStatisticsPolicyController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.ranking-statistics-policies.show');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/ranking-statistics-policies/{policy}/activate', [AcademicResultStatisticsPolicyController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.ranking-statistics-policies.activate');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/ranking-statistics-policies/{policy}/retire', [AcademicResultStatisticsPolicyController::class, 'retire'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.ranking-statistics-policies.retire');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/promotion-eligibility', [AcademicPromotionEligibilityController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.promotion-eligibility.index');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/promotion-eligibility/{student}', [AcademicPromotionEligibilityController::class, 'student'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.promotion-eligibility.student');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/result-exports', AcademicResultExportController::class)
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.result-exports');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/report-card-templates', [AcademicReportCardTemplateController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.report-card-templates.index');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/report-card-templates', [AcademicReportCardTemplateController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.report-card-templates.store');
+    Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/report-card-templates/{template}', [AcademicReportCardTemplateController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.report-card-templates.show');
+    Route::patch('/schools/{school}/academic-sessions/{session}/terms/{term}/report-card-templates/{template}', [AcademicReportCardTemplateController::class, 'update'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.report-card-templates.update');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/report-card-templates/{template}/activate', [AcademicReportCardTemplateController::class, 'activate'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.report-card-templates.activate');
+    Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/report-card-templates/{template}/retire', [AcademicReportCardTemplateController::class, 'retire'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.academic-sessions.terms.report-card-templates.retire');
     Route::get('/schools/{school}/academic-context', [AcademicPeriodController::class, 'context'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.academic-context');

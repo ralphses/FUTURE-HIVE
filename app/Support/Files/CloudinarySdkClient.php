@@ -23,6 +23,15 @@ final class CloudinarySdkClient implements CloudinaryAssetClient
         return $this->uploadApi->upload($path, $options)->getArrayCopy();
     }
 
+    /**
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
+     */
+    public function uploadPath(string $path, array $options): array
+    {
+        return $this->uploadApi->upload($path, $options)->getArrayCopy();
+    }
+
     public function privateDownloadUrl(string $publicId, string $format, array $options): string
     {
         return $this->uploadApi->privateDownloadUrl($publicId, $format, $options);

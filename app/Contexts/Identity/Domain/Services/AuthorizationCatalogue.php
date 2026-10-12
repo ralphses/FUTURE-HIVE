@@ -62,6 +62,23 @@ final class AuthorizationCatalogue
             'academic.scores.approve' => ['label' => 'Approve score submissions', 'description' => 'Approve submitted scores and make them immutable.'],
             'academic.scores.resubmit' => ['label' => 'Resubmit returned scores', 'description' => 'Resubmit corrected scores after a submission was returned.'],
             'academic.scores.audit.read' => ['label' => 'Read score audit history', 'description' => 'View safe immutable score-change history within the selected academic scope.'],
+            'academic.results.compute' => ['label' => 'Compute academic results', 'description' => 'Generate school-scoped result projections from approved assessment submissions.'],
+            'academic.results.read' => ['label' => 'Read academic results', 'description' => 'Read safe school-scoped result projections.'],
+            'academic.results.completeness.read' => ['label' => 'Read result completeness', 'description' => 'Read safe term-scoped result completeness checks.'],
+            'academic.results.completeness.manage' => ['label' => 'Manage result completeness', 'description' => 'Run server-controlled result completeness checks.'],
+            'academic.results.review.read' => ['label' => 'Read result review queue', 'description' => 'View safe result runs awaiting academic leadership review.'],
+            'academic.results.review.manage' => ['label' => 'Manage result review queue', 'description' => 'Use server-controlled result review actions when enabled.'],
+            'academic.results.approve' => ['label' => 'Approve academic results', 'description' => 'Approve complete result runs for publication gating.'],
+            'academic.results.publish' => ['label' => 'Publish academic results', 'description' => 'Publish approved result runs through the server-controlled gate.'],
+            'academic.results.snapshots.read' => ['label' => 'Read result snapshots', 'description' => 'Read immutable school-scoped published result snapshots.'],
+            'academic.results.snapshots.create' => ['label' => 'Create result snapshots', 'description' => 'Create an immutable snapshot from a published result run.'],
+            'academic.results.history.read' => ['label' => 'Read student result history', 'description' => 'Read safe published result history in the selected academic scope.'],
+            'academic.results.exports.read' => ['label' => 'Export academic results', 'description' => 'Download safe CSV or PDF exports of published results within the selected academic scope.'],
+            'academic.results.templates.read' => ['label' => 'Read report-card templates', 'description' => 'Read school-scoped report-card template definitions.'],
+            'academic.results.templates.manage' => ['label' => 'Manage report-card templates', 'description' => 'Create and lifecycle-manage school-scoped report-card templates.'],
+            'academic.results.statistics.read' => ['label' => 'Read ranking and statistics policies', 'description' => 'Read school-scoped ranking and statistics policy configuration.'],
+            'academic.results.statistics.manage' => ['label' => 'Manage ranking and statistics policies', 'description' => 'Create and lifecycle-manage school-scoped ranking and statistics policy versions.'],
+            'academic.results.promotion-eligibility.read' => ['label' => 'Read promotion eligibility', 'description' => 'Read safe, derived promotion-eligibility summaries for the selected school.'],
             'academic.assessment-access.read' => ['label' => 'Read assessment access windows', 'description' => 'View assessment score-entry access windows in the selected school.'],
             'academic.assessment-access.manage' => ['label' => 'Manage assessment access windows', 'description' => 'Create, activate and close assessment score-entry access windows.'],
             'academic.promotion-rules.read' => ['label' => 'Read promotion rules', 'description' => 'View school-defined level-to-level promotion criteria.'],
@@ -224,6 +241,49 @@ final class AuthorizationCatalogue
         }
         foreach (['school_admin', 'teacher', 'hod_reviewer', 'principal', 'proprietor'] as $role) {
             $permissions[$role][] = 'academic.scores.manage';
+        }
+        foreach (['school_admin', 'teacher', 'hod_reviewer', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'academic.results.read';
+            $permissions[$role][] = 'academic.results.completeness.read';
+        }
+        foreach (['school_admin', 'hod_reviewer', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'academic.results.compute';
+            $permissions[$role][] = 'academic.results.completeness.manage';
+            $permissions[$role][] = 'academic.results.review.read';
+            $permissions[$role][] = 'academic.results.review.manage';
+        }
+        foreach (['school_admin', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'academic.results.approve';
+        }
+        foreach (['principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'academic.results.publish';
+        }
+        foreach (['school_admin', 'proprietor', 'principal', 'hod_reviewer', 'teacher'] as $role) {
+            $permissions[$role][] = 'academic.results.snapshots.read';
+        }
+        foreach (['school_admin', 'proprietor', 'principal', 'hod_reviewer', 'teacher'] as $role) {
+            $permissions[$role][] = 'academic.results.history.read';
+        }
+        foreach (['school_admin', 'proprietor', 'principal', 'hod_reviewer', 'teacher'] as $role) {
+            $permissions[$role][] = 'academic.results.exports.read';
+        }
+        foreach (['proprietor', 'principal'] as $role) {
+            $permissions[$role][] = 'academic.results.snapshots.create';
+        }
+        foreach (['school_admin', 'proprietor', 'principal', 'hod_reviewer', 'teacher'] as $role) {
+            $permissions[$role][] = 'academic.results.templates.read';
+        }
+        foreach (['school_admin', 'proprietor', 'principal'] as $role) {
+            $permissions[$role][] = 'academic.results.templates.manage';
+        }
+        foreach (['school_admin', 'proprietor', 'principal', 'hod_reviewer', 'teacher'] as $role) {
+            $permissions[$role][] = 'academic.results.statistics.read';
+        }
+        foreach (['school_admin', 'proprietor', 'principal'] as $role) {
+            $permissions[$role][] = 'academic.results.statistics.manage';
+        }
+        foreach (['school_admin', 'proprietor', 'principal', 'hod_reviewer'] as $role) {
+            $permissions[$role][] = 'academic.results.promotion-eligibility.read';
         }
         foreach (array_keys(self::roles()) as $role) {
             $permissions[$role][] = 'academic.scores.submission.read';

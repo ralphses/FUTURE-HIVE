@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-#[Fillable(['public_id', 'school_id', 'academic_session_id', 'academic_term_id', 'academic_subject_offering_id', 'academic_assessment_scheme_id', 'version', 'name', 'total_marks', 'effective_start', 'effective_end', 'status', 'created_by', 'activated_by', 'activated_at', 'retired_by', 'retired_at'])]
+#[Fillable(['public_id', 'school_id', 'academic_session_id', 'academic_term_id', 'academic_subject_offering_id', 'academic_assessment_scheme_id', 'version', 'name', 'total_marks', 'score_state_rule', 'effective_start', 'effective_end', 'status', 'created_by', 'activated_by', 'activated_at', 'retired_by', 'retired_at'])]
 #[Hidden(['id', 'created_by', 'activated_by', 'retired_by'])]
 final class AcademicAssessmentPolicyVersion extends Model
 {
@@ -29,6 +29,7 @@ final class AcademicAssessmentPolicyVersion extends Model
         return [
             'version' => 'integer',
             'total_marks' => 'integer',
+            'score_state_rule' => 'string',
             'effective_start' => 'date',
             'effective_end' => 'date',
             'activated_at' => 'datetime',

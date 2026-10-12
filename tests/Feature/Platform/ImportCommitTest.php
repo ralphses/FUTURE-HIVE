@@ -168,6 +168,15 @@ final class FakeImportCommitCloudinaryClient implements CloudinaryAssetClient
         return ['public_id' => $options['public_id'], 'format' => 'csv', 'resource_type' => 'raw'];
     }
 
+    /**
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
+     */
+    public function uploadPath(string $path, array $options): array
+    {
+        return ['public_id' => $options['public_id'], 'format' => $options['format'] ?? 'bin', 'resource_type' => 'raw'];
+    }
+
     public function privateDownloadUrl(string $publicId, string $format, array $options): string
     {
         return 'https://cloudinary.test/private/'.$format;

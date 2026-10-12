@@ -288,6 +288,18 @@ final class FakeCloudinaryClient implements CloudinaryAssetClient
         return $this->response;
     }
 
+    /**
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
+     */
+    public function uploadPath(string $path, array $options): array
+    {
+        $this->lastOptions = $options;
+        $this->response['public_id'] = $options['public_id'];
+
+        return $this->response;
+    }
+
     public function privateDownloadUrl(string $publicId, string $format, array $options): string
     {
         $this->lastDownloadOptions = $options;

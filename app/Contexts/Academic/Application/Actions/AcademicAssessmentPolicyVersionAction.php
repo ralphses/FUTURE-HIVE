@@ -52,7 +52,7 @@ final class AcademicAssessmentPolicyVersionAction
         return $this->data($this->find($policy, $academicTerm, $subjectOffering));
     }
 
-    /** @param array{name?: string|null, effective_start: string, effective_end?: string|null} $data
+    /** @param array{name?: string|null, effective_start: string, effective_end?: string|null, score_state_rule?: string|null} $data
      * @return array<string, mixed>
      */
     public function create(UserIdentity $actor, string $school, string $session, string $term, string $offering, array $data): array
@@ -79,6 +79,7 @@ final class AcademicAssessmentPolicyVersionAction
                 'version' => $versionNumber,
                 'name' => trim((string) ($data['name'] ?? $scheme->name)),
                 'total_marks' => $scheme->total_marks,
+                'score_state_rule' => (string) ($data['score_state_rule'] ?? 'block'),
                 'effective_start' => $start->toDateString(),
                 'effective_end' => $end?->toDateString(),
                 'status' => 'draft',
@@ -223,6 +224,7 @@ final class AcademicAssessmentPolicyVersionAction
             'version' => (int) $version->version,
             'name' => (string) $version->name,
             'total_marks' => (int) $version->total_marks,
+            'score_state_rule' => (string) $version->score_state_rule,
             'effective_start' => CarbonImmutable::parse((string) $version->effective_start)->toDateString(),
             'effective_end' => $version->effective_end === null ? null : CarbonImmutable::parse((string) $version->effective_end)->toDateString(),
             'status' => (string) $version->status,

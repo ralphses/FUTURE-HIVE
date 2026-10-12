@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 #[Fillable(['school_id', 'academic_session_id', 'academic_term_id', 'academic_level_id', 'academic_section_id', 'academic_class_arm_id', 'academic_subject_id', 'display_order', 'status', 'public_id'])]
@@ -73,5 +74,11 @@ final class AcademicSubjectOffering extends Model
     public function subject(): BelongsTo
     {
         return $this->belongsTo(AcademicSubject::class, 'academic_subject_id');
+    }
+
+    /** @return HasMany<AcademicTeachingAssignment, $this> */
+    public function teachingAssignments(): HasMany
+    {
+        return $this->hasMany(AcademicTeachingAssignment::class, 'academic_subject_offering_id');
     }
 }

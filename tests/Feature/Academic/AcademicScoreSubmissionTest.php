@@ -59,7 +59,7 @@ class AcademicScoreSubmissionTest extends TestCase
     }
 
     /** @return array<string, mixed> */
-    protected function configuration(School $school, string $token): array
+    protected function configuration(School $school, string $token, string $scoreStateRule = 'block'): array
     {
         $base = '/api/v1/schools/'.$school->public_id;
         $session = $this->withToken($token)->postJson($base.'/academic-sessions', ['name' => 'Submission Session', 'code' => 'SUB', 'start_date' => '2025-09-01', 'end_date' => '2026-07-31'])->assertCreated();
@@ -76,7 +76,7 @@ class AcademicScoreSubmissionTest extends TestCase
         $offeringId = $this->withToken($token)->postJson($offerings, ['class_arm_id' => $classArmId, 'subject_id' => $subjectId])->assertCreated()->json('data.id');
         $this->withToken($token)->putJson($offerings.'/'.$offeringId.'/assessment-scheme', ['name' => 'Submission Scheme', 'total_marks' => 100, 'components' => [['name' => 'CA', 'category' => 'ca', 'max_marks' => 20, 'sequence' => 1], ['name' => 'Exam', 'category' => 'exam', 'max_marks' => 80, 'sequence' => 2]]])->assertOk();
         $policies = $offerings.'/'.$offeringId.'/assessment-policies';
-        $policyId = $this->withToken($token)->postJson($policies, ['effective_start' => '2025-09-01'])->assertCreated()->json('data.id');
+        $policyId = $this->withToken($token)->postJson($policies, ['effective_start' => '2025-09-01', 'score_state_rule' => $scoreStateRule])->assertCreated()->json('data.id');
         $this->withToken($token)->postJson($policies.'/'.$policyId.'/activate')->assertOk();
         $scaleId = $this->withToken($token)->postJson($policies.'/'.$policyId.'/grading-scales', ['name' => 'Submission Scale', 'effective_start' => '2025-09-01', 'bands' => [['grade' => 'F', 'label' => 'Fail', 'minimum_percentage' => 0, 'maximum_percentage' => 49.99, 'is_passing' => false, 'sequence' => 1], ['grade' => 'P', 'label' => 'Pass', 'minimum_percentage' => 50, 'maximum_percentage' => 100, 'is_passing' => true, 'sequence' => 2]]])->assertCreated()->json('data.id');
         $this->withToken($token)->postJson($policies.'/'.$policyId.'/grading-scales/'.$scaleId.'/activate')->assertOk();

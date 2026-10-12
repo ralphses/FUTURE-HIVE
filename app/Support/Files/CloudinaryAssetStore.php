@@ -48,6 +48,44 @@ final class CloudinaryAssetStore
         );
     }
 
+    public function storeGenerated(string $contents, string $schoolId, string $format): SchoolFileReference
+    {
+        $context = TenantContext::require();
+        if ($schoolId !== $context->schoolPublicId || preg_match('/^[a-z0-9]+$/i', $format) !== 1) {
+            throw new UnsafeFileUpload(FileScanResult::Unavailable);
+        }
+
+        $path = tempnam(sys_get_temp_dir(), 'schoolos-result-');
+        if ($path === false) {
+            throw new UnsafeFileUpload(FileScanResult::Unavailable);
+        }
+
+        try {
+            if (file_put_contents($path, $contents) === false) {
+                throw new UnsafeFileUpload(FileScanResult::Unavailable);
+            }
+
+            $reference = SchoolFileReference::forTrustedContext($context);
+            $response = $this->client->uploadPath($path, [
+                'public_id' => $reference->publicId,
+                'resource_type' => 'raw',
+                'type' => 'authenticated',
+                'use_filename' => false,
+                'unique_filename' => false,
+                'format' => $format,
+            ]);
+
+            return new SchoolFileReference(
+                schoolId: $reference->schoolId,
+                publicId: (string) ($response['public_id'] ?? $reference->publicId),
+                format: (string) ($response['format'] ?? $format),
+                resourceType: (string) ($response['resource_type'] ?? 'raw'),
+            );
+        } finally {
+            @unlink($path);
+        }
+    }
+
     public function temporaryDownloadUrl(SchoolFileReference $reference): string
     {
         $this->assertTrustedReference($reference);
