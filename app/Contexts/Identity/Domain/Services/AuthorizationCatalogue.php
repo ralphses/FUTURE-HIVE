@@ -126,6 +126,51 @@ final class AuthorizationCatalogue
             'academic.records.read' => ['label' => 'Read academic records', 'description' => 'View permitted academic records.'],
             'finance.records.read' => ['label' => 'Read finance records', 'description' => 'View permitted finance records.'],
             'finance.records.manage' => ['label' => 'Manage finance records', 'description' => 'Manage permitted finance operations.'],
+            'finance.fee-plans.read' => ['label' => 'Read fee categories and plans', 'description' => 'View school-scoped fee categories and versioned fee plans.'],
+            'finance.fee-plans.manage' => ['label' => 'Manage fee categories and plans', 'description' => 'Create and lifecycle-manage school-scoped fee categories and versioned fee plans.'],
+            'finance.fee-assessments.read' => ['label' => 'Read fee assessments', 'description' => 'View school-scoped fee assessment runs and their safe counts.'],
+            'finance.fee-assessments.manage' => ['label' => 'Manage fee assessments', 'description' => 'Generate and finalize school-scoped fee assessments from active plans.'],
+            'finance.invoices.read' => ['label' => 'Read invoices', 'description' => 'View safe school-scoped invoices generated from fee assessments.'],
+            'finance.invoices.manage' => ['label' => 'Manage invoices', 'description' => 'Issue school-scoped invoices generated from fee assessments.'],
+            'finance.adjustments.read' => ['label' => 'Read invoice adjustments', 'description' => 'View safe discounts, scholarships and waivers within the selected school.'],
+            'finance.adjustments.manage' => ['label' => 'Manage invoice adjustments', 'description' => 'Request and manage draft-invoice discounts, scholarships and waivers.'],
+            'finance.adjustments.approve' => ['label' => 'Approve invoice adjustments', 'description' => 'Approve or reject bounded invoice adjustment requests.'],
+            'finance.adjustments.apply' => ['label' => 'Apply invoice adjustments', 'description' => 'Apply approved adjustments to draft invoices without posting ledger activity.'],
+            'finance.family-billing.read' => ['label' => 'Read family billing', 'description' => 'View safe consolidated billing for authorized family relationships.'],
+            'finance.family-billing.manage' => ['label' => 'Manage family billing', 'description' => 'Reserved for future family billing management workflows.'],
+            'finance.payment-allocations.read' => ['label' => 'Read payment allocations', 'description' => 'View safe partial-payment allocations within the selected school.'],
+            'finance.payment-allocations.manage' => ['label' => 'Manage payment allocations', 'description' => 'Allocate approved integer minor-unit payments against issued school invoices.'],
+            'finance.payment-intents.read' => ['label' => 'Read payment intents', 'description' => 'View safe provider-agnostic payment intents within the selected school.'],
+            'finance.payment-intents.manage' => ['label' => 'Manage payment intents', 'description' => 'Create and cancel provider-agnostic payment intents for issued invoices.'],
+            'finance.payment-evidence.read' => ['label' => 'Read payment evidence', 'description' => 'View safe manual payment evidence within the selected school.'],
+            'finance.payment-evidence.manage' => ['label' => 'Manage payment evidence', 'description' => 'Record and cancel manual payment evidence for issued invoices.'],
+            'finance.payment-evidence.review' => ['label' => 'Review payment evidence', 'description' => 'Verify or reject manual payment evidence without posting settlement activity.'],
+            'finance.ledger.read' => ['label' => 'Read financial ledger', 'description' => 'View safe school-scoped financial ledger batches and entries.'],
+            'finance.ledger.manage' => ['label' => 'Manage financial ledger', 'description' => 'Create and post balanced school-scoped financial ledger batches.'],
+            'finance.receipts.read' => ['label' => 'Read receipts', 'description' => 'View safe immutable receipts within the selected school.'],
+            'finance.receipts.manage' => ['label' => 'Manage receipts', 'description' => 'Issue receipts for verified school payment sources.'],
+            'finance.reversals.read' => ['label' => 'Read reversals', 'description' => 'View safe compensating reversal requests in the selected school.'],
+            'finance.reversals.manage' => ['label' => 'Manage reversals', 'description' => 'Request compensating reversals for eligible posted financial sources.'],
+            'finance.reversals.approve' => ['label' => 'Approve reversals', 'description' => 'Approve, reject or apply compensating reversals with maker-checker separation.'],
+            'finance.refunds.read' => ['label' => 'Read refunds', 'description' => 'View safe compensating refund requests in the selected school.'],
+            'finance.refunds.manage' => ['label' => 'Manage refunds', 'description' => 'Request compensating refunds for eligible verified payment sources.'],
+            'finance.refunds.approve' => ['label' => 'Approve refunds', 'description' => 'Approve, reject or apply compensating refunds with maker-checker separation.'],
+            'finance.reconciliation.read' => ['label' => 'Read financial reconciliation', 'description' => 'View safe school-scoped reconciliation runs and exceptions.'],
+            'finance.reconciliation.manage' => ['label' => 'Manage financial reconciliation', 'description' => 'Create and cancel deterministic school-scoped reconciliation runs.'],
+            'finance.reconciliation.resolve' => ['label' => 'Resolve reconciliation exceptions', 'description' => 'Resolve eligible reconciliation exceptions with a bounded reason.'],
+            'finance.balances.read' => ['label' => 'Read outstanding balances', 'description' => 'View safe outstanding financial balances in the selected school.'],
+            'finance.statements.read' => ['label' => 'Read financial statements', 'description' => 'View safe student and family financial statements in the selected school.'],
+            'finance.reports.read' => ['label' => 'Read finance reports', 'description' => 'View safe school-scoped bursar finance reports.'],
+            'finance.reports.export' => ['label' => 'Export finance reports', 'description' => 'Download bounded safe bursar finance reports.'],
+            'finance.periods.read' => ['label' => 'Read financial periods', 'description' => 'View safe school-scoped financial close status.'],
+            'finance.periods.manage' => ['label' => 'Manage financial periods', 'description' => 'Start and complete controlled financial period closes.'],
+            'finance.periods.reopen' => ['label' => 'Reopen financial periods', 'description' => 'Reopen eligible closed periods with an audited reason.'],
+            'finance.post-close-adjustments.read' => ['label' => 'Read post-close adjustments', 'description' => 'View safe post-close adjustment requests.'],
+            'finance.post-close-adjustments.manage' => ['label' => 'Manage post-close adjustments', 'description' => 'Request post-close compensating adjustments.'],
+            'finance.post-close-adjustments.approve' => ['label' => 'Approve post-close adjustments', 'description' => 'Approve, reject or apply post-close adjustments.'],
+            'finance.reminders.read' => ['label' => 'Read fee reminders', 'description' => 'View safe school-scoped fee reminder candidates and statuses.'],
+            'finance.reminders.manage' => ['label' => 'Manage fee reminders', 'description' => 'Create and cancel school-scoped fee reminders.'],
+            'finance.reminders.send' => ['label' => 'Send fee reminders', 'description' => 'Send eligible fee reminders through the approved delivery contract.'],
             'counselling.private_notes.read' => ['label' => 'Read private counselling notes', 'description' => 'Read authorized private counselling notes.'],
             'academic.assignments.read' => ['label' => 'Read academic assignments', 'description' => 'Read assignments within the actor’s authorized academic scope.'],
             'academic.assignments.manage' => ['label' => 'Manage academic assignments', 'description' => 'Manage assignments within the actor’s authorized academic scope.'],
@@ -167,7 +212,7 @@ final class AuthorizationCatalogue
             'bursar' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'finance.records.read', 'finance.records.manage', 'staff.class-teachers.read'],
             'proprietor' => ['school.memberships.list', 'school.settings.read', 'school.lifecycle.read', 'school.lifecycle.manage', 'academic.sessions.read', 'academic.sessions.manage', 'academic.structure.read', 'academic.structure.manage', 'academic.class-arms.read', 'academic.class-arms.manage', 'academic.subjects.read', 'academic.subjects.manage', 'academic.offerings.read', 'academic.offerings.manage', 'academic.assessment-components.read', 'academic.assessment-components.manage', 'academic.assessment-policies.read', 'academic.assessment-policies.manage', 'academic.grading-scales.read', 'academic.grading-scales.manage', 'academic.promotion-rules.read', 'academic.promotion-rules.manage', 'academic.readiness.read', 'students.read', 'students.admit', 'students.manage', 'students.profile.read', 'students.profile.manage', 'students.documents.read', 'students.documents.manage', 'students.enrollments.transfer', 'students.enrollments.withdraw', 'students.promotion.read', 'students.promotion.manage', 'students.promotion.approve', 'students.promotion.apply', 'academic.assignments.read', 'academic.assignments.manage', 'guardians.read', 'guardians.manage', 'guardian.links.read', 'guardian.links.manage', 'finance.records.read', 'staff.read', 'staff.manage', 'staff.employment.manage', 'staff.class-teachers.read', 'staff.class-teachers.manage'],
             'counsellor' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'students.profile.read', 'students.documents.read', 'guardians.read', 'guardian.links.read', 'counselling.private_notes.read', 'staff.read', 'staff.class-teachers.read'],
-            'parent_guardian' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'guardian.links.read'],
+            'parent_guardian' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'guardian.links.read', 'finance.family-billing.read'],
             'student' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'student.self.read'],
         ];
 
@@ -197,6 +242,60 @@ final class AuthorizationCatalogue
             $permissions[$role][] = 'imports.report.read';
             $permissions[$role][] = 'students.audit.read';
             $permissions[$role][] = 'guardians.audit.read';
+        }
+
+        foreach (['school_admin', 'proprietor', 'bursar'] as $role) {
+            $permissions[$role][] = 'finance.fee-plans.read';
+            $permissions[$role][] = 'finance.fee-plans.manage';
+            $permissions[$role][] = 'finance.fee-assessments.read';
+            $permissions[$role][] = 'finance.invoices.read';
+        }
+
+        foreach (['school_admin', 'proprietor', 'bursar'] as $role) {
+            $permissions[$role][] = 'finance.fee-assessments.manage';
+            $permissions[$role][] = 'finance.invoices.manage';
+            $permissions[$role][] = 'finance.adjustments.read';
+            $permissions[$role][] = 'finance.adjustments.manage';
+            $permissions[$role][] = 'finance.adjustments.approve';
+            $permissions[$role][] = 'finance.adjustments.apply';
+            $permissions[$role][] = 'finance.family-billing.read';
+            $permissions[$role][] = 'finance.family-billing.manage';
+            $permissions[$role][] = 'finance.payment-allocations.read';
+            $permissions[$role][] = 'finance.payment-allocations.manage';
+            $permissions[$role][] = 'finance.payment-intents.read';
+            $permissions[$role][] = 'finance.payment-intents.manage';
+            $permissions[$role][] = 'finance.payment-evidence.read';
+            $permissions[$role][] = 'finance.payment-evidence.manage';
+            $permissions[$role][] = 'finance.payment-evidence.review';
+            $permissions[$role][] = 'finance.ledger.read';
+            $permissions[$role][] = 'finance.ledger.manage';
+            $permissions[$role][] = 'finance.receipts.read';
+            $permissions[$role][] = 'finance.receipts.manage';
+            $permissions[$role][] = 'finance.reversals.read';
+            $permissions[$role][] = 'finance.reversals.manage';
+            $permissions[$role][] = 'finance.reversals.approve';
+            $permissions[$role][] = 'finance.refunds.read';
+            $permissions[$role][] = 'finance.refunds.manage';
+            $permissions[$role][] = 'finance.refunds.approve';
+            $permissions[$role][] = 'finance.reconciliation.read';
+            $permissions[$role][] = 'finance.reconciliation.manage';
+            $permissions[$role][] = 'finance.reconciliation.resolve';
+            $permissions[$role][] = 'finance.balances.read';
+            $permissions[$role][] = 'finance.statements.read';
+            $permissions[$role][] = 'finance.reports.read';
+            $permissions[$role][] = 'finance.reports.export';
+            $permissions[$role][] = 'finance.periods.read';
+            $permissions[$role][] = 'finance.periods.manage';
+            $permissions[$role][] = 'finance.post-close-adjustments.read';
+            $permissions[$role][] = 'finance.post-close-adjustments.manage';
+            $permissions[$role][] = 'finance.post-close-adjustments.approve';
+            $permissions[$role][] = 'finance.reminders.read';
+            $permissions[$role][] = 'finance.reminders.manage';
+            $permissions[$role][] = 'finance.reminders.send';
+        }
+
+        foreach (['school_admin', 'proprietor'] as $role) {
+            $permissions[$role][] = 'finance.periods.reopen';
         }
 
         foreach (['school_admin', 'teacher', 'hod_reviewer', 'principal', 'proprietor'] as $role) {

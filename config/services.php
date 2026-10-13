@@ -8,6 +8,15 @@ return [
         'upload_prefix' => env('CLOUDINARY_UPLOAD_PREFIX', 'schoolos/schools'),
     ],
 
+    'payment_webhooks' => [
+        'tolerance_seconds' => (int) env('PAYMENT_WEBHOOK_TOLERANCE_SECONDS', 300),
+        'providers' => [
+            'deterministic' => [
+                'secret' => env('PAYMENT_WEBHOOK_DETERMINISTIC_SECRET'),
+            ],
+        ],
+    ],
+
     'observability' => [
         'structured_log_channel' => env('OBSERVABILITY_LOG_CHANNEL', 'structured'),
     ],

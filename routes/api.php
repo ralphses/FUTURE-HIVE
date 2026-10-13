@@ -34,6 +34,22 @@ use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectOfferingControl
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicTeachingAssignmentController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\TeacherWorklistController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\TeachingAnnouncementController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FamilyBillingController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FeeAdjustmentController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FeeAssessmentController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FeeConfigurationController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FeePaymentAllocationController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FeePaymentEvidenceController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FeePaymentIntentController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FinanceCompensationController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FinancePeriodController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FinanceReceiptController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FinanceReconciliationController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FinanceReminderController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FinanceReportController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FinancialLedgerController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\FinancialStatementController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\AuthenticationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\ContactVerificationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\PasswordController;
@@ -82,6 +98,238 @@ Route::get('/files/download', CloudinaryFileDownloadController::class)
     ->middleware([JwtAuthenticate::class, RequireSchoolContext::class, 'signed'])
     ->name('api.v1.files.download');
 
+// School Administration: tenant-scoped fee categories and versioned plans.
+Route::get('/schools/{school}/fee-categories', [FeeConfigurationController::class, 'categories'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-categories.index');
+Route::post('/schools/{school}/fee-categories', [FeeConfigurationController::class, 'storeCategory'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-categories.store');
+Route::patch('/schools/{school}/fee-categories/{category}', [FeeConfigurationController::class, 'updateCategory'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-categories.update');
+Route::get('/schools/{school}/fee-plans', [FeeConfigurationController::class, 'plans'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-plans.index');
+Route::post('/schools/{school}/fee-plans', [FeeConfigurationController::class, 'storePlan'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-plans.store');
+Route::get('/schools/{school}/fee-plans/{plan}', [FeeConfigurationController::class, 'showPlan'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-plans.show');
+Route::patch('/schools/{school}/fee-plans/{plan}', [FeeConfigurationController::class, 'updatePlan'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-plans.update');
+Route::post('/schools/{school}/fee-plans/{plan}/activate', [FeeConfigurationController::class, 'activatePlan'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-plans.activate');
+Route::post('/schools/{school}/fee-plans/{plan}/retire', [FeeConfigurationController::class, 'retirePlan'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-plans.retire');
+Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/fee-assessments', [FeeAssessmentController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.academic-sessions.terms.fee-assessments.index');
+Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/fee-assessments', [FeeAssessmentController::class, 'store'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.academic-sessions.terms.fee-assessments.store');
+Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/fee-assessments/{assessment}', [FeeAssessmentController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.academic-sessions.terms.fee-assessments.show');
+Route::post('/schools/{school}/fee-assessments/{assessment}/finalize', [FeeAssessmentController::class, 'finalize'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-assessments.finalize');
+Route::get('/schools/{school}/invoices', [FeeAssessmentController::class, 'invoices'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.index');
+Route::get('/schools/{school}/invoices/{invoice}', [FeeAssessmentController::class, 'invoice'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.show');
+Route::get('/schools/{school}/fee-adjustment-programs', [FeeAdjustmentController::class, 'programs'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-adjustment-programs.index');
+Route::post('/schools/{school}/fee-adjustment-programs', [FeeAdjustmentController::class, 'storeProgram'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-adjustment-programs.store');
+Route::patch('/schools/{school}/fee-adjustment-programs/{program}', [FeeAdjustmentController::class, 'updateProgram'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-adjustment-programs.update');
+Route::post('/schools/{school}/fee-adjustment-programs/{program}/activate', [FeeAdjustmentController::class, 'activateProgram'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-adjustment-programs.activate');
+Route::post('/schools/{school}/fee-adjustment-programs/{program}/retire', [FeeAdjustmentController::class, 'retireProgram'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.fee-adjustment-programs.retire');
+Route::get('/schools/{school}/invoices/{invoice}/adjustments', [FeeAdjustmentController::class, 'adjustments'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.adjustments.index');
+Route::post('/schools/{school}/invoices/{invoice}/adjustments', [FeeAdjustmentController::class, 'storeAdjustment'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.adjustments.store');
+Route::post('/schools/{school}/invoices/{invoice}/adjustments/{adjustment}/approve', [FeeAdjustmentController::class, 'approve'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.adjustments.approve');
+Route::post('/schools/{school}/invoices/{invoice}/adjustments/{adjustment}/reject', [FeeAdjustmentController::class, 'reject'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.adjustments.reject');
+Route::post('/schools/{school}/invoices/{invoice}/adjustments/{adjustment}/apply', [FeeAdjustmentController::class, 'apply'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.adjustments.apply');
+Route::post('/schools/{school}/invoices/{invoice}/adjustments/{adjustment}/cancel', [FeeAdjustmentController::class, 'cancel'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.adjustments.cancel');
+Route::get('/schools/{school}/family-billing', [FamilyBillingController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.family-billing.index');
+Route::get('/schools/{school}/family-billing/{guardian}', [FamilyBillingController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.family-billing.show');
+Route::get('/me/family-billing', [FamilyBillingController::class, 'me'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.me.family-billing');
+Route::get('/schools/{school}/invoices/{invoice}/payment-allocations', [FeePaymentAllocationController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-allocations.index');
+Route::post('/schools/{school}/invoices/{invoice}/payment-allocations', [FeePaymentAllocationController::class, 'store'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-allocations.store');
+Route::get('/schools/{school}/invoices/{invoice}/payment-allocations/{allocation}', [FeePaymentAllocationController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-allocations.show');
+Route::get('/schools/{school}/invoices/{invoice}/payment-intents', [FeePaymentIntentController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-intents.index');
+Route::post('/schools/{school}/invoices/{invoice}/payment-intents', [FeePaymentIntentController::class, 'store'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-intents.store');
+Route::get('/schools/{school}/invoices/{invoice}/payment-intents/{intent}', [FeePaymentIntentController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-intents.show');
+Route::post('/schools/{school}/invoices/{invoice}/payment-intents/{intent}/cancel', [FeePaymentIntentController::class, 'cancel'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-intents.cancel');
+Route::get('/schools/{school}/invoices/{invoice}/payment-evidence', [FeePaymentEvidenceController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-evidence.index');
+Route::post('/schools/{school}/invoices/{invoice}/payment-evidence', [FeePaymentEvidenceController::class, 'store'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-evidence.store');
+Route::get('/schools/{school}/invoices/{invoice}/payment-evidence/{evidence}', [FeePaymentEvidenceController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-evidence.show');
+Route::post('/schools/{school}/invoices/{invoice}/payment-evidence/{evidence}/verify', [FeePaymentEvidenceController::class, 'verify'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-evidence.verify');
+Route::post('/schools/{school}/invoices/{invoice}/payment-evidence/{evidence}/reject', [FeePaymentEvidenceController::class, 'reject'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-evidence.reject');
+Route::post('/schools/{school}/invoices/{invoice}/payment-evidence/{evidence}/cancel', [FeePaymentEvidenceController::class, 'cancel'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.invoices.payment-evidence.cancel');
+Route::get('/schools/{school}/ledger', [FinancialLedgerController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.ledger.index');
+Route::post('/schools/{school}/ledger', [FinancialLedgerController::class, 'store'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.ledger.store');
+Route::get('/schools/{school}/ledger/{batch}', [FinancialLedgerController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.ledger.show');
+Route::post('/schools/{school}/ledger/{batch}/post', [FinancialLedgerController::class, 'post'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.ledger.post');
+Route::get('/schools/{school}/receipts', [FinanceReceiptController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.receipts.index');
+Route::post('/schools/{school}/receipts', [FinanceReceiptController::class, 'store'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.receipts.store');
+Route::get('/schools/{school}/receipts/{receipt}', [FinanceReceiptController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.receipts.show');
+Route::get('/schools/{school}/reversals', [FinanceCompensationController::class, 'reversalsIndex'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reversals.index');
+Route::post('/schools/{school}/reversals', [FinanceCompensationController::class, 'reversalsStore'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reversals.store');
+Route::get('/schools/{school}/reversals/{reversal}', [FinanceCompensationController::class, 'reversalsShow'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reversals.show');
+Route::post('/schools/{school}/reversals/{reversal}/approve', [FinanceCompensationController::class, 'approveReversal'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reversals.approve');
+Route::post('/schools/{school}/reversals/{reversal}/reject', [FinanceCompensationController::class, 'rejectReversal'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reversals.reject');
+Route::post('/schools/{school}/reversals/{reversal}/apply', [FinanceCompensationController::class, 'applyReversal'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reversals.apply');
+Route::get('/schools/{school}/refunds', [FinanceCompensationController::class, 'refundsIndex'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.refunds.index');
+Route::post('/schools/{school}/refunds', [FinanceCompensationController::class, 'refundsStore'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.refunds.store');
+Route::get('/schools/{school}/refunds/{refund}', [FinanceCompensationController::class, 'refundsShow'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.refunds.show');
+Route::post('/schools/{school}/refunds/{refund}/approve', [FinanceCompensationController::class, 'approveRefund'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.refunds.approve');
+Route::post('/schools/{school}/refunds/{refund}/reject', [FinanceCompensationController::class, 'rejectRefund'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.refunds.reject');
+Route::post('/schools/{school}/refunds/{refund}/apply', [FinanceCompensationController::class, 'applyRefund'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.refunds.apply');
+
+Route::get('/schools/{school}/reconciliations', [FinanceReconciliationController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reconciliations.index');
+Route::post('/schools/{school}/reconciliations', [FinanceReconciliationController::class, 'store'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reconciliations.store');
+Route::get('/schools/{school}/reconciliations/{run}', [FinanceReconciliationController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reconciliations.show');
+Route::get('/schools/{school}/reconciliations/{run}/items', [FinanceReconciliationController::class, 'items'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reconciliations.items');
+Route::post('/schools/{school}/reconciliations/{run}/items/{item}/resolve', [FinanceReconciliationController::class, 'resolve'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reconciliations.resolve');
+Route::post('/schools/{school}/reconciliations/{run}/cancel', [FinanceReconciliationController::class, 'cancel'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.reconciliations.cancel');
+Route::get('/schools/{school}/financial-statements', [FinancialStatementController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-statements.index');
+Route::get('/schools/{school}/students/{student}/financial-statement', [FinancialStatementController::class, 'student'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.students.financial-statement');
+Route::get('/schools/{school}/guardians/{guardian}/financial-statement', [FinancialStatementController::class, 'guardian'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.guardians.financial-statement');
+Route::get('/schools/{school}/finance-reports/collections', [FinanceReportController::class, 'collections'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.finance-reports.collections');
+Route::get('/schools/{school}/finance-reports/arrears', [FinanceReportController::class, 'arrears'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.finance-reports.arrears');
+Route::get('/schools/{school}/finance-reports/fee-plans', [FinanceReportController::class, 'feePlans'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.finance-reports.fee-plans');
+Route::get('/schools/{school}/finance-reports/export', [FinanceReportController::class, 'export'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.finance-reports.export');
+Route::get('/schools/{school}/financial-periods', [FinancePeriodController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-periods.index');
+Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/financial-period', [FinancePeriodController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-periods.show');
+Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/financial-period/close/start', [FinancePeriodController::class, 'startClose'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-periods.close.start');
+Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/financial-period/close/complete', [FinancePeriodController::class, 'completeClose'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-periods.close.complete');
+Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/financial-period/reopen', [FinancePeriodController::class, 'reopen'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-periods.reopen');
+Route::get('/schools/{school}/financial-period-adjustments', [FinancePeriodController::class, 'adjustments'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-period-adjustments.index');
+Route::post('/schools/{school}/financial-period-adjustments', [FinancePeriodController::class, 'storeAdjustment'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-period-adjustments.store');
+Route::get('/schools/{school}/financial-period-adjustments/{adjustment}', [FinancePeriodController::class, 'showAdjustment'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-period-adjustments.show');
+Route::post('/schools/{school}/financial-period-adjustments/{adjustment}/approve', [FinancePeriodController::class, 'approveAdjustment'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-period-adjustments.approve');
+Route::post('/schools/{school}/financial-period-adjustments/{adjustment}/reject', [FinancePeriodController::class, 'rejectAdjustment'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-period-adjustments.reject');
+Route::post('/schools/{school}/financial-period-adjustments/{adjustment}/apply', [FinancePeriodController::class, 'applyAdjustment'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.financial-period-adjustments.apply');
+Route::get('/schools/{school}/fee-reminder-candidates', [FinanceReminderController::class, 'candidates'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.fee-reminder-candidates.index');
+Route::get('/schools/{school}/fee-reminders/{reminder}', [FinanceReminderController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.fee-reminders.show');
+Route::post('/schools/{school}/fee-reminders', [FinanceReminderController::class, 'store'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.fee-reminders.store');
+Route::post('/schools/{school}/fee-reminders/{reminder}/send', [FinanceReminderController::class, 'send'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.fee-reminders.send');
+Route::post('/schools/{school}/fee-reminders/{reminder}/cancel', [FinanceReminderController::class, 'cancel'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.fee-reminders.cancel');
+
 // School Registration: public provisional intake and contact verification.
 Route::post('/public/school-registrations', [SchoolRegistrationController::class, 'store'])
     ->middleware('throttle:public-school-registration')
@@ -119,6 +367,10 @@ Route::post('/auth/verification/request', [ContactVerificationController::class,
 Route::post('/auth/verification/confirm', [ContactVerificationController::class, 'confirm'])
     ->middleware('throttle:auth-verification-confirm')
     ->name('api.v1.auth.verification.confirm');
+
+// Finance: provider-signed payment webhook verification. This route intentionally has no selected-school middleware.
+Route::post('/payment-webhooks/{provider}', PaymentWebhookController::class)
+    ->name('api.v1.payment-webhooks.verify');
 
 Route::middleware(JwtAuthenticate::class)->group(function (): void {
     // Identity & Authentication: authenticated identity and session operations.
