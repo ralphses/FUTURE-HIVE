@@ -198,6 +198,10 @@ final class AuthorizationCatalogue
             'teaching.announcements.manage' => ['label' => 'Manage teacher announcements', 'description' => 'Create and manage announcements for assigned academic audiences.'],
             'teaching.announcements.review' => ['label' => 'Review teacher announcements', 'description' => 'Approve or reject submitted announcements.'],
             'teaching.announcements.publish' => ['label' => 'Publish teacher announcements', 'description' => 'Publish or recall approved school announcements.'],
+            'communications.parent.read' => ['label' => 'Read parent communications', 'description' => 'Read verified-guardian announcements and communication threads.'],
+            'communications.parent.manage' => ['label' => 'Manage parent communications', 'description' => 'Open and participate in verified-guardian communication threads.'],
+            'communications.staff.read' => ['label' => 'Read staff communications', 'description' => 'Read communication threads within the trusted staff assignment scope.'],
+            'communications.staff.manage' => ['label' => 'Manage staff communications', 'description' => 'Respond to and close communication threads within the trusted staff scope.'],
         ];
     }
 
@@ -212,11 +216,13 @@ final class AuthorizationCatalogue
             'bursar' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'finance.records.read', 'finance.records.manage', 'staff.class-teachers.read'],
             'proprietor' => ['school.memberships.list', 'school.settings.read', 'school.lifecycle.read', 'school.lifecycle.manage', 'academic.sessions.read', 'academic.sessions.manage', 'academic.structure.read', 'academic.structure.manage', 'academic.class-arms.read', 'academic.class-arms.manage', 'academic.subjects.read', 'academic.subjects.manage', 'academic.offerings.read', 'academic.offerings.manage', 'academic.assessment-components.read', 'academic.assessment-components.manage', 'academic.assessment-policies.read', 'academic.assessment-policies.manage', 'academic.grading-scales.read', 'academic.grading-scales.manage', 'academic.promotion-rules.read', 'academic.promotion-rules.manage', 'academic.readiness.read', 'students.read', 'students.admit', 'students.manage', 'students.profile.read', 'students.profile.manage', 'students.documents.read', 'students.documents.manage', 'students.enrollments.transfer', 'students.enrollments.withdraw', 'students.promotion.read', 'students.promotion.manage', 'students.promotion.approve', 'students.promotion.apply', 'academic.assignments.read', 'academic.assignments.manage', 'guardians.read', 'guardians.manage', 'guardian.links.read', 'guardian.links.manage', 'finance.records.read', 'staff.read', 'staff.manage', 'staff.employment.manage', 'staff.class-teachers.read', 'staff.class-teachers.manage'],
             'counsellor' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'students.profile.read', 'students.documents.read', 'guardians.read', 'guardian.links.read', 'counselling.private_notes.read', 'staff.read', 'staff.class-teachers.read'],
-            'parent_guardian' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'guardian.links.read', 'finance.family-billing.read'],
+            'parent_guardian' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'guardian.links.read', 'finance.family-billing.read', 'communications.parent.read', 'communications.parent.manage'],
             'student' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'student.self.read'],
         ];
 
         foreach (['school_admin', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'communications.staff.read';
+            $permissions[$role][] = 'communications.staff.manage';
             $permissions[$role][] = 'students.export';
             $permissions[$role][] = 'imports.templates.read';
             $permissions[$role][] = 'imports.upload';
@@ -242,6 +248,11 @@ final class AuthorizationCatalogue
             $permissions[$role][] = 'imports.report.read';
             $permissions[$role][] = 'students.audit.read';
             $permissions[$role][] = 'guardians.audit.read';
+        }
+
+        foreach (['teacher', 'hod_reviewer'] as $role) {
+            $permissions[$role][] = 'communications.staff.read';
+            $permissions[$role][] = 'communications.staff.manage';
         }
 
         foreach (['school_admin', 'proprietor', 'bursar'] as $role) {

@@ -49,6 +49,7 @@ use App\Contexts\Finance\Http\Controllers\Api\V1\FinanceReminderController;
 use App\Contexts\Finance\Http\Controllers\Api\V1\FinanceReportController;
 use App\Contexts\Finance\Http\Controllers\Api\V1\FinancialLedgerController;
 use App\Contexts\Finance\Http\Controllers\Api\V1\FinancialStatementController;
+use App\Contexts\Finance\Http\Controllers\Api\V1\ParentFinanceController;
 use App\Contexts\Finance\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\AuthenticationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\ContactVerificationController;
@@ -57,6 +58,7 @@ use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolContextController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolInvitationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolMembershipController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolRoleController;
+use App\Contexts\Identity\Http\Controllers\Api\V1\SelfServiceProfileController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\FinancialOpeningBalanceImportController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HistoricalAcademicImportController;
@@ -78,8 +80,15 @@ use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolSetupController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\ClassTeacherAssignmentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianInvitationController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianRelationshipController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\ParentAttendanceController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\ParentCommunicationController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\ParentDashboardController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\ParentReportCardController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\SchoolCommunicationController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StaffProfileController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\StudentAcademicHistoryController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\StudentDashboardController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentEnrollmentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentProfileController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentPromotionController;
@@ -375,6 +384,15 @@ Route::post('/payment-webhooks/{provider}', PaymentWebhookController::class)
 Route::middleware(JwtAuthenticate::class)->group(function (): void {
     // Identity & Authentication: authenticated identity and session operations.
     Route::get('/auth/me', [AuthenticationController::class, 'me'])->name('api.v1.auth.me');
+    Route::get('/me/profile', [SelfServiceProfileController::class, 'show'])->name('api.v1.me.profile.show');
+    Route::put('/me/profile', [SelfServiceProfileController::class, 'update'])->name('api.v1.me.profile.update');
+    Route::get('/me/notification-preferences', [SelfServiceProfileController::class, 'preferences'])->name('api.v1.me.notification-preferences.show');
+    Route::put('/me/notification-preferences', [SelfServiceProfileController::class, 'updatePreferences'])->name('api.v1.me.notification-preferences.update');
+    Route::get('/me/parent-communications', [ParentCommunicationController::class, 'index'])->name('api.v1.me.parent-communications.index');
+    Route::post('/me/parent-communications', [ParentCommunicationController::class, 'store'])->name('api.v1.me.parent-communications.store');
+    Route::get('/me/parent-communications/{thread}', [ParentCommunicationController::class, 'show'])->name('api.v1.me.parent-communications.show');
+    Route::post('/me/parent-communications/{thread}/messages', [ParentCommunicationController::class, 'message'])->name('api.v1.me.parent-communications.message');
+    Route::post('/me/parent-communications/{thread}/read', [ParentCommunicationController::class, 'read'])->name('api.v1.me.parent-communications.read');
     Route::post('/auth/logout', [AuthenticationController::class, 'logout'])->name('api.v1.auth.logout');
     Route::post('/auth/logout-all', [AuthenticationController::class, 'logoutAll'])->name('api.v1.auth.logout_all');
     Route::post('/auth/context/switch', [SchoolContextController::class, 'select'])->name('api.v1.auth.context.switch');
@@ -386,6 +404,32 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     // School Context & Memberships: membership, invitation, role and permission access.
     Route::get('/me/memberships', [SchoolMembershipController::class, 'index'])
         ->name('api.v1.me.memberships');
+    Route::get('/me/parent-dashboard', [ParentDashboardController::class, 'index'])
+        ->name('api.v1.me.parent-dashboard');
+    Route::get('/me/parent-dashboard/children/{student}', [ParentDashboardController::class, 'child'])
+        ->name('api.v1.me.parent-dashboard.children.show');
+    Route::get('/me/parent-attendance', [ParentAttendanceController::class, 'index'])
+        ->name('api.v1.me.parent-attendance');
+    Route::get('/me/parent-attendance/children/{student}', [ParentAttendanceController::class, 'child'])
+        ->name('api.v1.me.parent-attendance.children.show');
+    Route::get('/me/parent-report-cards', [ParentReportCardController::class, 'index'])
+        ->name('api.v1.me.parent-report-cards');
+    Route::get('/me/parent-report-cards/children/{student}', [ParentReportCardController::class, 'child'])
+        ->name('api.v1.me.parent-report-cards.children.show');
+    Route::get('/me/parent-fee-balances', [ParentFinanceController::class, 'balances'])
+        ->name('api.v1.me.parent-fee-balances');
+    Route::get('/me/parent-fee-balances/children/{student}', [ParentFinanceController::class, 'balanceChild'])
+        ->name('api.v1.me.parent-fee-balances.children.show');
+    Route::get('/me/parent-receipts', [ParentFinanceController::class, 'receipts'])
+        ->name('api.v1.me.parent-receipts');
+    Route::get('/me/parent-receipts/children/{student}', [ParentFinanceController::class, 'receiptsChild'])
+        ->name('api.v1.me.parent-receipts.children.show');
+    Route::get('/me/student-dashboard', StudentDashboardController::class)
+        ->name('api.v1.me.student-dashboard');
+    Route::get('/me/student-academic-history', [StudentAcademicHistoryController::class, 'index'])
+        ->name('api.v1.me.student-academic-history');
+    Route::get('/me/student-academic-history/schools/{school}', [StudentAcademicHistoryController::class, 'school'])
+        ->name('api.v1.me.student-academic-history.schools.show');
     Route::post('/schools/{school}/invitations', [SchoolInvitationController::class, 'create'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.invitations.create');
@@ -630,6 +674,14 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.recall');
     Route::post('/schools/{school}/announcements/{announcement}/reject', [TeachingAnnouncementController::class, 'reject'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.reject');
+    Route::get('/schools/{school}/communications', [SchoolCommunicationController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.communications.index');
+    Route::get('/schools/{school}/communications/{thread}', [SchoolCommunicationController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.communications.show');
+    Route::post('/schools/{school}/communications/{thread}/messages', [SchoolCommunicationController::class, 'message'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.communications.message');
+    Route::post('/schools/{school}/communications/{thread}/close', [SchoolCommunicationController::class, 'close'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.communications.close');
 
     // Academic Structure and Assessment: periods, offerings, assignments, policies and scales.
     Route::get('/schools/{school}/academic-sessions', [AcademicPeriodController::class, 'sessions'])

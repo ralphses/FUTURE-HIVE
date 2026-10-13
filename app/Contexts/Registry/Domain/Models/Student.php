@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace App\Contexts\Registry\Domain\Models;
 
+use App\Contexts\Identity\Domain\Models\School;
 use App\Support\Tenancy\TenantScoped;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
-#[Fillable(['public_id', 'school_id', 'student_number', 'display_name', 'admission_date', 'status', 'metadata'])]
-#[Hidden(['id', 'school_id', 'metadata'])]
+#[Fillable(['public_id', 'school_id', 'user_id', 'student_number', 'display_name', 'admission_date', 'status', 'metadata'])]
+#[Hidden(['id', 'school_id', 'user_id', 'metadata'])]
 final class Student extends Model
 {
     use TenantScoped;
@@ -28,6 +30,12 @@ final class Student extends Model
     protected function casts(): array
     {
         return ['admission_date' => 'date', 'metadata' => 'array'];
+    }
+
+    /** @return BelongsTo<School, $this> */
+    public function school(): BelongsTo
+    {
+        return $this->belongsTo(School::class);
     }
 
     /** @return HasOne<StudentProfile, $this> */
