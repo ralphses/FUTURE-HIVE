@@ -1,0 +1,13 @@
+# Security, privacy, accessibility and content integrity
+- Security headers: CSP tested against Next.js, HSTS on HTTPS, Referrer-Policy, nosniff, frame restrictions as appropriate.
+- Form protection: rate limiting server side, input validation on both sides, CSRF where applicable, anti-automation for public submissions.
+- Registration: no password in persisted draft, URL, error tracker, analytics or review page; prevent double submission; avoid user enumeration.
+- Authentication: no localStorage JWTs, no raw secrets in source, session expiry handling, logout invalidation, secure reset links, generic login errors.
+- Tenant security: Laravel backend enforces `school_id` isolation; never rely on frontend filtering.
+- Data minimization: public pages should not capture children's data; onboarding requires school-specific privacy safeguards.
+- Nigerian Data Protection Act: review lawful bases, data subject rights, controller/processor responsibilities, child data, transfers and retention with counsel.
+- Cookie consent: build only after cookie inventory; strictly necessary cookies differentiated from analytics/marketing.
+- Accessibility: WCAG 2.2 AA target; 4.5:1 normal text contrast; keyboard nav, focus management, semantic landmarks, form error announcement, labels, aria-expanded, 44px mobile controls.
+- SEO: metadata, canonical, sitemap, robots, Open Graph, schema only for verified organization facts; `noindex` auth/recovery/maintenance as appropriate.
+- Performance: Core Web Vitals targets LCP <=2.5s, CLS <=0.1, INP <=200ms at 75th percentile; compress assets and lazy load below-fold images.
+- Monitoring: error reporting scrub PII, no secrets; analytics events only after privacy review.

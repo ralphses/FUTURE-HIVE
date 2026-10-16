@@ -21,6 +21,12 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## API documentation
+
+Swagger/OpenAPI is the frontend integration source of truth. In local or staging environments, use the read-only documentation surfaces `/docs/api` and `/docs/api.json`; the synchronized generated contract is [openapi/openapi.json](openapi/openapi.json). Implemented feature operations include their frontend flow role, related endpoint sequence, safe response fields and prohibited data in the operation description. Production documentation exposure is disabled by default.
+
+Public legal-policy and authenticated consent operations are documented in the same generated Swagger flow: published policy collection/detail reads precede exact-version consent acceptance and consent-state refresh.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

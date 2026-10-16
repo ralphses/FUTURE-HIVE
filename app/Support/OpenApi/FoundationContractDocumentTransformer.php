@@ -24,7 +24,23 @@ final class FoundationContractDocumentTransformer
     public function __invoke(OpenApi $document): void
     {
         $components = $document->components;
-        $this->addBoundedContextTags($document);
+        $registry = new FrontendFlowRegistry;
+        $operations = [];
+
+        foreach ($document->paths as $path) {
+            foreach ($path->operations as $operation) {
+                if ($operation->operationId !== null) {
+                    $operations[$operation->operationId] = [
+                        'operation_id' => $operation->operationId,
+                        'path' => '/'.$path->path,
+                        'method' => strtoupper($operation->method),
+                    ];
+                }
+            }
+        }
+
+        $this->addBoundedContextTags($document, $registry);
+        $document->info->setDescription($this->frontendFlowInfoDescription($registry));
         $components->addSchema('ApiError', $this->errorType());
         $components->addSecurityScheme(
             'bearerAuth',
@@ -37,7 +53,7 @@ final class FoundationContractDocumentTransformer
         foreach ($document->paths as $path) {
             foreach ($path->operations as $operation) {
                 $operation->setTags([$this->tagForOperation($operation->operationId)]);
-                $this->addPlainLanguageDocumentation($operation);
+                $this->addPlainLanguageDocumentation($operation, $registry, $operations);
                 $this->addRequestIdHeaders($operation);
                 $this->addStandardErrorResponses($operation, $components);
 
@@ -47,6 +63,11 @@ final class FoundationContractDocumentTransformer
                     'v1.me.profile.update',
                     'v1.me.notification-preferences.show',
                     'v1.me.notification-preferences.update',
+                    'v1.me.legal-consents.index',
+                    'v1.me.legal-consents.store',
+                    'v1.me.ai-consents.index',
+                    'v1.me.ai-consents.store',
+                    'v1.me.ai-consents.revoke',
                     'v1.me.parent-communications.index',
                     'v1.me.parent-communications.store',
                     'v1.me.parent-communications.show',
@@ -319,10 +340,14 @@ final class FoundationContractDocumentTransformer
                     'v1.schools.teaching.lessons.submit',
                     'v1.schools.teaching.lessons.approve',
                     'v1.schools.teaching.lessons.return',
+                    'v1.schools.teaching.lesson-planning.suggestions.store',
+                    'v1.schools.teaching.academic-insights.suggestions.store',
                     'v1.schools.announcements.index',
+                    'v1.schools.announcements.audiences',
                     'v1.schools.announcements.store',
                     'v1.schools.announcements.show',
                     'v1.schools.announcements.update',
+                    'v1.schools.announcements.audience',
                     'v1.schools.announcements.submit',
                     'v1.schools.announcements.approve',
                     'v1.schools.announcements.publish',
@@ -339,23 +364,35 @@ final class FoundationContractDocumentTransformer
         }
     }
 
-    private function addBoundedContextTags(OpenApi $document): void
+    private function addBoundedContextTags(OpenApi $document, FrontendFlowRegistry $registry): void
     {
+        $tagDescriptions = [
+            'Platform' => 'Infrastructure health, readiness and private file delivery.',
+            'Identity & Authentication' => 'Global identity authentication, credentials and contact verification.',
+            'School Registration' => 'Unauthenticated provisional registration and registration-bound verification.',
+            'School Context & Memberships' => 'School selection, memberships, invitations, roles and permissions for authenticated users.',
+            'School Administration' => 'School setup, profile, branding and lifecycle settings managed within a trusted school context.',
+            'Academic Structure' => 'School-defined academic periods, structure, subjects, offerings and teaching assignments.',
+            'Academic Assessment' => 'School-defined assessment schemes, policy versions, grading scales, promotion rules and readiness checks.',
+            'Student Registry' => 'School-owned student admissions, profiles and private student documents.',
+        ];
+
         $document->tags = [
-            new Tag('Platform', 'Infrastructure health, readiness and private file delivery.'),
-            new Tag('Identity & Authentication', 'Global identity authentication, credentials and contact verification.'),
-            new Tag('School Registration', 'Unauthenticated provisional registration and registration-bound verification.'),
-            new Tag('School Context & Memberships', 'School selection, memberships, invitations, roles and permissions for authenticated users.'),
-            new Tag('School Administration', 'School setup, profile, branding and lifecycle settings managed within a trusted school context.'),
-            new Tag('Academic Structure', 'School-defined academic periods, structure, subjects, offerings and teaching assignments.'),
-            new Tag('Academic Assessment', 'School-defined assessment schemes, policy versions, grading scales, promotion rules and readiness checks.'),
-            new Tag('Student Registry', 'School-owned student admissions, profiles and private student documents.'),
+            ...array_map(
+                fn (string $tag): Tag => new Tag(
+                    $tag,
+                    $tagDescriptions[$tag].' Frontend flows: '.implode(', ', $registry->tagFeatureIds($tag)).'. See each operation description for the ordered endpoint sequence and safe response contract.',
+                ),
+                array_keys($tagDescriptions),
+            ),
         ];
     }
 
-    private function addPlainLanguageDocumentation(Operation $operation): void
+    /** @param array<string, array{operation_id: string, path: string, method: string}> $operations */
+    private function addPlainLanguageDocumentation(Operation $operation, FrontendFlowRegistry $registry, array $operations): void
     {
         [$summary, $description] = $this->operationDocumentation($operation->operationId);
+        $description .= $registry->descriptionForOperation($operation->operationId ?? '', $operations);
         $operation->summary($summary)->description($description);
 
         foreach ($operation->parameters as $parameter) {
@@ -412,6 +449,23 @@ final class FoundationContractDocumentTransformer
             'v1.public.school-registrations' => ['Submit a school registration', 'Creates a provisional intake record only. It does not create a school, identity, membership, password, session or tenant context.'],
             'v1.public.school-registrations.verification.request' => ['Request registration verification', 'Requests a verification code for the contact stored on a provisional registration. The response does not reveal registration state.'],
             'v1.public.school-registrations.verification.confirm' => ['Confirm registration verification', 'Confirms a six-digit code and changes only the registration status to verified.'],
+            'v1.public.marketing-pages.index' => ['List published marketing pages', 'Lists approved public benefits, FAQs and product copy. Draft, retired and unpublished content, tenant data and invented metrics are excluded.'],
+            'v1.public.marketing-pages.show' => ['View a published marketing page', 'Returns one approved public marketing page with bounded sections and version metadata.'],
+            'v1.public.demo-enquiries.store' => ['Submit a public demo or contact enquiry', 'Accepts bounded enquiry data and returns a generic acknowledgement without provisioning identities, schools or tenant context.'],
+            'v1.public.pricing.index' => ['List public pricing plans', 'Lists approved published plan labels, entitlement summaries and availability metadata. Prices remain unavailable unless an approved pricing source exists; school subscriptions and billing records are excluded.'],
+            'v1.public.pricing.show' => ['View a public pricing plan', 'Returns one approved published plan with safe entitlement, availability and version metadata without exposing prices, school records or billing state.'],
+            'v1.public.legal-policies.index' => ['List published legal policies', 'Lists active published privacy, terms and consent policy versions with safe public identifiers and effective dates. Retired and unpublished versions are excluded from public reads.'],
+            'v1.public.legal-policies.show' => ['View a published legal policy', 'Returns bounded sections for one published legal policy version without exposing internal identifiers, private files or raw audit metadata.'],
+            'v1.me.legal-consents.index' => ['List my legal consents', 'Lists the authenticated identity’s exact published policy versions accepted through self-service.'],
+            'v1.me.legal-consents.store' => ['Accept a legal policy', 'Records server-timestamped acceptance for one exact published policy version. Repeated acceptance is idempotent and actor, ownership and timestamps are server-controlled.'],
+            'v1.me.ai-consents.index' => ['List my AI consents', 'Lists safe AI-assistance consent scopes and exact policy versions for the authenticated identity. Sensitive data and raw consent values are excluded.'],
+            'v1.me.ai-consents.store' => ['Accept AI assistance consent', 'Records consent for one exact published AI privacy policy version and bounded feature scope. The server controls identity, actor, timestamps and retention.'],
+            'v1.me.ai-consents.revoke' => ['Revoke AI assistance consent', 'Revokes one identity-owned AI consent scope and blocks future sensitive provider payloads for that scope.'],
+            'v1.platform.ai-evaluations.index' => ['List AI evaluations', 'Lists safe evaluation runs for approved AI features. Responses contain aggregate rubric results only and never raw fixtures, student data or provider payloads.'],
+            'v1.platform.ai-evaluations.store' => ['Create an AI evaluation', 'Creates a bounded evaluation manifest for an approved synthetic fixture set. The server stores no raw fixture or generated provider content.'],
+            'v1.platform.ai-evaluations.show' => ['View an AI evaluation', 'Returns safe lifecycle, release-gate, issue-code and rubric projections for one evaluation run.'],
+            'v1.platform.ai-evaluations.run' => ['Run an AI evaluation', 'Runs the deterministic local safety fixture contract for accuracy, grounding, bias, refusal, hallucination and privacy dimensions.'],
+            'v1.platform.ai-evaluations.review' => ['Review an AI evaluation', 'Records an independent human approval or rejection. Approval is blocked unless every release-gate dimension passes.'],
             'v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.show' => ['View an assessment scheme', 'Shows the school-defined assessment components and maximum marks for a subject offering and term. This endpoint does not return student scores or calculate grades.'],
             'v1.schools.academic-sessions.terms.subject-offerings.assessment-scheme.update' => ['Replace an assessment scheme', 'Replaces the complete assessment component configuration for a subject offering and term. Component maximum marks must add up to the configured total, and the entire update is rejected if validation fails.'],
             'v1.schools.academic-sessions.terms.subject-offerings.assessment-policies.index' => ['List assessment policy versions', 'Lists immutable assessment policy snapshots for a subject offering and term, including draft, active and retired versions.'],
@@ -447,6 +501,25 @@ final class FoundationContractDocumentTransformer
             'v1.schools.academic-sessions.terms.result-completeness' => ['Check result completeness', 'Checks approved submissions, active rosters and explicit score states needed for safe result computation. The response is read-only and does not expose raw scores or mutate academic records.'],
             'v1.schools.academic-sessions.terms.result-review-queue.index' => ['List result review items', 'Lists computed result runs that academic leaders can review. The response contains safe references, counts and issue codes only and never changes result data.'],
             'v1.schools.academic-sessions.terms.result-review-queue.show' => ['View a result review item', 'Shows one safe computed result run and its review issues. Raw scores and internal identifiers are not exposed.'],
+            'v1.schools.principal-review-dashboard' => ['View principal review dashboard', 'Returns a read-only school-scoped dashboard of safe academic, attendance, finance and import review indicators. Raw scores, student lists, financial amounts and source payloads are excluded.'],
+            'v1.schools.proprietor-dashboard' => ['View proprietor executive dashboard', 'Returns a read-only school-scoped executive dashboard of safe operational, academic, finance and setup indicators for proprietors. Raw scores, student lists, financial amounts and source payloads are excluded.'],
+            'v1.schools.admin-workspace' => ['View school admin workspace', 'Returns a read-only school-scoped workspace of safe setup, lifecycle, staff, membership, role and academic-context indicators for school administrators. Contacts, credentials and source records are excluded.'],
+            'v1.schools.operational-reports.enrollment' => ['View enrollment operational report', 'Returns bounded enrollment and placement indicators with explicit denominators and no student lists.'],
+            'v1.schools.operational-reports.attendance' => ['View attendance operational report', 'Returns submitted/locked attendance completeness indicators with explicit denominators; draft registers are excluded.'],
+            'v1.schools.operational-reports.academic' => ['View academic operational report', 'Returns bounded assessment and result-completion indicators without raw scores or student results.'],
+            'v1.schools.operational-reports.finance' => ['View finance operational report', 'Returns bounded invoice, allocation, currency and reconciliation indicators without financial amounts or private records.'],
+            'v1.schools.notification-templates.index' => ['List notification templates', 'Lists safe school-scoped versioned notification templates. Provider credentials, raw contacts and private payloads are excluded.'],
+            'v1.schools.notification-templates.store' => ['Create notification template', 'Creates a bounded draft template with server-controlled versioning and school ownership.'],
+            'v1.schools.notification-templates.show' => ['View notification template', 'Shows one safe notification template version.'],
+            'v1.schools.notification-templates.update' => ['Update notification template', 'Updates draft template content; active and retired versions remain immutable.'],
+            'v1.schools.notification-templates.activate' => ['Activate notification template', 'Activates one draft template and retires a competing active version for the same key and channel.'],
+            'v1.schools.notification-templates.retire' => ['Retire notification template', 'Retires an active template while preserving its history.'],
+            'v1.schools.notification-templates.preview' => ['Preview notification template', 'Returns a redacted deterministic preview and never sends a notification.'],
+            'v1.schools.notifications.index' => ['List notification deliveries', 'Lists safe notification delivery states without contacts, credentials or provider payloads.'],
+            'v1.schools.notifications.store' => ['Create notification delivery', 'Creates an idempotent queued notification for a server-authorized recipient and active template.'],
+            'v1.schools.notifications.show' => ['View notification delivery', 'Shows safe delivery state and public references only.'],
+            'v1.schools.notifications.send' => ['Send notification delivery', 'Sends through the provider-neutral contract; local tests use a deterministic fake with no network.'],
+            'v1.schools.notifications.cancel' => ['Cancel notification delivery', 'Cancels an eligible queued or failed notification without mutating source records.'],
             'v1.schools.academic-sessions.terms.result-runs.gate.show' => ['View result approval status', 'Shows the safe approval and publication gate for a computed result run without exposing raw scores or creating a report snapshot.'],
             'v1.schools.academic-sessions.terms.result-runs.approve' => ['Approve a result run', 'Approves a complete computed result run for publication gating. Source academic records remain unchanged.'],
             'v1.schools.academic-sessions.terms.result-runs.reject' => ['Reject a result run', 'Rejects a result run with a bounded reason so it cannot be published until a later approved workflow changes its state.'],
@@ -569,15 +642,19 @@ final class FoundationContractDocumentTransformer
             'v1.schools.teaching.schemes.topics.progress' => ['Update scheme topic progress', 'Sets a topic to planned, in progress or completed without inferring attendance or lesson delivery.'],
             'v1.schools.teaching.lessons.index' => ['List lesson records', 'Lists lessons for the selected offering. Teachers see their own assignments and authorized reviewers see the school review scope.'],
             'v1.schools.teaching.lessons.store' => ['Create a lesson record', 'Creates a draft lesson for the authenticated teacher’s active assignment without calling an AI provider or changing attendance or assessment data.'],
+            'v1.schools.teaching.lesson-planning.suggestions.store' => ['Generate a lesson-planning suggestion', 'Returns bounded, unreviewed lesson-planning suggestions from trusted school academic context. The local provider is deterministic, no suggestion is persisted and no academic record is mutated.'],
+            'v1.schools.teaching.academic-insights.suggestions.store' => ['Generate an academic insight suggestion', 'Returns bounded, explainable and unreviewed academic insight suggestions from authorized published/approved projections. No suggestion is persisted and no academic record is mutated.'],
             'v1.schools.teaching.lessons.show' => ['View a lesson record', 'Returns one school-scoped lesson and its review state without internal identifiers or unrelated identity data.'],
             'v1.schools.teaching.lessons.update' => ['Update a draft lesson', 'Updates a draft or returned lesson owned by the teacher. Submitted and approved lessons cannot be silently edited.'],
             'v1.schools.teaching.lessons.submit' => ['Submit a lesson for review', 'Submits a lesson and retains a safe submitted snapshot while preventing ordinary teacher edits until review.'],
             'v1.schools.teaching.lessons.approve' => ['Approve a lesson', 'Approves a submitted lesson after leadership review. Approval does not prove that the lesson was taught.'],
             'v1.schools.teaching.lessons.return' => ['Return a lesson for correction', 'Returns a submitted lesson with a bounded reason. The teacher may edit and resubmit it while prior submission history remains retained.'],
             'v1.schools.announcements.index' => ['List teacher announcements', 'Lists announcements visible to the authenticated teacher or authorized school leadership. Audience membership is resolved from trusted class-teacher and subject-teaching assignments.'],
+            'v1.schools.announcements.audiences' => ['List announcement audiences', 'Lists safe same-school class-arm and subject-offering audience options for authorized school leadership. Recipient records are never returned.'],
             'v1.schools.announcements.store' => ['Create a teacher announcement', 'Creates a draft announcement for one school academic term and an assigned class or subject audience. The server controls recipients, ownership and lifecycle.'],
             'v1.schools.announcements.show' => ['View a teacher announcement', 'Returns one announcement only within the trusted school and authorized audience or review scope.'],
             'v1.schools.announcements.update' => ['Update a draft announcement', 'Updates the title or body of a draft or rejected announcement. Submitted and published records are not silently edited.'],
+            'v1.schools.announcements.audience' => ['Update announcement audience', 'Reassigns a draft or rejected announcement to one server-resolved same-school class-arm or subject-offering audience. Published/submitted records are not silently changed.'],
             'v1.schools.announcements.submit' => ['Submit an announcement for review', 'Submits a draft announcement for leadership review without sending external notifications.'],
             'v1.schools.announcements.approve' => ['Approve an announcement', 'Approves a submitted announcement for publication by an authorized school reviewer.'],
             'v1.schools.announcements.publish' => ['Publish an announcement', 'Publishes an approved announcement to its server-resolved class or subject audience without external delivery.'],
@@ -643,6 +720,13 @@ final class FoundationContractDocumentTransformer
             'v1.me.parent-dashboard' => ['Show parent dashboard', 'Shows a safe read-only dashboard for active verified student relationships of the authenticated guardian.'],
             'v1.me.parent-dashboard.children.show' => ['Show parent child dashboard', 'Shows safe read-only placement and availability indicators for one active verified linked student.'],
             'v1.me.student-dashboard' => ['Show student dashboard', 'Shows the authenticated student’s safe placement, published attendance availability and published result summaries without exposing peers or unpublished data.'],
+            'v1.me.career-guidance.index' => ['Show career guidance context', 'Returns approved-source availability for the authenticated student. Missing approved requirements fail closed as guidance_unavailable; no admission claim is made.'],
+            'v1.me.career-guidance.suggestions' => ['Request career guidance suggestions', 'Returns ephemeral, unreviewed career and subject guidance from approved sources only. It never guarantees admission or mutates academic records.'],
+            'v1.platform.academic-knowledge-sources.index' => ['List academic knowledge sources', 'Lists safe governed versions of JAMB and institution requirement sources. Only approved platform operators can access source governance metadata.'],
+            'v1.platform.academic-knowledge-sources.store' => ['Create academic knowledge source', 'Creates a bounded draft source version. Publishing requires platform governance authorization and never creates an admissions decision.'],
+            'v1.platform.academic-knowledge-sources.show' => ['View academic knowledge source', 'Returns a safe versioned source projection with bounded requirement content and no raw provider payloads.'],
+            'v1.platform.academic-knowledge-sources.update' => ['Update draft academic knowledge source', 'Updates draft source metadata/content only; published and retired versions are immutable.'],
+            'v1.platform.academic-knowledge-sources.lifecycle' => ['Change academic knowledge source lifecycle', 'Publishes, retires or rejects a source version with effective-date overlap protection and sanitized audit history.'],
             'v1.me.student-academic-history' => ['Show student academic history', 'Shows published immutable academic history for the authenticated student across active schools. Unpublished, incomplete and unrelated records are excluded.'],
             'v1.me.student-academic-history.schools.show' => ['Show school academic history', 'Shows published immutable academic history for the authenticated student in one active school without allowing the school identifier to grant ownership.'],
             'v1.me.parent-attendance' => ['Show parent attendance', 'Shows safe attendance summaries for active verified linked students using submitted and locked registers only.'],
@@ -797,6 +881,14 @@ final class FoundationContractDocumentTransformer
         return match (true) {
             $operationId === 'v1.auth.login' => 'Send a verified email address or international phone number and the password for the identity.',
             str_contains((string) $operationId, 'school-registrations') && str_ends_with((string) $operationId, 'verification.confirm') => 'Send the six-digit code delivered for this provisional registration.',
+            str_contains((string) $operationId, 'demo-enquiries.store') => 'Send only bounded enquiry fields and consent_version. Include Idempotency-Key; never send school ownership, actor, credential or token fields.',
+            str_contains((string) $operationId, 'legal-consents.store') => 'Send only the public identifier of the exact published legal policy version to accept. The server resolves the identity, actor, timestamp and policy ownership.',
+            str_contains((string) $operationId, 'ai-consents.store') => 'Send only the public identifier of the exact published ai_privacy policy version, purpose academic_assistance and one bounded feature_scope. Do not send actor, identity, ownership, status or timestamp fields.',
+            str_contains((string) $operationId, 'ai-consents.revoke') => 'Send no ownership or actor fields. The route public consent reference must belong to the authenticated identity.',
+            str_contains((string) $operationId, 'ai-evaluations.store') => 'Send only an approved feature key, fixture-set identifier, fixture version and idempotency key. Never send raw fixtures, student data, provider payloads or actor fields.',
+            str_contains((string) $operationId, 'ai-evaluations.review') => 'Send only approved or rejected decision and a bounded reason. The server resolves reviewer identity and enforces maker-checker separation.',
+            str_contains((string) $operationId, 'lesson-planning.suggestions.store') => 'Send only bounded academic-context public references and optional lesson-planning constraints. Do not send student data, contacts, credentials, tokens or client ownership fields.',
+            str_contains((string) $operationId, 'academic-insights.suggestions.store') => 'Send only bounded academic-context public references, an optional student public reference and an optional insight focus. Do not send raw scores, contacts, credentials, tokens or client ownership fields.',
             str_contains((string) $operationId, 'teaching-assignments') => 'Send the teacher public ID, term-contained effective dates and an optional administrative reason.',
             str_contains((string) $operationId, 'assessment-scheme') => 'Send the school-defined scheme name, total marks and at least one component. Component names and sequence values must be unique and their maximum marks must equal the total.',
             str_contains((string) $operationId, 'grading-scales') && str_ends_with((string) $operationId, '.store') => 'Send the scale name, effective dates and contiguous grading bands covering the inclusive 0–100 percentage range.',
@@ -832,6 +924,7 @@ final class FoundationContractDocumentTransformer
             str_contains((string) $operationId, 'teaching.lessons.return') => 'Return a submitted lesson with a bounded correction reason. The teacher can then edit and resubmit it; the server retains review metadata.',
             str_contains((string) $operationId, 'teaching.lessons') => 'Send the bounded lesson date, title and teaching content fields. The server resolves the teacher assignment, school, academic parents and lifecycle state from trusted context.',
             str_contains((string) $operationId, 'announcements.store') => 'Send the public session, term and optional class-arm or subject-offering selectors plus the bounded title and body. The server resolves school ownership, recipients, author and lifecycle state.',
+            str_contains((string) $operationId, 'announcements.audience') && ! str_contains((string) $operationId, 'announcements.audiences') => 'Send the public session, term and one class-arm or subject-offering selector. The server controls recipients, school ownership and lifecycle.',
             str_contains((string) $operationId, 'announcements.update') => 'Send the replacement title or body for a draft or rejected announcement. Audience, author, school and lifecycle fields are server-controlled.',
             str_contains((string) $operationId, 'announcements.recall') || str_contains((string) $operationId, 'announcements.reject') => 'Send a bounded reason for recalling or rejecting the announcement. The actor, school and transition are resolved from trusted context.',
             str_contains((string) $operationId, 'parent-communications.store') => 'Send the public student reference plus bounded title and message body. The guardian, school, recipient scope and ownership are server-resolved.',
@@ -1046,7 +1139,11 @@ final class FoundationContractDocumentTransformer
 
     private function tagForOperation(?string $operationId): string
     {
-        if (in_array($operationId, ['v1.health', 'v1.health.readiness', 'v1.files.download'], true)) {
+        if (str_starts_with((string) $operationId, 'v1.platform.ai-evaluations.')) {
+            return 'Platform';
+        }
+
+        if (in_array($operationId, ['v1.health', 'v1.health.readiness', 'v1.files.download', 'v1.public.marketing-pages.index', 'v1.public.marketing-pages.show', 'v1.public.demo-enquiries.store', 'v1.public.pricing.index', 'v1.public.pricing.show', 'v1.public.legal-policies.index', 'v1.public.legal-policies.show', 'v1.platform.schools.index', 'v1.platform.schools.show', 'v1.platform.schools.entitlements', 'v1.platform.operational-analytics.overview', 'v1.platform.operational-analytics.schools', 'v1.platform.feature-flags.index', 'v1.platform.feature-flags.store', 'v1.platform.feature-flags.show', 'v1.platform.feature-flags.update', 'v1.platform.feature-flags.lifecycle', 'v1.platform.schools.feature-flags', 'v1.platform.schools.feature-flags.override', 'v1.platform.academic-knowledge-sources.index', 'v1.platform.academic-knowledge-sources.store', 'v1.platform.academic-knowledge-sources.show', 'v1.platform.academic-knowledge-sources.update', 'v1.platform.academic-knowledge-sources.lifecycle', 'v1.platform.support-cases.index', 'v1.platform.support-cases.store', 'v1.platform.support-cases.show', 'v1.platform.support-cases.status', 'v1.platform.support-access.index', 'v1.platform.support-access.store', 'v1.platform.support-access.approve', 'v1.platform.support-access.revoke'], true)) {
             return 'Platform';
         }
 
@@ -1058,6 +1155,13 @@ final class FoundationContractDocumentTransformer
             'v1.me.profile.update',
             'v1.me.notification-preferences.show',
             'v1.me.notification-preferences.update',
+            'v1.me.legal-consents.index',
+            'v1.me.legal-consents.store',
+            'v1.me.ai-consents.index',
+            'v1.me.ai-consents.store',
+            'v1.me.ai-consents.revoke',
+            'v1.schools.teaching.lesson-planning.suggestions.store',
+            'v1.schools.teaching.academic-insights.suggestions.store',
             'v1.me.parent-communications.index',
             'v1.me.parent-communications.store',
             'v1.me.parent-communications.show',
@@ -1164,6 +1268,13 @@ final class FoundationContractDocumentTransformer
             'v1.me.parent-dashboard',
             'v1.me.parent-dashboard.children.show',
             'v1.me.student-dashboard',
+            'v1.me.career-guidance.index',
+            'v1.me.career-guidance.suggestions',
+            'v1.platform.academic-knowledge-sources.index',
+            'v1.platform.academic-knowledge-sources.store',
+            'v1.platform.academic-knowledge-sources.show',
+            'v1.platform.academic-knowledge-sources.update',
+            'v1.platform.academic-knowledge-sources.lifecycle',
             'v1.me.student-academic-history',
             'v1.me.student-academic-history.schools.show',
             'v1.me.parent-attendance',
@@ -1266,14 +1377,35 @@ final class FoundationContractDocumentTransformer
             'v1.schools.teaching.lessons.approve',
             'v1.schools.teaching.lessons.return',
             'v1.schools.announcements.index',
+            'v1.schools.announcements.audiences',
             'v1.schools.announcements.store',
             'v1.schools.announcements.show',
             'v1.schools.announcements.update',
+            'v1.schools.announcements.audience',
             'v1.schools.announcements.submit',
             'v1.schools.announcements.approve',
             'v1.schools.announcements.publish',
             'v1.schools.announcements.recall',
             'v1.schools.announcements.reject',
+            'v1.schools.principal-review-dashboard',
+            'v1.schools.proprietor-dashboard',
+            'v1.schools.admin-workspace',
+            'v1.schools.operational-reports.enrollment',
+            'v1.schools.operational-reports.attendance',
+            'v1.schools.operational-reports.academic',
+            'v1.schools.operational-reports.finance',
+            'v1.schools.notification-templates.index',
+            'v1.schools.notification-templates.store',
+            'v1.schools.notification-templates.show',
+            'v1.schools.notification-templates.update',
+            'v1.schools.notification-templates.activate',
+            'v1.schools.notification-templates.retire',
+            'v1.schools.notification-templates.preview',
+            'v1.schools.notifications.index',
+            'v1.schools.notifications.store',
+            'v1.schools.notifications.show',
+            'v1.schools.notifications.send',
+            'v1.schools.notifications.cancel',
         ], true)) {
             return 'School Administration';
         }
@@ -1530,6 +1662,27 @@ final class FoundationContractDocumentTransformer
             ->setRequired(['code', 'message', 'details', 'request_id']);
 
         return Schema::fromType($error);
+    }
+
+    private function frontendFlowInfoDescription(FrontendFlowRegistry $registry): string
+    {
+        $featureIds = $registry->implementedFeatureIds();
+
+        return implode("\n", [
+            'SchoolOS API contract and frontend integration guide.',
+            '',
+            '## Frontend integration conventions',
+            'Use the authenticated session and trusted selected-school context required by each operation. Send a request correlation ID when available and treat the standard success/error envelope as the contract. Public references are opaque; never construct or display internal identifiers.',
+            '',
+            'Reads are deterministic and bounded. After a successful mutation, refresh the returned resource or status endpoint. Repeat only idempotent operations, preserving the operation’s idempotency key when one is required. Handle `Loading`, `Empty`, `Validation error`, `Unauthorized/unavailable` and `Success` states explicitly.',
+            '',
+            '## Feature-flow index',
+            'Every implemented `DONE` or `IN_REVIEW` feature below has flow metadata in its operation descriptions. Planned features are intentionally not documented as consumable API flows.',
+            '',
+            implode(', ', array_map(fn (string $featureId): string => '`'.$featureId.'`', $featureIds)),
+            '',
+            'Open an operation under its bounded-context tag to see its frontend role, ordered related endpoints, state transitions, safe fields and prohibited data. The generated Swagger UI at `/docs/api` and JSON at `/docs/api.json` are read-only views of this contract; `openapi/openapi.json` is the synchronized artifact.',
+        ]);
     }
 
     private function addRequestIdHeaders(Operation $operation): void

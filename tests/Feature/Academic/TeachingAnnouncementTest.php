@@ -70,6 +70,31 @@ final class TeachingAnnouncementTest extends TestCase
         $this->withToken($token)->postJson('/api/v1/schools/'.$school->public_id.'/announcements', ['session_id' => $session, 'term_id' => $term, 'subject_offering_id' => $otherOffering->public_id, 'title' => 'Not allowed', 'body' => 'Fictional body'])->assertNotFound();
     }
 
+    public function test_leadership_can_list_and_reassign_draft_audience_but_published_audience_is_immutable(): void
+    {
+        [$school, $teacher, $session, $term, $classArm, $offering] = $this->fixture();
+        $teacherToken = $this->loginAndSelect($teacher, $school, 'announcement-password');
+        $base = '/api/v1/schools/'.$school->public_id.'/announcements';
+        $announcement = $this->withToken($teacherToken)->postJson($base, ['session_id' => $session, 'term_id' => $term, 'class_arm_id' => $classArm, 'subject_offering_id' => $offering, 'title' => 'Fictional reminder', 'body' => 'Fictional body'])->assertCreated()->json('data.id');
+
+        $leader = $this->createLeader($school);
+        $leaderToken = $this->loginAndSelect($leader, $school, 'announcement-leader-password');
+        $this->withToken($leaderToken)->getJson($base.'/audiences?session_id='.$session.'&term_id='.$term)->assertOk()->assertJsonStructure(['data' => ['class_arms', 'subject_offerings']])->assertJsonMissing(['student_id']);
+        $this->withToken($leaderToken)->patchJson($base.'/'.$announcement.'/audience', ['session_id' => $session, 'term_id' => $term, 'subject_offering_id' => $offering])->assertOk()->assertJsonPath('data.subject_offering_id', $offering);
+        $this->withToken($teacherToken)->postJson($base.'/'.$announcement.'/submit')->assertOk();
+        $this->withToken($leaderToken)->postJson($base.'/'.$announcement.'/approve')->assertOk();
+        $this->withToken($leaderToken)->postJson($base.'/'.$announcement.'/publish')->assertOk();
+        $this->withToken($leaderToken)->patchJson($base.'/'.$announcement.'/audience', ['session_id' => $session, 'term_id' => $term, 'class_arm_id' => $classArm])->assertStatus(422);
+    }
+
+    public function test_teacher_cannot_manage_announcement_audiences(): void
+    {
+        [$school, $teacher, $session, $term, $classArm] = $this->fixture();
+        $token = $this->loginAndSelect($teacher, $school, 'announcement-password');
+
+        $this->withToken($token)->getJson('/api/v1/schools/'.$school->public_id.'/announcements/audiences?session_id='.$session.'&term_id='.$term)->assertNotFound();
+    }
+
     /** @return array{0: School, 1: UserIdentity, 2: string, 3: string, 4: string, 5: string} */
     private function fixture(): array
     {

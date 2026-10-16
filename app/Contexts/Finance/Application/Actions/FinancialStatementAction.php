@@ -26,7 +26,7 @@ final class FinancialStatementAction
 {
     public function __construct(private readonly SchoolPermissionChecker $permissions, private readonly RecordAuditEventAction $audit) {}
 
-    /** @return array<string, mixed> */
+    /** @return array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> */
     public function forSchool(UserIdentity $actor, string $school): array
     {
         $this->authorize($actor, $school);
@@ -38,7 +38,7 @@ final class FinancialStatementAction
         return ['items' => $items, 'meta' => $this->meta($paginator)];
     }
 
-    /** @return array<string, mixed> */
+    /** @return array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> */
     public function forStudent(UserIdentity $actor, string $school, string $student): array
     {
         $this->authorizeSubject($actor, $school, $student, null);
@@ -51,7 +51,7 @@ final class FinancialStatementAction
         return ['statement' => $result];
     }
 
-    /** @return array<string, mixed> */
+    /** @return array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> */
     public function forGuardian(UserIdentity $actor, string $school, string $guardian): array
     {
         $this->authorizeSubject($actor, $school, null, $guardian);
@@ -75,7 +75,7 @@ final class FinancialStatementAction
     }
 
     /** @param Collection<int, FeeInvoice> $invoices
-     * @return array<string, mixed> */
+     * @return array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> */
     private function statement(?Student $student, Collection $invoices): array
     {
         $rows = $invoices->map(fn (FeeInvoice $invoice): array => $this->invoiceData($invoice))->values()->all();
@@ -91,7 +91,7 @@ final class FinancialStatementAction
         return ['student' => ['id' => (string) $student?->public_id, 'student_number' => (string) $student?->student_number, 'display_name' => (string) $student?->display_name], 'invoices' => $rows, 'totals' => $totals];
     }
 
-    /** @return array<string, mixed> */
+    /** @return array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> */
     private function invoiceData(FeeInvoice $invoice): array
     {
         $adjusted = (int) $invoice->adjustments->sum('amount_minor_units');

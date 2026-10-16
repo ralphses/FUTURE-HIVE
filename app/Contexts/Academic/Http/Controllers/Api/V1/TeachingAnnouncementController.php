@@ -7,6 +7,7 @@ namespace App\Contexts\Academic\Http\Controllers\Api\V1;
 use App\Contexts\Academic\Application\Actions\TeachingAnnouncementAction;
 use App\Contexts\Academic\Http\Requests\AnnouncementReasonRequest;
 use App\Contexts\Academic\Http\Requests\StoreTeachingAnnouncementRequest;
+use App\Contexts\Academic\Http\Requests\UpdateAnnouncementAudienceRequest;
 use App\Contexts\Academic\Http\Requests\UpdateTeachingAnnouncementRequest;
 use App\Contexts\Identity\Domain\Models\UserIdentity;
 use App\Support\Http\ApiResponse;
@@ -17,6 +18,12 @@ use Illuminate\Http\Request;
 
 final class TeachingAnnouncementController
 {
+    #[Endpoint(title: 'List announcement audiences', description: 'Lists safe, same-school class-arm and subject-offering audiences available to authorized school leadership for a selected session and term. Recipients are never returned.')] #[Response(status: 200, description: 'The supported audiences.', type: 'array')]
+    public function audiences(Request $request, string $school, TeachingAnnouncementAction $action): JsonResponse
+    {
+        return ApiResponse::data($action->audiences($this->identity($request), $school, $request->only(['session_id', 'term_id'])));
+    }
+
     #[Endpoint(title: 'List teacher announcements', description: 'Lists school-scoped announcements visible to the authenticated teacher or authorized school leadership. Recipients are resolved from server-controlled class and subject assignments.')] #[Response(status: 200, description: 'The visible announcements.', type: 'array')]
     public function index(Request $request, string $school, TeachingAnnouncementAction $action): JsonResponse
     {
@@ -39,6 +46,12 @@ final class TeachingAnnouncementController
     public function update(UpdateTeachingAnnouncementRequest $request, string $school, string $announcement, TeachingAnnouncementAction $action): JsonResponse
     {
         return ApiResponse::data($action->update($this->identity($request), $school, $announcement, $request->validated()));
+    }
+
+    #[Endpoint(title: 'Update announcement audience', description: 'Reassigns a draft or rejected announcement to one server-resolved class-arm or subject-offering audience. Published and submitted announcements cannot be reassigned.')] #[Response(status: 200, description: 'The updated announcement.', type: 'array')]
+    public function updateAudience(UpdateAnnouncementAudienceRequest $request, string $school, string $announcement, TeachingAnnouncementAction $action): JsonResponse
+    {
+        return ApiResponse::data($action->updateAudience($this->identity($request), $school, $announcement, $request->validated()));
     }
 
     #[Endpoint(title: 'Submit an announcement for review', description: 'Submits a draft announcement for leadership review. Submission does not send external notifications.')] #[Response(status: 200, description: 'The submitted announcement.', type: 'array')]

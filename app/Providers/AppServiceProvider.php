@@ -3,19 +3,34 @@
 namespace App\Providers;
 
 use App\Contexts\Academic\Application\Actions\AcademicScoreImportAction;
+use App\Contexts\Academic\Application\Contracts\AcademicInsightAssistant;
+use App\Contexts\Academic\Application\Contracts\CareerGuidanceProvider;
+use App\Contexts\Academic\Application\Contracts\LessonPlanningAssistant;
+use App\Contexts\Academic\Infrastructure\CareerGuidance\DeterministicCareerGuidanceProvider;
+use App\Contexts\Academic\Infrastructure\Insights\DeterministicAcademicInsightAssistant;
+use App\Contexts\Academic\Infrastructure\LessonPlanning\DeterministicLessonPlanningAssistant;
 use App\Contexts\Finance\Application\Contracts\PaymentIntentGateway;
 use App\Contexts\Finance\Application\Contracts\PaymentWebhookVerifier;
 use App\Contexts\Finance\Application\Contracts\ReminderDelivery;
 use App\Contexts\Finance\Infrastructure\Payments\DeterministicPaymentIntentGateway;
 use App\Contexts\Finance\Infrastructure\Payments\DeterministicPaymentWebhookVerifier;
 use App\Contexts\Finance\Infrastructure\Reminders\DeterministicReminderDelivery;
+use App\Contexts\Identity\Application\Actions\ResolvePlatformPermissionsAction;
 use App\Contexts\Identity\Application\Contracts\ContactVerificationCodeDelivery;
 use App\Contexts\Identity\Application\Contracts\PasswordResetCodeDelivery;
+use App\Contexts\Identity\Domain\Models\UserIdentity;
 use App\Contexts\Identity\Infrastructure\ContactVerification\UnavailableContactVerificationCodeDelivery;
 use App\Contexts\Identity\Infrastructure\PasswordReset\UnavailablePasswordResetCodeDelivery;
+use App\Contexts\Platform\Application\Contracts\AiPrivacyBoundary;
 use App\Contexts\Platform\Application\Contracts\ImportCanonicalRecordWriter;
 use App\Contexts\Platform\Application\Contracts\ImportSpecializedCommitter;
+use App\Contexts\Platform\Application\Contracts\NotificationDelivery;
+use App\Contexts\Platform\Application\Contracts\PlatformBillingWebhookVerifier;
+use App\Contexts\Platform\Application\Contracts\PlatformPermissionResolver;
 use App\Contexts\Platform\Application\Contracts\RegistrationVerificationCodeDelivery;
+use App\Contexts\Platform\Infrastructure\Notifications\DeterministicNotificationDelivery;
+use App\Contexts\Platform\Infrastructure\Payments\DeterministicPlatformBillingWebhookVerifier;
+use App\Contexts\Platform\Infrastructure\Privacy\DeterministicAiPrivacyBoundary;
 use App\Contexts\Platform\Infrastructure\Verification\UnavailableRegistrationVerificationCodeDelivery;
 use App\Contexts\Registry\Application\Contracts\GuardianInvitationCodeDelivery;
 use App\Contexts\Registry\Application\Services\RegistryImportCanonicalRecordWriter;
@@ -28,10 +43,13 @@ use App\Support\Files\MalwareScanner;
 use App\Support\Files\UnavailableMalwareScanner;
 use App\Support\Observability\MetricsRecorder;
 use App\Support\Observability\StructuredLogMetricsRecorder;
+use App\Support\OpenApi\FeatureFlagValueRule;
 use App\Support\OpenApi\FoundationContractDocumentTransformer;
 use Cloudinary\Api\Upload\UploadApi;
+use Dedoc\Scramble\Configuration\RuleTransformers;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Routing\Route;
@@ -52,7 +70,24 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ImportSpecializedCommitter::class, AcademicScoreImportAction::class);
         $this->app->singleton(PaymentIntentGateway::class, DeterministicPaymentIntentGateway::class);
         $this->app->singleton(PaymentWebhookVerifier::class, DeterministicPaymentWebhookVerifier::class);
+        $this->app->singleton(PlatformBillingWebhookVerifier::class, DeterministicPlatformBillingWebhookVerifier::class);
+        $this->app->singleton(PlatformPermissionResolver::class, static function ($app): PlatformPermissionResolver {
+            return new class($app->make(ResolvePlatformPermissionsAction::class)) implements PlatformPermissionResolver
+            {
+                public function __construct(private readonly ResolvePlatformPermissionsAction $permissions) {}
+
+                public function allows(Authenticatable $actor, string $permission): bool
+                {
+                    return $actor instanceof UserIdentity && $this->permissions->allows($actor, $permission);
+                }
+            };
+        });
         $this->app->singleton(ReminderDelivery::class, DeterministicReminderDelivery::class);
+        $this->app->singleton(NotificationDelivery::class, DeterministicNotificationDelivery::class);
+        $this->app->singleton(LessonPlanningAssistant::class, DeterministicLessonPlanningAssistant::class);
+        $this->app->singleton(CareerGuidanceProvider::class, DeterministicCareerGuidanceProvider::class);
+        $this->app->singleton(AcademicInsightAssistant::class, DeterministicAcademicInsightAssistant::class);
+        $this->app->singleton(AiPrivacyBoundary::class, DeterministicAiPrivacyBoundary::class);
         $this->app->singleton(
             CloudinaryAssetClient::class,
             static fn (): CloudinarySdkClient => new CloudinarySdkClient(
@@ -112,6 +147,10 @@ class AppServiceProvider extends ServiceProvider
             }
 
             return Limit::perMinutes(15, 3)->by(hash('sha256', mb_strtolower($contact).'|'.$request->ip()));
+        });
+
+        RateLimiter::for('public-demo-enquiry', static function (Request $request): Limit {
+            return Limit::perMinutes(15, 3)->by(hash('sha256', $request->ip().'|'.mb_strtolower(trim($request->string('contact')->toString()))));
         });
 
         RateLimiter::for('public-registration-verification-request', static function (Request $request): Limit {
@@ -232,6 +271,8 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.me.parent-dashboard',
                     'api.v1.me.parent-dashboard.children.show',
                     'api.v1.me.student-dashboard',
+                    'api.v1.me.career-guidance.index',
+                    'api.v1.me.career-guidance.suggestions',
                     'api.v1.me.student-academic-history',
                     'api.v1.me.student-academic-history.schools.show',
                     'api.v1.me.parent-attendance',
@@ -280,6 +321,123 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.reconciliations.items',
                     'api.v1.schools.reconciliations.resolve',
                     'api.v1.schools.reconciliations.cancel',
+                    'api.v1.schools.principal-review-dashboard',
+                    'api.v1.schools.proprietor-dashboard',
+                    'api.v1.schools.admin-workspace',
+                    'api.v1.schools.operational-reports.enrollment',
+                    'api.v1.schools.operational-reports.attendance',
+                    'api.v1.schools.operational-reports.academic',
+                    'api.v1.schools.operational-reports.finance',
+                    'api.v1.schools.operational-reports.export',
+                    'api.v1.schools.operational-report-schedules.index',
+                    'api.v1.schools.operational-report-schedules.store',
+                    'api.v1.schools.operational-report-schedules.show',
+                    'api.v1.schools.operational-report-schedules.update',
+                    'api.v1.schools.operational-report-schedules.lifecycle',
+                    'api.v1.schools.audit-explorer.index',
+                    'api.v1.schools.audit-explorer.show',
+                    'api.v1.schools.counselling-assignments.index',
+                    'api.v1.schools.counselling-assignments.store',
+                    'api.v1.schools.counselling-assignments.show',
+                    'api.v1.schools.counselling-assignments.revoke',
+                    'api.v1.schools.counselling-cases.index',
+                    'api.v1.schools.counselling-cases.store',
+                    'api.v1.schools.counselling-cases.show',
+                    'api.v1.schools.counselling-cases.hold',
+                    'api.v1.schools.counselling-cases.close',
+                    'api.v1.schools.counselling-cases.notes.index',
+                    'api.v1.schools.counselling-cases.notes.store',
+                    'api.v1.schools.counselling-cases.notes.show',
+                    'api.v1.schools.development-plans.index',
+                    'api.v1.schools.development-plans.store',
+                    'api.v1.schools.development-plans.show',
+                    'api.v1.schools.development-plans.update',
+                    'api.v1.schools.development-plans.activate',
+                    'api.v1.schools.development-plans.close',
+                    'api.v1.schools.development-plans.share',
+                    'api.v1.schools.development-plans.archive',
+                    'api.v1.schools.counselling-referrals.index',
+                    'api.v1.schools.counselling-referrals.store',
+                    'api.v1.schools.counselling-referrals.show',
+                    'api.v1.schools.counselling-referrals.approve',
+                    'api.v1.schools.counselling-referrals.reject',
+                    'api.v1.schools.counselling-referrals.accept',
+                    'api.v1.schools.counselling-referrals.close',
+                    'api.v1.schools.counselling-referrals.cancel',
+                    'api.v1.schools.counselling-escalations.index',
+                    'api.v1.schools.counselling-escalations.store',
+                    'api.v1.schools.counselling-escalations.show',
+                    'api.v1.schools.counselling-escalations.approve',
+                    'api.v1.schools.counselling-escalations.reject',
+                    'api.v1.schools.counselling-escalations.accept',
+                    'api.v1.schools.counselling-escalations.close',
+                    'api.v1.schools.counselling-escalations.cancel',
+                    'api.v1.schools.wellbeing-summaries.index',
+                    'api.v1.schools.wellbeing-summaries.show',
+                    'api.v1.schools.platform-subscription-plans.index',
+                    'api.v1.schools.platform-subscription-plans.store',
+                    'api.v1.schools.platform-subscription-plans.show',
+                    'api.v1.schools.platform-subscription-plans.update',
+                    'api.v1.schools.platform-subscription-plans.lifecycle',
+                    'api.v1.schools.platform-entitlements.show',
+                    'api.v1.schools.platform-entitlements.assign',
+                    'api.v1.schools.platform-subscription.show',
+                    'api.v1.schools.platform-subscription.store',
+                    'api.v1.schools.platform-subscription.history',
+                    'api.v1.schools.platform-subscription.renew',
+                    'api.v1.schools.platform-subscription.cancel',
+                    'api.v1.schools.platform-subscription.reopen-grace',
+                    'api.v1.platform.billing.invoices.index',
+                    'api.v1.platform.billing.invoices.store',
+                    'api.v1.platform.billing.invoices.show',
+                    'api.v1.platform.billing.invoices.issue',
+                    'api.v1.platform.billing.invoices.void',
+                    'api.v1.platform.billing.payments.store',
+                    'api.v1.platform.billing.payments.show',
+                    'api.v1.platform.billing.payments.refund',
+                    'api.v1.platform.billing.webhooks.verify',
+                    'api.v1.platform.schools.index',
+                    'api.v1.platform.schools.show',
+                    'api.v1.platform.schools.entitlements',
+                    'api.v1.platform.operational-analytics.overview',
+                    'api.v1.platform.operational-analytics.schools',
+                    'api.v1.platform.feature-flags.index',
+                    'api.v1.platform.feature-flags.store',
+                    'api.v1.platform.feature-flags.show',
+                    'api.v1.platform.feature-flags.update',
+                    'api.v1.platform.feature-flags.lifecycle',
+                    'api.v1.platform.schools.feature-flags',
+                    'api.v1.platform.schools.feature-flags.override',
+                    'api.v1.platform.academic-knowledge-sources.index',
+                    'api.v1.platform.academic-knowledge-sources.store',
+                    'api.v1.platform.academic-knowledge-sources.show',
+                    'api.v1.platform.academic-knowledge-sources.update',
+                    'api.v1.platform.academic-knowledge-sources.lifecycle',
+                    'api.v1.platform.ai-evaluations.index',
+                    'api.v1.platform.ai-evaluations.store',
+                    'api.v1.platform.ai-evaluations.show',
+                    'api.v1.platform.ai-evaluations.run',
+                    'api.v1.platform.ai-evaluations.review',
+                    'api.v1.platform.support-cases.index',
+                    'api.v1.platform.support-cases.store',
+                    'api.v1.platform.support-cases.show',
+                    'api.v1.platform.support-cases.status',
+                    'api.v1.platform.support-access.index',
+                    'api.v1.platform.support-access.store',
+                    'api.v1.platform.support-access.approve',
+                    'api.v1.platform.support-access.revoke',
+                    'api.v1.schools.notification-templates.index',
+                    'api.v1.schools.notification-templates.store',
+                    'api.v1.schools.notification-templates.show',
+                    'api.v1.schools.notification-templates.update',
+                    'api.v1.schools.notification-templates.activate',
+                    'api.v1.schools.notification-templates.retire',
+                    'api.v1.schools.notification-templates.preview',
+                    'api.v1.schools.notifications.index',
+                    'api.v1.schools.notifications.store',
+                    'api.v1.schools.notifications.show',
+                    'api.v1.schools.notifications.send',
+                    'api.v1.schools.notifications.cancel',
                     'api.v1.schools.financial-statements.index',
                     'api.v1.schools.students.financial-statement',
                     'api.v1.schools.guardians.financial-statement',
@@ -333,10 +491,14 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.schools.teaching.lessons.submit',
                     'api.v1.schools.teaching.lessons.approve',
                     'api.v1.schools.teaching.lessons.return',
+                    'api.v1.schools.teaching.lesson-planning.suggestions.store',
+                    'api.v1.schools.teaching.academic-insights.suggestions.store',
                     'api.v1.schools.announcements.index',
+                    'api.v1.schools.announcements.audiences',
                     'api.v1.schools.announcements.store',
                     'api.v1.schools.announcements.show',
                     'api.v1.schools.announcements.update',
+                    'api.v1.schools.announcements.audience',
                     'api.v1.schools.announcements.submit',
                     'api.v1.schools.announcements.approve',
                     'api.v1.schools.announcements.publish',
@@ -490,6 +652,18 @@ class AppServiceProvider extends ServiceProvider
                     'api.v1.public.school-registrations',
                     'api.v1.public.school-registrations.verification.request',
                     'api.v1.public.school-registrations.verification.confirm',
+                    'api.v1.public.marketing-pages.index',
+                    'api.v1.public.marketing-pages.show',
+                    'api.v1.public.demo-enquiries.store',
+                    'api.v1.public.pricing.index',
+                    'api.v1.public.pricing.show',
+                    'api.v1.public.legal-policies.index',
+                    'api.v1.public.legal-policies.show',
+                    'api.v1.me.legal-consents.index',
+                    'api.v1.me.legal-consents.store',
+                    'api.v1.me.ai-consents.index',
+                    'api.v1.me.ai-consents.store',
+                    'api.v1.me.ai-consents.revoke',
                     'api.v1.schools.academic-sessions.terms.result-runs.gate.show',
                     'api.v1.schools.academic-sessions.terms.result-runs.approve',
                     'api.v1.schools.academic-sessions.terms.result-runs.reject',
@@ -523,6 +697,11 @@ class AppServiceProvider extends ServiceProvider
                 ],
                 true,
             ));
+            Scramble::configure()->withRuleTransformers(
+                static function (RuleTransformers $transformers): void {
+                    $transformers->prepend(FeatureFlagValueRule::class);
+                },
+            );
             Scramble::configure()->afterOpenApiGenerated(new FoundationContractDocumentTransformer);
         }
 

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Support\OpenApi\FrontendFlowRegistry;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 final class OpenApiContractTest extends TestCase
@@ -30,322 +32,17 @@ final class OpenApiContractTest extends TestCase
         $document = $this->document();
 
         $this->assertSame('3.1.0', $document['openapi']);
-        $this->assertSame([
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/access',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/access/activate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/access/close',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/open',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/close',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/cancel',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/activate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/retire',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-scheme',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/{student}/{component}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/audit-history',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/{student}/{component}/audit-history',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submit',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission/review',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission/return',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission/approve',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/scores/submission/resubmit',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/submit',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/lock',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/submission',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance/{date}/corrections',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/attendance-report',
-            '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms',
-            '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}',
-            '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/activate',
-            '/schools/{school}/academic-levels/{level}/sections/{section}/class-arms/{classArm}/deactivate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales/{scale}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales/{scale}/activate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-policies/{policy}/grading-scales/{scale}/retire',
-            '/schools/{school}/academic-sessions',
-            '/schools/{school}/academic-sessions/{session}',
-            '/schools/{school}/academic-sessions/{session}/activate',
-            '/schools/{school}/academic-sessions/{session}/close',
-            '/schools/{school}/academic-sessions/{session}/terms',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/activate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/close',
-            '/schools/{school}/academic-context',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/promotion-eligibility',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/promotion-eligibility/{student}',
-            '/schools/{school}/promotion-rules',
-            '/schools/{school}/promotion-rules/{rule}',
-            '/schools/{school}/promotion-rules/{rule}/activate',
-            '/schools/{school}/promotion-rules/{rule}/deactivate',
-            '/schools/{school}/academic-readiness',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/report-card-templates',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/report-card-templates/{template}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/report-card-templates/{template}/activate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/report-card-templates/{template}/retire',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-completeness',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-snapshots/{snapshot}/corrections',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-corrections/{correction}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-corrections/{correction}/approve',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-corrections/{correction}/reject',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-corrections/{correction}/republish',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-exports',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/gate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/approve',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/reject',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/publish',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-review-queue',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-review-queue/{run}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/students/{student}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-runs/{run}/snapshot',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-snapshots',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-snapshots/{snapshot}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-snapshots/{snapshot}/students/{student}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/ranking-statistics-policies',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/ranking-statistics-policies/{policy}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/ranking-statistics-policies/{policy}/activate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/ranking-statistics-policies/{policy}/retire',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/scheme',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/scheme/topics',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/scheme/topics/{topic}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/scheme/topics/{topic}/progress',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons/{lesson}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons/{lesson}/submit',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons/{lesson}/approve',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons/{lesson}/return',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/assessment-instances/{instance}/score-imports',
-            '/schools/{school}/academic-levels',
-            '/schools/{school}/academic-levels/{level}',
-            '/schools/{school}/academic-levels/{level}/activate',
-            '/schools/{school}/academic-levels/{level}/deactivate',
-            '/schools/{school}/academic-levels/{level}/sections',
-            '/schools/{school}/academic-levels/{level}/sections/{section}',
-            '/schools/{school}/academic-levels/{level}/sections/{section}/activate',
-            '/schools/{school}/academic-levels/{level}/sections/{section}/deactivate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/result-history',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/students/{student}/result-history',
-            '/schools/{school}/subjects',
-            '/schools/{school}/subjects/{subject}',
-            '/schools/{school}/subjects/{subject}/activate',
-            '/schools/{school}/subjects/{subject}/deactivate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/activate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/deactivate',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/teaching-assignments/{assignment}/revoke',
-            '/auth/login',
-            '/auth/refresh',
-            '/auth/me',
-            '/auth/logout',
-            '/auth/logout-all',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments/{assignment}',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments/{assignment}/revoke',
-            '/files/download',
-            '/auth/verification/request',
-            '/auth/verification/confirm',
-            '/schools/{school}/family-billing',
-            '/schools/{school}/family-billing/{guardian}',
-            '/me/family-billing',
-            '/schools/{school}/fee-adjustment-programs',
-            '/schools/{school}/fee-adjustment-programs/{program}',
-            '/schools/{school}/fee-adjustment-programs/{program}/activate',
-            '/schools/{school}/fee-adjustment-programs/{program}/retire',
-            '/schools/{school}/invoices/{invoice}/adjustments',
-            '/schools/{school}/invoices/{invoice}/adjustments/{adjustment}/approve',
-            '/schools/{school}/invoices/{invoice}/adjustments/{adjustment}/reject',
-            '/schools/{school}/invoices/{invoice}/adjustments/{adjustment}/apply',
-            '/schools/{school}/invoices/{invoice}/adjustments/{adjustment}/cancel',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/fee-assessments',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/fee-assessments/{assessment}',
-            '/schools/{school}/fee-assessments/{assessment}/finalize',
-            '/schools/{school}/invoices',
-            '/schools/{school}/invoices/{invoice}',
-            '/schools/{school}/fee-categories',
-            '/schools/{school}/fee-categories/{category}',
-            '/schools/{school}/fee-plans',
-            '/schools/{school}/fee-plans/{plan}',
-            '/schools/{school}/fee-plans/{plan}/activate',
-            '/schools/{school}/fee-plans/{plan}/retire',
-            '/schools/{school}/invoices/{invoice}/payment-allocations',
-            '/schools/{school}/invoices/{invoice}/payment-allocations/{allocation}',
-            '/schools/{school}/invoices/{invoice}/payment-evidence',
-            '/schools/{school}/invoices/{invoice}/payment-evidence/{evidence}',
-            '/schools/{school}/invoices/{invoice}/payment-evidence/{evidence}/verify',
-            '/schools/{school}/invoices/{invoice}/payment-evidence/{evidence}/reject',
-            '/schools/{school}/invoices/{invoice}/payment-evidence/{evidence}/cancel',
-            '/schools/{school}/invoices/{invoice}/payment-intents',
-            '/schools/{school}/invoices/{invoice}/payment-intents/{intent}',
-            '/schools/{school}/invoices/{invoice}/payment-intents/{intent}/cancel',
-            '/schools/{school}/reversals',
-            '/schools/{school}/reversals/{reversal}',
-            '/schools/{school}/reversals/{reversal}/approve',
-            '/schools/{school}/reversals/{reversal}/reject',
-            '/schools/{school}/reversals/{reversal}/apply',
-            '/schools/{school}/refunds',
-            '/schools/{school}/refunds/{refund}',
-            '/schools/{school}/refunds/{refund}/approve',
-            '/schools/{school}/refunds/{refund}/reject',
-            '/schools/{school}/refunds/{refund}/apply',
-            '/schools/{school}/financial-periods',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/financial-period',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/financial-period/close/start',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/financial-period/close/complete',
-            '/schools/{school}/academic-sessions/{session}/terms/{term}/financial-period/reopen',
-            '/schools/{school}/financial-period-adjustments',
-            '/schools/{school}/financial-period-adjustments/{adjustment}',
-            '/schools/{school}/financial-period-adjustments/{adjustment}/approve',
-            '/schools/{school}/financial-period-adjustments/{adjustment}/reject',
-            '/schools/{school}/financial-period-adjustments/{adjustment}/apply',
-            '/schools/{school}/receipts',
-            '/schools/{school}/receipts/{receipt}',
-            '/schools/{school}/reconciliations',
-            '/schools/{school}/reconciliations/{run}',
-            '/schools/{school}/reconciliations/{run}/items',
-            '/schools/{school}/reconciliations/{run}/items/{item}/resolve',
-            '/schools/{school}/reconciliations/{run}/cancel',
-            '/schools/{school}/fee-reminder-candidates',
-            '/schools/{school}/fee-reminders/{reminder}',
-            '/schools/{school}/fee-reminders',
-            '/schools/{school}/fee-reminders/{reminder}/send',
-            '/schools/{school}/fee-reminders/{reminder}/cancel',
-            '/schools/{school}/finance-reports/collections',
-            '/schools/{school}/finance-reports/arrears',
-            '/schools/{school}/finance-reports/fee-plans',
-            '/schools/{school}/finance-reports/export',
-            '/schools/{school}/ledger',
-            '/schools/{school}/ledger/{batch}',
-            '/schools/{school}/ledger/{batch}/post',
-            '/schools/{school}/imports/{import}/financial-opening-balances',
-            '/schools/{school}/financial-statements',
-            '/schools/{school}/students/{student}/financial-statement',
-            '/schools/{school}/guardians/{guardian}/financial-statement',
-            '/guardian-invitations/{invitation}/confirm',
-            '/schools/{school}/students/{student}/guardian-relationships/{relationship}/invitation',
-            '/me/guardian-links',
-            '/schools/{school}/guardian-invitations/{invitation}/revoke',
-            '/schools/{school}/guardians',
-            '/schools/{school}/guardians/{guardian}',
-            '/schools/{school}/guardians/{guardian}/audit-history',
-            '/schools/{school}/students/{student}/guardian-relationships',
-            '/schools/{school}/students/{student}/guardian-relationships/{relationship}',
-            '/schools/{school}/students/{student}/guardian-relationships/{relationship}/revoke',
-            '/health',
-            '/schools/{school}/imports/{import}/historical-academic',
-            '/schools/{school}/imports/{import}/audit',
-            '/schools/{school}/imports/{import}/report',
-            '/schools/{school}/imports',
-            '/schools/{school}/imports/{import}',
-            '/schools/{school}/imports/{import}/cancel',
-            '/schools/{school}/imports/{import}/commit',
-            '/schools/{school}/imports/{import}/dry-run',
-            '/schools/{school}/imports/{import}/duplicates/detect',
-            '/schools/{school}/imports/{import}/duplicates',
-            '/schools/{school}/imports/{import}/duplicates/{duplicate}/resolve',
-            '/schools/{school}/imports/{import}/mapping',
-            '/schools/{school}/imports/{import}/preview',
-            '/schools/{school}/imports/{import}/commit/retry',
-            '/schools/{school}/imports/{import}/recovery',
-            '/schools/{school}/import-templates',
-            '/schools/{school}/import-templates/{template}',
-            '/schools/{school}/imports/{import}/validate',
-            '/schools/{school}/imports/{import}/validation',
-            '/me/parent-attendance',
-            '/me/parent-attendance/children/{student}',
-            '/me/parent-communications',
-            '/me/parent-communications/{thread}',
-            '/me/parent-communications/{thread}/messages',
-            '/me/parent-communications/{thread}/read',
-            '/me/parent-dashboard',
-            '/me/parent-dashboard/children/{student}',
-            '/me/parent-fee-balances',
-            '/me/parent-fee-balances/children/{student}',
-            '/me/parent-receipts',
-            '/me/parent-receipts/children/{student}',
-            '/me/parent-report-cards',
-            '/me/parent-report-cards/children/{student}',
-            '/auth/password/forgot',
-            '/auth/password/reset',
-            '/auth/password/change',
-            '/payment-webhooks/{provider}',
-            '/health/readiness',
-            '/schools/{school}/communications',
-            '/schools/{school}/communications/{thread}',
-            '/schools/{school}/communications/{thread}/messages',
-            '/schools/{school}/communications/{thread}/close',
-            '/auth/context/switch',
-            '/auth/context',
-            '/schools/{school}/invitations',
-            '/invitations/{invitation}/accept',
-            '/invitations/{invitation}/revoke',
-            '/schools/{school}/lifecycle',
-            '/schools/{school}/lifecycle/suspend',
-            '/schools/{school}/lifecycle/reactivate',
-            '/schools/{school}/lifecycle/archive',
-            '/me/memberships',
-            '/schools/{school}/profile',
-            '/schools/{school}/profile/logo',
-            '/public/school-registrations',
-            '/public/school-registrations/{registration}/verification/request',
-            '/public/school-registrations/{registration}/verification/confirm',
-            '/schools/{school}/roles',
-            '/schools/{school}/memberships/{membership}/roles',
-            '/schools/{school}/memberships/{membership}/roles/{role}',
-            '/me/schools/{school}/permissions',
-            '/schools/{school}/setup',
-            '/schools/{school}/setup/{item}',
-            '/me/profile',
-            '/me/notification-preferences',
-            '/schools/{school}/staff',
-            '/schools/{school}/staff/{staff}',
-            '/schools/{school}/staff/{staff}/activate',
-            '/schools/{school}/staff/{staff}/suspend',
-            '/schools/{school}/staff/{staff}/end',
-            '/schools/{school}/students',
-            '/schools/{school}/students/{student}/audit-history',
-            '/schools/{school}/students/{student}',
-            '/schools/{school}/students/{student}/activate',
-            '/schools/{school}/students/{student}/withdraw',
-            '/me/student-academic-history',
-            '/me/student-academic-history/schools/{school}',
-            '/me/student-dashboard',
-            '/schools/{school}/students/{student}/enrollments',
-            '/schools/{school}/students/{student}/enrollments/{enrollment}',
-            '/schools/{school}/students/{student}/enrollments/{enrollment}/end',
-            '/schools/{school}/students/{student}/enrollments/{enrollment}/transfer',
-            '/schools/{school}/students/{student}/enrollments/{enrollment}/withdraw',
-            '/schools/{school}/students/{student}/enrollment-history',
-            '/schools/{school}/students/{student}/profile',
-            '/schools/{school}/students/{student}/documents',
-            '/schools/{school}/students/{student}/documents/{document}',
-            '/schools/{school}/students/{student}/documents/{document}/revoke',
-            '/schools/{school}/promotion-cycles',
-            '/schools/{school}/promotion-cycles/{cycle}',
-            '/schools/{school}/promotion-cycles/{cycle}/decisions',
-            '/schools/{school}/promotion-cycles/{cycle}/approve',
-            '/schools/{school}/promotion-cycles/{cycle}/apply',
-            '/schools/{school}/promotion-cycles/{cycle}/rollback',
-            '/schools/{school}/students/search',
-            '/schools/{school}/students/export',
-            '/schools/{school}/teacher-worklist',
-            '/schools/{school}/announcements',
-            '/schools/{school}/announcements/{announcement}',
-            '/schools/{school}/announcements/{announcement}/submit',
-            '/schools/{school}/announcements/{announcement}/approve',
-            '/schools/{school}/announcements/{announcement}/publish',
-            '/schools/{school}/announcements/{announcement}/recall',
-            '/schools/{school}/announcements/{announcement}/reject',
-        ], array_keys($document['paths']));
+
+        $expectedPaths = collect(Route::getRoutes()->getRoutes())
+            ->filter(static fn (\Illuminate\Routing\Route $route): bool => str_starts_with((string) $route->getName(), 'api.v1.'))
+            ->map(static fn (\Illuminate\Routing\Route $route): string => '/'.preg_replace('#^api/v1/#', '', $route->uri()))
+            ->unique()
+            ->values()
+            ->all();
+        $actualPaths = array_keys($document['paths']);
+        sort($expectedPaths);
+        sort($actualPaths);
+        $this->assertSame($expectedPaths, $actualPaths);
         $this->assertArrayNotHasKey('/students', $document['paths']);
     }
 
@@ -449,6 +146,47 @@ final class OpenApiContractTest extends TestCase
         $contents = json_encode($document, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
         foreach (['School Access', 'Authentication', 'SchoolInvitation', 'SchoolMembership', 'SchoolRole', 'Health', 'Readiness'] as $controllerTag) {
             self::assertStringNotContainsString('"'.$controllerTag.'"', $contents);
+        }
+    }
+
+    public function test_implemented_features_and_operations_have_swagger_frontend_flows(): void
+    {
+        $document = $this->document();
+        $registry = new FrontendFlowRegistry;
+        $infoDescription = $document['info']['description'];
+        foreach ($registry->featureFlows() as $featureId => $flow) {
+            $this->assertStringContainsString('`'.$featureId.'`', $infoDescription);
+            $this->assertNotSame('', $flow['purpose']);
+            $this->assertNotSame('', $flow['audience']);
+            $this->assertNotEmpty($flow['states']);
+            $this->assertNotEmpty($flow['safe_fields']);
+            $this->assertNotEmpty($flow['prohibited_data']);
+        }
+
+        foreach ($document['paths'] as $path => $pathOperations) {
+            foreach ($pathOperations as $operation) {
+                $this->assertArrayHasKey('operationId', $operation);
+                $this->assertStringContainsString('### Frontend flow', $operation['description']);
+                $this->assertMatchesRegularExpression('/\*\*Feature:\*\* `(?:[A-Z]+-\d{3})`/', $operation['description']);
+                $this->assertMatchesRegularExpression('/\*\*This operation:\*\* (?:List\/read step|Lifecycle transition|Create\/update step|Flow entry)/', $operation['description']);
+
+                preg_match_all('/- `(GET|POST|PUT|PATCH|DELETE) ([^`]+)` —/', $operation['description'], $references);
+
+                foreach ($references[2] as $referencedPath) {
+                    $this->assertArrayHasKey($referencedPath, $document['paths'], $referencedPath);
+                }
+            }
+        }
+
+        $plannedIds = [];
+        foreach (file(base_path('schoolos-backend-pack/TRACKER.md'), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+            if (preg_match('/^\|\s*([A-Z]+-\d{3})\s*\|.*\|\s*NOT_STARTED\s*\|/', $line, $matches) === 1) {
+                $plannedIds[] = $matches[1];
+            }
+        }
+
+        foreach ($plannedIds as $featureId) {
+            $this->assertStringNotContainsString('`'.$featureId.'`', $infoDescription);
         }
     }
 

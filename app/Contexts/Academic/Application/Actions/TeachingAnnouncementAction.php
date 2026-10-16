@@ -51,6 +51,60 @@ final class TeachingAnnouncementAction
         return ['items' => $query->get()->map(fn (TeachingAnnouncement $announcement): array => $this->data($announcement))->all()];
     }
 
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{class_arms: list<array<string, mixed>>, subject_offerings: list<array<string, mixed>>}
+     */
+    public function audiences(UserIdentity $actor, string $school, array $filters = []): array
+    {
+        $context = $this->authorizeContext($actor, $school, 'teaching.announcements.manage');
+        $this->assertAdministrator($actor);
+        $session = AcademicSession::query()->where('school_id', $context->schoolId)->where('public_id', $filters['session_id'] ?? '')->first();
+        $term = AcademicTerm::query()->where('school_id', $context->schoolId)->where('public_id', $filters['term_id'] ?? '')->where('academic_session_id', $session?->getKey())->first();
+        if (! $session instanceof AcademicSession || ! $term instanceof AcademicTerm) {
+            throw new ModelNotFoundException;
+        }
+
+        $classArms = AcademicClassArm::query()->where('school_id', $context->schoolId)->where('status', 'active')->orderBy('name')->get()->map(fn (AcademicClassArm $classArm): array => [
+            'id' => (string) $classArm->public_id,
+            'name' => (string) $classArm->name,
+            'type' => 'class_arm',
+        ])->values()->all();
+        $offerings = AcademicSubjectOffering::query()->where('school_id', $context->schoolId)->where('academic_session_id', $session->getKey())->where('academic_term_id', $term->getKey())->where('status', 'active')->with('subject')->orderBy('id')->get()->map(fn (AcademicSubjectOffering $offering): array => [
+            'id' => (string) $offering->public_id,
+            'name' => (string) $offering->subject?->name,
+            'type' => 'subject_offering',
+        ])->values()->all();
+
+        return ['class_arms' => $classArms, 'subject_offerings' => $offerings];
+    }
+
+    /** @param array<string, mixed> $input
+     * @return array<string, mixed>
+     */
+    public function updateAudience(UserIdentity $actor, string $school, string $announcement, array $input): array
+    {
+        $record = $this->findForMutation($actor, $school, $announcement, 'teaching.announcements.manage');
+        $this->assertAdministrator($actor);
+        if (! in_array($record->status, ['draft', 'rejected'], true)) {
+            throw $this->invalid('Only draft or rejected announcements can change audience.');
+        }
+
+        $context = TenantContext::require();
+        [$session, $term, $classArm, $offering] = $this->resolveAudience($context->schoolId, $input);
+        $this->assertOpen($session, $term, $offering, $classArm);
+        $record->fill([
+            'academic_session_id' => $session->getKey(),
+            'academic_term_id' => $term->getKey(),
+            'academic_class_arm_id' => $classArm?->getKey(),
+            'academic_subject_offering_id' => $offering?->getKey(),
+            'updated_by' => $actor->getKey(),
+        ])->save();
+        $this->audit($actor, 'teaching.announcement.audience_updated', (string) $record->public_id, ['status' => $record->status], 'teaching.announcements.manage');
+
+        return $this->data($record->load(['term.session', 'classArm', 'offering.subject', 'author']));
+    }
+
     /** @param array<string, mixed> $input
      * @return array<string, mixed>
      */

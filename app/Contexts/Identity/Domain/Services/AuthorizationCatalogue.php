@@ -158,6 +158,8 @@ final class AuthorizationCatalogue
             'finance.reconciliation.read' => ['label' => 'Read financial reconciliation', 'description' => 'View safe school-scoped reconciliation runs and exceptions.'],
             'finance.reconciliation.manage' => ['label' => 'Manage financial reconciliation', 'description' => 'Create and cancel deterministic school-scoped reconciliation runs.'],
             'finance.reconciliation.resolve' => ['label' => 'Resolve reconciliation exceptions', 'description' => 'Resolve eligible reconciliation exceptions with a bounded reason.'],
+            'operations.principal-dashboard.read' => ['label' => 'Read principal review dashboard', 'description' => 'View safe school-wide operational review indicators without exposing source records or financial amounts.'],
+            'operations.proprietor-dashboard.read' => ['label' => 'Read proprietor executive dashboard', 'description' => 'View safe school-wide executive indicators without exposing source records or financial amounts.'],
             'finance.balances.read' => ['label' => 'Read outstanding balances', 'description' => 'View safe outstanding financial balances in the selected school.'],
             'finance.statements.read' => ['label' => 'Read financial statements', 'description' => 'View safe student and family financial statements in the selected school.'],
             'finance.reports.read' => ['label' => 'Read finance reports', 'description' => 'View safe school-scoped bursar finance reports.'],
@@ -172,6 +174,22 @@ final class AuthorizationCatalogue
             'finance.reminders.manage' => ['label' => 'Manage fee reminders', 'description' => 'Create and cancel school-scoped fee reminders.'],
             'finance.reminders.send' => ['label' => 'Send fee reminders', 'description' => 'Send eligible fee reminders through the approved delivery contract.'],
             'counselling.private_notes.read' => ['label' => 'Read private counselling notes', 'description' => 'Read authorized private counselling notes.'],
+            'counselling.assignments.read' => ['label' => 'Read counsellor assignments', 'description' => 'Read safe counsellor assignment metadata within the selected school.'],
+            'counselling.assignments.manage' => ['label' => 'Manage counsellor assignments', 'description' => 'Assign and revoke counsellor-to-student access within the selected school.'],
+            'counselling.development-plans.read' => ['label' => 'Read development plans', 'description' => 'View explicitly shared development plan summaries within authorized counselling scope.'],
+            'counselling.development-plans.manage' => ['label' => 'Manage development plans', 'description' => 'Create and manage development plan summaries within authorized counselling scope.'],
+            'counselling.development-plans.share' => ['label' => 'Share development plans', 'description' => 'Share development plan summaries through server-controlled counselling scopes.'],
+            'counselling.referrals.read' => ['label' => 'Read counselling referrals', 'description' => 'View safe referral metadata within authorized counselling scope.'],
+            'counselling.referrals.manage' => ['label' => 'Manage counselling referrals', 'description' => 'Create and lifecycle-manage authorized counselling referrals.'],
+            'counselling.referrals.approve' => ['label' => 'Approve counselling referrals', 'description' => 'Approve or reject counselling referrals with maker-checker separation.'],
+            'counselling.escalations.read' => ['label' => 'Read safeguarding escalations', 'description' => 'View safe escalation metadata within authorized safeguarding scope.'],
+            'counselling.escalations.manage' => ['label' => 'Manage safeguarding escalations', 'description' => 'Create and lifecycle-manage authorized safeguarding escalations.'],
+            'counselling.escalations.approve' => ['label' => 'Approve safeguarding escalations', 'description' => 'Approve or reject safeguarding escalations with maker-checker separation.'],
+            'counselling.wellbeing-summaries.read' => ['label' => 'Read wellbeing summaries', 'description' => 'View safe derived wellbeing summaries within authorized counselling scope.'],
+            'counselling.cases.read' => ['label' => 'Read counselling cases', 'description' => 'Read authorized counselling case metadata within the selected school.'],
+            'counselling.cases.manage' => ['label' => 'Manage counselling cases', 'description' => 'Create and lifecycle-manage authorized counselling cases.'],
+            'counselling.notes.read' => ['label' => 'Read counselling notes', 'description' => 'Read private notes only within an active counselling assignment.'],
+            'counselling.notes.manage' => ['label' => 'Manage counselling notes', 'description' => 'Create immutable private counselling notes within an active assignment.'],
             'academic.assignments.read' => ['label' => 'Read academic assignments', 'description' => 'Read assignments within the actor’s authorized academic scope.'],
             'academic.assignments.manage' => ['label' => 'Manage academic assignments', 'description' => 'Manage assignments within the actor’s authorized academic scope.'],
             'guardian.links.read' => ['label' => 'Read guardian links', 'description' => 'Read verified effective guardian relationships.'],
@@ -202,6 +220,20 @@ final class AuthorizationCatalogue
             'communications.parent.manage' => ['label' => 'Manage parent communications', 'description' => 'Open and participate in verified-guardian communication threads.'],
             'communications.staff.read' => ['label' => 'Read staff communications', 'description' => 'Read communication threads within the trusted staff assignment scope.'],
             'communications.staff.manage' => ['label' => 'Manage staff communications', 'description' => 'Respond to and close communication threads within the trusted staff scope.'],
+            'operations.notification-templates.read' => ['label' => 'Read notification templates', 'description' => 'View versioned school-scoped notification templates.'],
+            'operations.notification-templates.manage' => ['label' => 'Manage notification templates', 'description' => 'Create and lifecycle-manage school-scoped notification templates.'],
+            'operations.notifications.read' => ['label' => 'Read notifications', 'description' => 'View safe school-scoped notification delivery states.'],
+            'operations.notifications.manage' => ['label' => 'Manage notifications', 'description' => 'Create and cancel authorized notification deliveries.'],
+            'operations.notifications.send' => ['label' => 'Send notifications', 'description' => 'Send notifications through the approved provider-neutral delivery contract.'],
+            'operations.reports.read' => ['label' => 'Read operational reports', 'description' => 'View safe school-scoped operational reporting projections.'],
+            'operations.reports.export' => ['label' => 'Export operational reports', 'description' => 'Generate bounded private operational report artifacts.'],
+            'operations.reports.schedules.read' => ['label' => 'Read operational report schedules', 'description' => 'View safe operational report schedule configuration.'],
+            'operations.reports.schedules.manage' => ['label' => 'Manage operational report schedules', 'description' => 'Create and manage school-scoped operational report schedules.'],
+            'operations.audit.read' => ['label' => 'Read school audit explorer', 'description' => 'View safe school-scoped audit history projections.'],
+            'platform.subscription-plans.read' => ['label' => 'Read subscription plans', 'description' => 'View safe platform subscription plan versions and entitlement keys.'],
+            'platform.subscription-plans.manage' => ['label' => 'Manage subscription plans', 'description' => 'Create and lifecycle-manage configuration-only platform subscription plans.'],
+            'platform.entitlements.read' => ['label' => 'Read school entitlements', 'description' => 'View effective entitlement keys for the trusted school.'],
+            'platform.entitlements.manage' => ['label' => 'Manage school entitlements', 'description' => 'Assign an active platform plan to the trusted school.'],
         ];
     }
 
@@ -209,13 +241,13 @@ final class AuthorizationCatalogue
     public static function rolePermissions(): array
     {
         $permissions = [
-            'school_admin' => ['school.memberships.list', 'school.memberships.invite', 'school.memberships.revoke', 'school.roles.assign', 'school.roles.revoke', 'school.settings.read', 'school.settings.manage', 'school.lifecycle.read', 'school.lifecycle.manage', 'academic.sessions.read', 'academic.sessions.manage', 'academic.structure.read', 'academic.structure.manage', 'academic.class-arms.read', 'academic.class-arms.manage', 'academic.subjects.read', 'academic.subjects.manage', 'academic.offerings.read', 'academic.offerings.manage', 'academic.assessment-components.read', 'academic.assessment-components.manage', 'academic.assessment-policies.read', 'academic.assessment-policies.manage', 'academic.grading-scales.read', 'academic.grading-scales.manage', 'academic.promotion-rules.read', 'academic.promotion-rules.manage', 'academic.readiness.read', 'students.read', 'students.admit', 'students.manage', 'students.profile.read', 'students.profile.manage', 'students.documents.read', 'students.documents.manage', 'students.enrollments.read', 'students.enrollments.manage', 'students.enrollments.transfer', 'students.enrollments.withdraw', 'students.promotion.read', 'students.promotion.manage', 'students.promotion.approve', 'students.promotion.apply', 'academic.assignments.read', 'academic.assignments.manage', 'guardians.read', 'guardians.manage', 'guardian.links.read', 'guardian.links.manage', 'student.self.read', 'staff.read', 'staff.manage', 'staff.employment.manage', 'staff.class-teachers.read', 'staff.class-teachers.manage'],
+            'school_admin' => ['school.memberships.list', 'school.memberships.invite', 'school.memberships.revoke', 'school.roles.assign', 'school.roles.revoke', 'school.settings.read', 'school.settings.manage', 'school.lifecycle.read', 'school.lifecycle.manage', 'academic.sessions.read', 'academic.sessions.manage', 'academic.structure.read', 'academic.structure.manage', 'academic.class-arms.read', 'academic.class-arms.manage', 'academic.subjects.read', 'academic.subjects.manage', 'academic.offerings.read', 'academic.offerings.manage', 'academic.assessment-components.read', 'academic.assessment-components.manage', 'academic.assessment-policies.read', 'academic.assessment-policies.manage', 'academic.grading-scales.read', 'academic.grading-scales.manage', 'academic.promotion-rules.read', 'academic.promotion-rules.manage', 'academic.readiness.read', 'students.read', 'students.admit', 'students.manage', 'students.profile.read', 'students.profile.manage', 'students.documents.read', 'students.documents.manage', 'students.enrollments.read', 'students.enrollments.manage', 'students.enrollments.transfer', 'students.enrollments.withdraw', 'students.promotion.read', 'students.promotion.manage', 'students.promotion.approve', 'students.promotion.apply', 'academic.assignments.read', 'academic.assignments.manage', 'guardians.read', 'guardians.manage', 'guardian.links.read', 'guardian.links.manage', 'student.self.read', 'staff.read', 'staff.manage', 'staff.employment.manage', 'staff.class-teachers.read', 'staff.class-teachers.manage', 'counselling.assignments.read', 'counselling.assignments.manage', 'counselling.cases.read', 'counselling.cases.manage', 'counselling.development-plans.read', 'counselling.development-plans.manage', 'counselling.development-plans.share'],
             'teacher' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'students.profile.read', 'students.documents.read', 'academic.records.read', 'academic.assignments.read', 'academic.assignments.manage', 'staff.class-teachers.read'],
             'hod_reviewer' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'students.profile.read', 'students.documents.read', 'academic.records.read', 'academic.assignments.read', 'academic.assignments.manage', 'staff.class-teachers.read'],
-            'principal' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'students.profile.read', 'students.documents.read', 'students.promotion.read', 'students.promotion.approve', 'students.promotion.apply', 'academic.records.read', 'academic.assignments.read', 'academic.assignments.manage', 'guardians.read', 'guardian.links.read', 'staff.read', 'staff.class-teachers.read'],
+            'principal' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'students.profile.read', 'students.documents.read', 'students.promotion.read', 'students.promotion.approve', 'students.promotion.apply', 'academic.records.read', 'academic.assignments.read', 'academic.assignments.manage', 'guardians.read', 'guardian.links.read', 'staff.read', 'staff.class-teachers.read', 'counselling.assignments.read', 'counselling.assignments.manage', 'counselling.cases.read', 'counselling.cases.manage', 'counselling.development-plans.read', 'counselling.development-plans.manage', 'counselling.development-plans.share'],
             'bursar' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'finance.records.read', 'finance.records.manage', 'staff.class-teachers.read'],
             'proprietor' => ['school.memberships.list', 'school.settings.read', 'school.lifecycle.read', 'school.lifecycle.manage', 'academic.sessions.read', 'academic.sessions.manage', 'academic.structure.read', 'academic.structure.manage', 'academic.class-arms.read', 'academic.class-arms.manage', 'academic.subjects.read', 'academic.subjects.manage', 'academic.offerings.read', 'academic.offerings.manage', 'academic.assessment-components.read', 'academic.assessment-components.manage', 'academic.assessment-policies.read', 'academic.assessment-policies.manage', 'academic.grading-scales.read', 'academic.grading-scales.manage', 'academic.promotion-rules.read', 'academic.promotion-rules.manage', 'academic.readiness.read', 'students.read', 'students.admit', 'students.manage', 'students.profile.read', 'students.profile.manage', 'students.documents.read', 'students.documents.manage', 'students.enrollments.transfer', 'students.enrollments.withdraw', 'students.promotion.read', 'students.promotion.manage', 'students.promotion.approve', 'students.promotion.apply', 'academic.assignments.read', 'academic.assignments.manage', 'guardians.read', 'guardians.manage', 'guardian.links.read', 'guardian.links.manage', 'finance.records.read', 'staff.read', 'staff.manage', 'staff.employment.manage', 'staff.class-teachers.read', 'staff.class-teachers.manage'],
-            'counsellor' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'students.profile.read', 'students.documents.read', 'guardians.read', 'guardian.links.read', 'counselling.private_notes.read', 'staff.read', 'staff.class-teachers.read'],
+            'counsellor' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'students.profile.read', 'students.documents.read', 'guardians.read', 'guardian.links.read', 'counselling.private_notes.read', 'counselling.assignments.read', 'counselling.cases.read', 'counselling.cases.manage', 'counselling.notes.read', 'counselling.notes.manage', 'counselling.development-plans.read', 'counselling.development-plans.manage', 'counselling.development-plans.share', 'staff.read', 'staff.class-teachers.read'],
             'parent_guardian' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'guardian.links.read', 'finance.family-billing.read', 'communications.parent.read', 'communications.parent.manage'],
             'student' => ['school.memberships.list', 'academic.sessions.read', 'academic.structure.read', 'academic.class-arms.read', 'academic.subjects.read', 'academic.offerings.read', 'academic.assessment-components.read', 'academic.assessment-policies.read', 'academic.grading-scales.read', 'academic.promotion-rules.read', 'academic.readiness.read', 'students.read', 'student.self.read'],
         ];
@@ -248,6 +280,11 @@ final class AuthorizationCatalogue
             $permissions[$role][] = 'imports.report.read';
             $permissions[$role][] = 'students.audit.read';
             $permissions[$role][] = 'guardians.audit.read';
+            $permissions[$role][] = 'operations.notification-templates.read';
+            $permissions[$role][] = 'operations.notification-templates.manage';
+            $permissions[$role][] = 'operations.notifications.read';
+            $permissions[$role][] = 'operations.notifications.manage';
+            $permissions[$role][] = 'operations.notifications.send';
         }
 
         foreach (['teacher', 'hod_reviewer'] as $role) {
@@ -313,6 +350,24 @@ final class AuthorizationCatalogue
             $permissions[$role][] = 'teaching.worklist.read';
         }
 
+        foreach (['school_admin', 'principal', 'proprietor'] as $role) {
+            $permissions[$role][] = 'operations.principal-dashboard.read';
+            $permissions[$role][] = 'operations.reports.read';
+            $permissions[$role][] = 'operations.reports.export';
+            $permissions[$role][] = 'operations.reports.schedules.read';
+            $permissions[$role][] = 'operations.reports.schedules.manage';
+            $permissions[$role][] = 'operations.audit.read';
+        }
+
+        foreach (['school_admin', 'proprietor'] as $role) {
+            $permissions[$role][] = 'platform.subscription-plans.read';
+            $permissions[$role][] = 'platform.subscription-plans.manage';
+            $permissions[$role][] = 'platform.entitlements.read';
+            $permissions[$role][] = 'platform.entitlements.manage';
+        }
+
+        $permissions['proprietor'][] = 'operations.proprietor-dashboard.read';
+
         foreach (['school_admin', 'teacher', 'principal', 'proprietor'] as $role) {
             $permissions[$role][] = 'attendance.read';
             $permissions[$role][] = 'attendance.manage';
@@ -338,6 +393,19 @@ final class AuthorizationCatalogue
         foreach (['school_admin', 'principal', 'proprietor', 'hod_reviewer'] as $role) {
             $permissions[$role][] = 'teaching.announcements.review';
             $permissions[$role][] = 'teaching.announcements.publish';
+        }
+
+        foreach (['school_admin', 'principal', 'counsellor'] as $role) {
+            $permissions[$role][] = 'counselling.referrals.read';
+            $permissions[$role][] = 'counselling.referrals.manage';
+            $permissions[$role][] = 'counselling.escalations.read';
+            $permissions[$role][] = 'counselling.escalations.manage';
+            $permissions[$role][] = 'counselling.wellbeing-summaries.read';
+        }
+
+        foreach (['school_admin', 'principal'] as $role) {
+            $permissions[$role][] = 'counselling.referrals.approve';
+            $permissions[$role][] = 'counselling.escalations.approve';
         }
 
         foreach (array_keys(self::roles()) as $role) {
@@ -442,7 +510,26 @@ final class AuthorizationCatalogue
             'platform.schools.read' => ['label' => 'Read platform school metadata', 'description' => 'Read approved platform-level school metadata, not school records.'],
             'platform.audit.read' => ['label' => 'Read platform audit events', 'description' => 'Read platform audit events within approved operational scope.'],
             'platform.operations.read' => ['label' => 'Read platform operations', 'description' => 'Read safe platform operations and readiness information.'],
+            'platform.analytics.read' => ['label' => 'Read platform operational analytics', 'description' => 'Read aggregate platform operational analytics without sensitive source data.'],
+            'platform.feature-flags.read' => ['label' => 'Read platform feature flags', 'description' => 'Read safe platform feature-flag projections.'],
+            'platform.feature-flags.manage' => ['label' => 'Manage platform feature flags', 'description' => 'Manage versioned platform feature-flag configuration.'],
+            'academic.knowledge-sources.read' => ['label' => 'Read academic knowledge sources', 'description' => 'Read safe versioned JAMB and institution requirement sources.'],
+            'academic.knowledge-sources.manage' => ['label' => 'Manage academic knowledge sources', 'description' => 'Manage governed academic knowledge-source versions.'],
             'platform.support.access' => ['label' => 'Use support access', 'description' => 'Use an active, approved break-glass grant within scope.'],
+            'platform.support-cases.read' => ['label' => 'Read support cases', 'description' => 'View safe platform support-case metadata.'],
+            'platform.support-cases.manage' => ['label' => 'Manage support cases', 'description' => 'Create and lifecycle-manage platform support cases.'],
+            'platform.support-access.read' => ['label' => 'Read support access grants', 'description' => 'View safe, scoped support-access grant metadata.'],
+            'platform.support-access.request' => ['label' => 'Request support access', 'description' => 'Request bounded, expiring support access for an approved case.'],
+            'platform.support-access.approve' => ['label' => 'Approve support access', 'description' => 'Approve support access with maker-checker authorization.'],
+            'platform.support-access.revoke' => ['label' => 'Revoke support access', 'description' => 'Revoke active support access grants.'],
+            'platform.billing.read' => ['label' => 'Read SaaS billing', 'description' => 'View safe platform SaaS invoices and payment state.'],
+            'platform.billing.manage' => ['label' => 'Manage SaaS billing', 'description' => 'Create, issue and void platform SaaS invoices.'],
+            'platform.billing.payments.manage' => ['label' => 'Initiate SaaS payments', 'description' => 'Create provider-neutral SaaS payment records.'],
+            'platform.billing.payments.verify' => ['label' => 'Verify SaaS payments', 'description' => 'Verify signed SaaS payment outcomes and replay protection.'],
+            'platform.billing.refunds.manage' => ['label' => 'Manage SaaS refunds', 'description' => 'Record approved SaaS payment refunds.'],
+            'platform.ai-evaluations.read' => ['label' => 'Read AI evaluations', 'description' => 'Read safe AI evaluation and release-gate projections.'],
+            'platform.ai-evaluations.manage' => ['label' => 'Manage AI evaluations', 'description' => 'Create and run bounded synthetic AI evaluations.'],
+            'platform.ai-evaluations.review' => ['label' => 'Review AI evaluations', 'description' => 'Approve or reject human-reviewed AI evaluation release gates.'],
         ];
     }
 
@@ -450,9 +537,9 @@ final class AuthorizationCatalogue
     public static function platformRolePermissions(): array
     {
         return [
-            'platform_admin' => ['platform.roles.manage', 'platform.grants.create', 'platform.grants.revoke', 'platform.schools.read', 'platform.audit.read', 'platform.operations.read'],
-            'platform_support' => ['platform.support.access'],
-            'platform_ops' => ['platform.operations.read'],
+            'platform_admin' => ['platform.roles.manage', 'platform.grants.create', 'platform.grants.revoke', 'platform.schools.read', 'platform.audit.read', 'platform.operations.read', 'platform.analytics.read', 'platform.feature-flags.read', 'platform.feature-flags.manage', 'academic.knowledge-sources.read', 'academic.knowledge-sources.manage', 'platform.support-cases.read', 'platform.support-cases.manage', 'platform.support-access.read', 'platform.support-access.request', 'platform.support-access.approve', 'platform.support-access.revoke', 'platform.billing.read', 'platform.billing.manage', 'platform.billing.payments.manage', 'platform.billing.payments.verify', 'platform.billing.refunds.manage', 'platform.ai-evaluations.read', 'platform.ai-evaluations.manage', 'platform.ai-evaluations.review'],
+            'platform_support' => ['platform.support.access', 'platform.support-cases.read', 'platform.support-access.read', 'platform.support-access.request'],
+            'platform_ops' => ['platform.operations.read', 'platform.analytics.read', 'platform.feature-flags.read', 'platform.feature-flags.manage', 'academic.knowledge-sources.read', 'academic.knowledge-sources.manage', 'platform.support-cases.read', 'platform.support-cases.manage', 'platform.support-access.read', 'platform.support-access.request', 'platform.billing.read', 'platform.billing.manage', 'platform.billing.payments.manage', 'platform.billing.payments.verify', 'platform.billing.refunds.manage', 'platform.ai-evaluations.read', 'platform.ai-evaluations.manage', 'platform.ai-evaluations.review'],
         ];
     }
 }

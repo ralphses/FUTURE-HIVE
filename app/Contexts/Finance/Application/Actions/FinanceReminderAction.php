@@ -31,7 +31,7 @@ final class FinanceReminderAction
         private readonly ReminderDelivery $delivery,
     ) {}
 
-    /** @return array<string, mixed> */
+    /** @return array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> */
     public function candidates(UserIdentity $actor, string $school): array
     {
         $this->authorize($actor, $school, 'finance.reminders.read');
@@ -44,7 +44,7 @@ final class FinanceReminderAction
     }
 
     /** @param array{invoice_id: string, recipient_id: string, reminder_type: string, period_key: string} $input
-     * @return array{reminder: array<string, mixed>}
+     * @return array{reminder: array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>}
      */
     public function create(UserIdentity $actor, string $school, array $input): array
     {
@@ -88,7 +88,7 @@ final class FinanceReminderAction
         });
     }
 
-    /** @return array{reminder: array<string, mixed>} */
+    /** @return array{reminder: array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>} */
     public function show(UserIdentity $actor, string $school, string $id): array
     {
         $this->authorize($actor, $school, 'finance.reminders.read');
@@ -98,7 +98,7 @@ final class FinanceReminderAction
         return ['reminder' => $this->data($reminder->load('invoice'))];
     }
 
-    /** @return array{reminder: array<string, mixed>} */
+    /** @return array{reminder: array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>} */
     public function send(UserIdentity $actor, string $school, string $id): array
     {
         $this->authorize($actor, $school, 'finance.reminders.send');
@@ -129,7 +129,7 @@ final class FinanceReminderAction
         });
     }
 
-    /** @return array{reminder: array<string, mixed>} */
+    /** @return array{reminder: array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>} */
     public function cancel(UserIdentity $actor, string $school, string $id): array
     {
         $this->authorize($actor, $school, 'finance.reminders.manage');
@@ -155,7 +155,7 @@ final class FinanceReminderAction
         return FeeInvoice::query()->where('school_id', $schoolId)->where('status', 'issued')->whereHas('student', fn ($query) => $query->where('status', 'active'))->whereHas('enrollment', fn ($query) => $query->where('status', 'active'))->with(['student', 'enrollment'])->orderBy('due_date')->orderBy('id');
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>> */
     private function candidateData(FeeInvoice $invoice): array
     {
         $balance = $this->outstanding($invoice);
@@ -217,7 +217,7 @@ final class FinanceReminderAction
         return $query->firstOrFail();
     }
 
-    /** @return array<string, mixed> */
+    /** @return array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> */
     private function data(FinanceReminder $reminder): array
     {
         return ['id' => (string) $reminder->public_id, 'invoice_id' => (string) $reminder->invoice?->public_id, 'invoice_number' => (string) $reminder->invoice?->invoice_number, 'amount_minor_units' => (int) $reminder->amount_minor_units, 'currency' => (string) $reminder->currency, 'due_date' => $this->date($reminder->due_date), 'reminder_type' => (string) $reminder->reminder_type, 'period_key' => (string) $reminder->period_key, 'status' => (string) $reminder->status, 'created_at' => $this->atom($reminder->created_at), 'queued_at' => $this->atom($reminder->queued_at), 'sent_at' => $this->atom($reminder->sent_at), 'failed_at' => $this->atom($reminder->failed_at), 'cancelled_at' => $this->atom($reminder->cancelled_at), 'failure_code' => $reminder->failure_code];
@@ -241,7 +241,7 @@ final class FinanceReminderAction
         $this->audit->execute(new AuditEventData(action: 'finance.reminders_read', subjectType: 'finance_reminder_projection', subjectPublicId: null, schoolId: $schoolId, actorId: $actor->getKey(), requestId: Context::get('request_id'), metadata: ['result_count' => $count], requiresSchoolContext: true));
     }
 
-    /** @param array<string, mixed> $transition */
+    /** @param array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> $transition */
     private function record(UserIdentity $actor, string $action, FinanceReminder $reminder, array $transition): void
     {
         $context = TenantContext::require();

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ApiDocsAccess;
+use App\Support\OpenApi\UnknownTypeToSchema;
 
 return [
     'api_path' => 'api/v1',
@@ -16,7 +17,7 @@ return [
 
     'info' => [
         'version' => env('API_VERSION', '0.1.0'),
-        'description' => 'SchoolOS foundation API contract. Product-domain routes remain provisional until their owning slices are approved.',
+        'description' => 'SchoolOS API contract. Implemented routes are generated from the canonical runtime route registry and include frontend flow metadata. This read-only contract is the frontend integration source of truth.',
     ],
 
     'ui' => [
@@ -55,7 +56,9 @@ return [
         ApiDocsAccess::class,
     ],
 
-    'extensions' => [],
+    'extensions' => [
+        UnknownTypeToSchema::class,
+    ],
 
     'security_strategy' => null,
 

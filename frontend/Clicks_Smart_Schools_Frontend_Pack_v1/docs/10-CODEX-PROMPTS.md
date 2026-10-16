@@ -1,0 +1,11 @@
+# Codex prompts
+## First prompt — paste into Codex
+You are the senior frontend engineer for Clicks Smart Schools. Read `README.md`, `AGENTS.md`, all docs and `tracker.md`. Inspect `references/` for approved visual direction. First, produce a short architecture and gap assessment: missing real brand assets, approved copy, pricing/legal content, Laravel OpenAPI, contact information, auth transport. Do not invent missing facts. Then implement **Phase 1 only**: Next.js App Router, strict TypeScript, Tailwind/shadcn design tokens, accessible responsive header/footer, base UI components, lint/typecheck/test/build, and a simple component showcase. Update tracker. Do not build dashboards or fake APIs. Summarize files changed, tests run and blockers.
+## Prompt — next public page
+Continue the implementation pack. Read `AGENTS.md` and tracker. Implement the next unchecked public page as a complete vertical slice using approved minimal SaaS direction. Include mobile/desktop, SEO, accessibility, loading/error states where relevant, unit tests, Playwright smoke, and tracker updates. Do not invent backend endpoints, prices, contact info, testimonials or legal claims. Show a preview and report blockers.
+## Prompt — API integration
+Read `docs/05-API-INTEGRATION.md` and the supplied OpenAPI file. Generate types and typed services for only the currently needed endpoints. Compare all assumptions against the contract and list mismatches before changes. Implement safe error normalization, credential/session handling per backend design, MSW test fixtures, and tests. Never use localStorage for tokens.
+## Prompt — registration
+Implement PUB-007A–G responsive four-step registration and verification from `docs/03-PAGE-REGISTER.md`. Do not store passwords in drafts or show them in review. Server controls administrator role and school tenant. Only integrate verified backend routes. Cover field validation, duplicate submit, expired link, resend cooldown, safe retries, and accessibility. Update tracker and run tests.
+## Prompt — release audit
+Audit PUB-001–013 against `docs/04-SCREEN-ACCEPTANCE.md`, `docs/06-SECURITY-PRIVACY-ACCESSIBILITY.md` and `docs/08-TEST-PLAN.md`. Produce a severity-ranked gap report, fix issues in small commits, run all quality gates, and identify launch blockers requiring business/legal/backend approval.

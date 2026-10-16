@@ -1,0 +1,8 @@
+@import "tailwindcss";
+:root { --navy:#0B1B4D; --blue:#1264F4; --green:#008D62; --ink:#17243B; --muted:#64748B; --border:#E5EAF2; --surface:#F8FAFC; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:white; color:var(--ink); font-family:Inter,Arial,sans-serif; }
+a:focus-visible,button:focus-visible,input:focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
+.skip-link { position:absolute; left:-9999px; top:8px; padding:12px; background:white; z-index:100; }
+.skip-link:focus { left:8px; }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; } }

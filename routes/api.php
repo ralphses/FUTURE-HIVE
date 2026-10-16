@@ -12,6 +12,8 @@ use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAttendanceCorrectionCo
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicAttendanceReportController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicClassArmController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicGradingScaleController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicInsightSuggestionController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicKnowledgeSourceController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPeriodController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPromotionEligibilityController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicPromotionRuleController;
@@ -32,6 +34,8 @@ use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicStudentResultHistoryCo
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicSubjectOfferingController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\AcademicTeachingAssignmentController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\CareerGuidanceController;
+use App\Contexts\Academic\Http\Controllers\Api\V1\LessonPlanningSuggestionController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\TeacherWorklistController;
 use App\Contexts\Academic\Http\Controllers\Api\V1\TeachingAnnouncementController;
 use App\Contexts\Finance\Http\Controllers\Api\V1\FamilyBillingController;
@@ -59,6 +63,12 @@ use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolInvitationController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolMembershipController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SchoolRoleController;
 use App\Contexts\Identity\Http\Controllers\Api\V1\SelfServiceProfileController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\AcademicOperationalReportController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\AiConsentController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\AiEvaluationController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\AttendanceOperationalReportController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\EnrollmentOperationalReportController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\FinanceOperationalReportController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\FinancialOpeningBalanceImportController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HealthController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\HistoricalAcademicImportController;
@@ -71,13 +81,36 @@ use App\Contexts\Platform\Http\Controllers\Api\V1\ImportMappingController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportRecoveryController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportTemplateController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ImportValidationController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\NotificationTemplateController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\OperationalReportExportController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\OperationalReportScheduleController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PlatformBillingController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PlatformBillingWebhookController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PlatformFeatureFlagController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PlatformOperationalAnalyticsController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PlatformSubscriptionPlanController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PlatformSupportController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PlatformTenantDirectoryController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PrincipalReviewDashboardController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\ProprietorExecutiveDashboardController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PublicDemoEnquiryController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PublicLegalPolicyController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PublicMarketingPageController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\PublicPricingController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\ReadinessController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolAdminWorkspaceController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolAuditExplorerController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolLifecycleController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolProfileController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolRegistrationVerificationController;
 use App\Contexts\Platform\Http\Controllers\Api\V1\SchoolSetupController;
+use App\Contexts\Platform\Http\Controllers\Api\V1\SelfServiceLegalConsentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\ClassTeacherAssignmentController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\CounsellingCaseController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\CounsellingDevelopmentPlanController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\CounsellingReferralController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\CounsellorAssignmentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianInvitationController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\GuardianRelationshipController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\ParentAttendanceController;
@@ -93,6 +126,7 @@ use App\Contexts\Registry\Http\Controllers\Api\V1\StudentEnrollmentController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentProfileController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentPromotionController;
 use App\Contexts\Registry\Http\Controllers\Api\V1\StudentSearchExportController;
+use App\Contexts\Registry\Http\Controllers\Api\V1\StudentWellbeingSummaryController;
 use App\Http\Middleware\JwtAuthenticate;
 use App\Http\Middleware\RefreshCookieCsrf;
 use App\Http\Middleware\RequireSchoolContext;
@@ -106,6 +140,234 @@ Route::get('/health/readiness', ReadinessController::class)->name('api.v1.health
 Route::get('/files/download', CloudinaryFileDownloadController::class)
     ->middleware([JwtAuthenticate::class, RequireSchoolContext::class, 'signed'])
     ->name('api.v1.files.download');
+
+// Platform: read-only tenant directory and safe effective school projections.
+Route::get('/platform/schools', [PlatformTenantDirectoryController::class, 'index'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.schools.index');
+Route::get('/platform/schools/{school}', [PlatformTenantDirectoryController::class, 'show'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.schools.show');
+Route::get('/platform/schools/{school}/entitlements', [PlatformTenantDirectoryController::class, 'entitlements'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.schools.entitlements');
+
+// Platform: aggregate operational analytics over safe existing projections.
+Route::get('/platform/operational-analytics', [PlatformOperationalAnalyticsController::class, 'overview'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.operational-analytics.overview');
+Route::get('/platform/operational-analytics/schools', [PlatformOperationalAnalyticsController::class, 'schools'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.operational-analytics.schools');
+
+// Platform: support cases and approved, time-limited support access.
+Route::get('/platform/support-cases', [PlatformSupportController::class, 'index'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.support-cases.index');
+Route::post('/platform/schools/{school}/support-cases', [PlatformSupportController::class, 'store'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.support-cases.store');
+Route::get('/platform/support-cases/{case}', [PlatformSupportController::class, 'show'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.support-cases.show');
+Route::post('/platform/support-cases/{case}/status', [PlatformSupportController::class, 'status'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.support-cases.status');
+Route::get('/platform/support-cases/{case}/access-grants', [PlatformSupportController::class, 'grants'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.support-access.index');
+Route::post('/platform/support-cases/{case}/access-grants', [PlatformSupportController::class, 'requestAccess'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.support-access.store');
+Route::post('/platform/support-access/{grant}/approve', [PlatformSupportController::class, 'approve'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.support-access.approve');
+Route::post('/platform/support-access/{grant}/revoke', [PlatformSupportController::class, 'revoke'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.support-access.revoke');
+
+// Platform: versioned allowlisted feature flags and effective school projections.
+Route::get('/platform/feature-flags', [PlatformFeatureFlagController::class, 'index'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.feature-flags.index');
+Route::post('/platform/feature-flags', [PlatformFeatureFlagController::class, 'store'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.feature-flags.store');
+Route::get('/platform/feature-flags/{flag}', [PlatformFeatureFlagController::class, 'show'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.feature-flags.show');
+Route::patch('/platform/feature-flags/{flag}', [PlatformFeatureFlagController::class, 'update'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.feature-flags.update');
+Route::post('/platform/feature-flags/{flag}/{transition}', [PlatformFeatureFlagController::class, 'lifecycle'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.feature-flags.lifecycle');
+Route::get('/platform/schools/{school}/feature-flags', [PlatformFeatureFlagController::class, 'schoolIndex'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.schools.feature-flags');
+Route::put('/platform/schools/{school}/feature-flags/{flag}', [PlatformFeatureFlagController::class, 'schoolOverride'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.schools.feature-flags.override');
+
+// Platform: bounded AI evaluation runs and human-reviewed release gates.
+Route::get('/platform/ai-evaluations', [AiEvaluationController::class, 'index'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.ai-evaluations.index');
+Route::post('/platform/ai-evaluations', [AiEvaluationController::class, 'store'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.ai-evaluations.store');
+Route::get('/platform/ai-evaluations/{evaluation}', [AiEvaluationController::class, 'show'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.ai-evaluations.show');
+Route::post('/platform/ai-evaluations/{evaluation}/run', [AiEvaluationController::class, 'run'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.ai-evaluations.run');
+Route::post('/platform/ai-evaluations/{evaluation}/review', [AiEvaluationController::class, 'review'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.ai-evaluations.review');
+
+// Platform: governed, versioned academic knowledge sources for career guidance.
+Route::get('/platform/academic-knowledge-sources', [AcademicKnowledgeSourceController::class, 'index'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.academic-knowledge-sources.index');
+Route::post('/platform/academic-knowledge-sources', [AcademicKnowledgeSourceController::class, 'store'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.academic-knowledge-sources.store');
+Route::get('/platform/academic-knowledge-sources/{source}', [AcademicKnowledgeSourceController::class, 'show'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.academic-knowledge-sources.show');
+Route::patch('/platform/academic-knowledge-sources/{source}', [AcademicKnowledgeSourceController::class, 'update'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.academic-knowledge-sources.update');
+Route::post('/platform/academic-knowledge-sources/{source}/{transition}', [AcademicKnowledgeSourceController::class, 'lifecycle'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.academic-knowledge-sources.lifecycle');
+
+// School Administration: read-only principal review dashboard.
+Route::get('/schools/{school}/principal-review-dashboard', PrincipalReviewDashboardController::class)
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.principal-review-dashboard');
+
+Route::get('/schools/{school}/proprietor-dashboard', ProprietorExecutiveDashboardController::class)
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.proprietor-dashboard');
+
+Route::get('/schools/{school}/admin-workspace', SchoolAdminWorkspaceController::class)
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.admin-workspace');
+
+// Platform: configuration-only subscription plans and effective school entitlements.
+Route::get('/schools/{school}/platform-subscription-plans', [PlatformSubscriptionPlanController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription-plans.index');
+Route::post('/schools/{school}/platform-subscription-plans', [PlatformSubscriptionPlanController::class, 'store'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription-plans.store');
+Route::get('/schools/{school}/platform-subscription-plans/{plan}', [PlatformSubscriptionPlanController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription-plans.show');
+Route::patch('/schools/{school}/platform-subscription-plans/{plan}', [PlatformSubscriptionPlanController::class, 'update'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription-plans.update');
+Route::post('/schools/{school}/platform-subscription-plans/{plan}/{transition}', [PlatformSubscriptionPlanController::class, 'lifecycle'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription-plans.lifecycle');
+Route::get('/schools/{school}/platform-entitlements', [PlatformSubscriptionPlanController::class, 'entitlement'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-entitlements.show');
+Route::post('/schools/{school}/platform-entitlements/{plan}', [PlatformSubscriptionPlanController::class, 'assign'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-entitlements.assign');
+
+Route::get('/schools/{school}/platform-subscription', [PlatformSubscriptionPlanController::class, 'subscription'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription.show');
+Route::post('/schools/{school}/platform-subscription', [PlatformSubscriptionPlanController::class, 'createSubscription'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription.store');
+Route::get('/schools/{school}/platform-subscription/history', [PlatformSubscriptionPlanController::class, 'subscriptionHistory'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription.history');
+Route::post('/schools/{school}/platform-subscription/renew', [PlatformSubscriptionPlanController::class, 'renewSubscription'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription.renew');
+Route::post('/schools/{school}/platform-subscription/cancel', [PlatformSubscriptionPlanController::class, 'cancelSubscription'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription.cancel');
+Route::post('/schools/{school}/platform-subscription/reopen-grace', [PlatformSubscriptionPlanController::class, 'reopenSubscriptionGrace'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.platform-subscription.reopen-grace');
+
+// Platform SaaS billing: separate from school fee finance and entitlement mutation.
+Route::get('/schools/{school}/platform-billing/invoices', [PlatformBillingController::class, 'index'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.billing.invoices.index');
+Route::post('/schools/{school}/platform-billing/invoices', [PlatformBillingController::class, 'store'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.billing.invoices.store');
+Route::get('/schools/{school}/platform-billing/invoices/{invoice}', [PlatformBillingController::class, 'show'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.billing.invoices.show');
+Route::post('/schools/{school}/platform-billing/invoices/{invoice}/issue', [PlatformBillingController::class, 'issue'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.billing.invoices.issue');
+Route::post('/schools/{school}/platform-billing/invoices/{invoice}/void', [PlatformBillingController::class, 'void'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.billing.invoices.void');
+Route::post('/schools/{school}/platform-billing/invoices/{invoice}/payments', [PlatformBillingController::class, 'payment'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.billing.payments.store');
+Route::get('/schools/{school}/platform-billing/invoices/{invoice}/payments/{payment}', [PlatformBillingController::class, 'paymentShow'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.billing.payments.show');
+Route::post('/schools/{school}/platform-billing/payments/{payment}/refund', [PlatformBillingController::class, 'refund'])
+    ->middleware(JwtAuthenticate::class)
+    ->name('api.v1.platform.billing.payments.refund');
+
+Route::get('/schools/{school}/operational-reports/enrollment', EnrollmentOperationalReportController::class)
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.operational-reports.enrollment');
+Route::get('/schools/{school}/operational-reports/attendance', AttendanceOperationalReportController::class)
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.operational-reports.attendance');
+Route::get('/schools/{school}/operational-reports/academic', AcademicOperationalReportController::class)
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.operational-reports.academic');
+Route::get('/schools/{school}/operational-reports/finance', FinanceOperationalReportController::class)
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.operational-reports.finance');
+Route::get('/schools/{school}/operational-reports/export', OperationalReportExportController::class)
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.operational-reports.export');
+Route::get('/schools/{school}/operational-report-schedules', [OperationalReportScheduleController::class, 'index'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.operational-report-schedules.index');
+Route::post('/schools/{school}/operational-report-schedules', [OperationalReportScheduleController::class, 'store'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.operational-report-schedules.store');
+Route::get('/schools/{school}/operational-report-schedules/{schedule}', [OperationalReportScheduleController::class, 'show'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.operational-report-schedules.show');
+Route::patch('/schools/{school}/operational-report-schedules/{schedule}', [OperationalReportScheduleController::class, 'update'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.operational-report-schedules.update');
+Route::post('/schools/{school}/operational-report-schedules/{schedule}/{transition}', [OperationalReportScheduleController::class, 'lifecycle'])
+    ->middleware([JwtAuthenticate::class, RequireSchoolContext::class])
+    ->name('api.v1.schools.operational-report-schedules.lifecycle');
+
+// School Administration: versioned notification templates and safe delivery orchestration.
+Route::get('/schools/{school}/notification-templates', [NotificationTemplateController::class, 'templates'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notification-templates.index');
+Route::post('/schools/{school}/notification-templates', [NotificationTemplateController::class, 'storeTemplate'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notification-templates.store');
+Route::get('/schools/{school}/notification-templates/{template}', [NotificationTemplateController::class, 'showTemplate'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notification-templates.show');
+Route::patch('/schools/{school}/notification-templates/{template}', [NotificationTemplateController::class, 'updateTemplate'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notification-templates.update');
+Route::post('/schools/{school}/notification-templates/{template}/activate', [NotificationTemplateController::class, 'activate'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notification-templates.activate');
+Route::post('/schools/{school}/notification-templates/{template}/retire', [NotificationTemplateController::class, 'retire'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notification-templates.retire');
+Route::post('/schools/{school}/notification-templates/{template}/preview', [NotificationTemplateController::class, 'preview'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notification-templates.preview');
+Route::get('/schools/{school}/notifications', [NotificationTemplateController::class, 'notifications'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notifications.index');
+Route::post('/schools/{school}/notifications', [NotificationTemplateController::class, 'storeNotification'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notifications.store');
+Route::get('/schools/{school}/notifications/{notification}', [NotificationTemplateController::class, 'showNotification'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notifications.show');
+Route::post('/schools/{school}/notifications/{notification}/send', [NotificationTemplateController::class, 'send'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notifications.send');
+Route::post('/schools/{school}/notifications/{notification}/cancel', [NotificationTemplateController::class, 'cancel'])->middleware([JwtAuthenticate::class, RequireSchoolContext::class])->name('api.v1.schools.notifications.cancel');
 
 // School Administration: tenant-scoped fee categories and versioned plans.
 Route::get('/schools/{school}/fee-categories', [FeeConfigurationController::class, 'categories'])
@@ -352,6 +614,22 @@ Route::post('/public/school-registrations/{registration}/verification/confirm', 
     ->middleware('throttle:public-registration-verification-confirm')
     ->name('api.v1.public.school-registrations.verification.confirm');
 
+Route::get('/public/marketing-pages', [PublicMarketingPageController::class, 'index'])
+    ->name('api.v1.public.marketing-pages.index');
+Route::get('/public/marketing-pages/{page}', [PublicMarketingPageController::class, 'show'])
+    ->name('api.v1.public.marketing-pages.show');
+Route::get('/public/pricing', [PublicPricingController::class, 'index'])
+    ->name('api.v1.public.pricing.index');
+Route::get('/public/pricing/{plan}', [PublicPricingController::class, 'show'])
+    ->name('api.v1.public.pricing.show');
+Route::get('/public/legal-policies', [PublicLegalPolicyController::class, 'index'])
+    ->name('api.v1.public.legal-policies.index');
+Route::get('/public/legal-policies/{policy}', [PublicLegalPolicyController::class, 'show'])
+    ->name('api.v1.public.legal-policies.show');
+Route::post('/public/demo-enquiries', [PublicDemoEnquiryController::class, 'store'])
+    ->middleware('throttle:public-demo-enquiry')
+    ->name('api.v1.public.demo-enquiries.store');
+
 // Identity & Authentication: sign-in, sessions, credentials and contact verification.
 Route::post('/auth/login', [AuthenticationController::class, 'login'])
     ->middleware('throttle:auth-login')
@@ -380,6 +658,8 @@ Route::post('/auth/verification/confirm', [ContactVerificationController::class,
 // Finance: provider-signed payment webhook verification. This route intentionally has no selected-school middleware.
 Route::post('/payment-webhooks/{provider}', PaymentWebhookController::class)
     ->name('api.v1.payment-webhooks.verify');
+Route::post('/platform-billing-webhooks/{provider}', PlatformBillingWebhookController::class)
+    ->name('api.v1.platform.billing.webhooks.verify');
 
 Route::middleware(JwtAuthenticate::class)->group(function (): void {
     // Identity & Authentication: authenticated identity and session operations.
@@ -388,6 +668,11 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::put('/me/profile', [SelfServiceProfileController::class, 'update'])->name('api.v1.me.profile.update');
     Route::get('/me/notification-preferences', [SelfServiceProfileController::class, 'preferences'])->name('api.v1.me.notification-preferences.show');
     Route::put('/me/notification-preferences', [SelfServiceProfileController::class, 'updatePreferences'])->name('api.v1.me.notification-preferences.update');
+    Route::get('/me/legal-consents', [SelfServiceLegalConsentController::class, 'index'])->name('api.v1.me.legal-consents.index');
+    Route::post('/me/legal-consents', [SelfServiceLegalConsentController::class, 'store'])->name('api.v1.me.legal-consents.store');
+    Route::get('/me/ai-consents', [AiConsentController::class, 'index'])->name('api.v1.me.ai-consents.index');
+    Route::post('/me/ai-consents', [AiConsentController::class, 'store'])->name('api.v1.me.ai-consents.store');
+    Route::post('/me/ai-consents/{consent}/revoke', [AiConsentController::class, 'revoke'])->name('api.v1.me.ai-consents.revoke');
     Route::get('/me/parent-communications', [ParentCommunicationController::class, 'index'])->name('api.v1.me.parent-communications.index');
     Route::post('/me/parent-communications', [ParentCommunicationController::class, 'store'])->name('api.v1.me.parent-communications.store');
     Route::get('/me/parent-communications/{thread}', [ParentCommunicationController::class, 'show'])->name('api.v1.me.parent-communications.show');
@@ -430,6 +715,10 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
         ->name('api.v1.me.student-academic-history');
     Route::get('/me/student-academic-history/schools/{school}', [StudentAcademicHistoryController::class, 'school'])
         ->name('api.v1.me.student-academic-history.schools.show');
+    Route::get('/me/career-guidance', [CareerGuidanceController::class, 'index'])
+        ->name('api.v1.me.career-guidance.index');
+    Route::post('/me/career-guidance/suggestions', [CareerGuidanceController::class, 'suggest'])
+        ->name('api.v1.me.career-guidance.suggestions');
     Route::post('/schools/{school}/invitations', [SchoolInvitationController::class, 'create'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.invitations.create');
@@ -508,6 +797,68 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::post('/schools/{school}/staff/{staff}/end', [StaffProfileController::class, 'end'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.staff.end');
+    Route::get('/schools/{school}/counselling-assignments', [CounsellorAssignmentController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-assignments.index');
+    Route::post('/schools/{school}/counselling-assignments', [CounsellorAssignmentController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-assignments.store');
+    Route::get('/schools/{school}/counselling-assignments/{assignment}', [CounsellorAssignmentController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-assignments.show');
+    Route::post('/schools/{school}/counselling-assignments/{assignment}/revoke', [CounsellorAssignmentController::class, 'revoke'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-assignments.revoke');
+    Route::get('/schools/{school}/counselling-cases', [CounsellingCaseController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-cases.index');
+    Route::post('/schools/{school}/counselling-cases', [CounsellingCaseController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-cases.store');
+    Route::get('/schools/{school}/counselling-cases/{case}', [CounsellingCaseController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-cases.show');
+    Route::post('/schools/{school}/counselling-cases/{case}/hold', [CounsellingCaseController::class, 'hold'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-cases.hold');
+    Route::post('/schools/{school}/counselling-cases/{case}/close', [CounsellingCaseController::class, 'close'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-cases.close');
+    Route::get('/schools/{school}/counselling-cases/{case}/notes', [CounsellingCaseController::class, 'notes'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-cases.notes.index');
+    Route::post('/schools/{school}/counselling-cases/{case}/notes', [CounsellingCaseController::class, 'storeNote'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-cases.notes.store');
+    Route::get('/schools/{school}/counselling-cases/{case}/notes/{note}', [CounsellingCaseController::class, 'showNote'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.counselling-cases.notes.show');
+    Route::get('/schools/{school}/development-plans', [CounsellingDevelopmentPlanController::class, 'index'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.development-plans.index');
+    Route::post('/schools/{school}/development-plans', [CounsellingDevelopmentPlanController::class, 'store'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.development-plans.store');
+    Route::get('/schools/{school}/development-plans/{plan}', [CounsellingDevelopmentPlanController::class, 'show'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.development-plans.show');
+    Route::patch('/schools/{school}/development-plans/{plan}', [CounsellingDevelopmentPlanController::class, 'update'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.development-plans.update');
+    Route::post('/schools/{school}/development-plans/{plan}/activate', [CounsellingDevelopmentPlanController::class, 'activate'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.development-plans.activate');
+    Route::post('/schools/{school}/development-plans/{plan}/close', [CounsellingDevelopmentPlanController::class, 'close'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.development-plans.close');
+    Route::post('/schools/{school}/development-plans/{plan}/share', [CounsellingDevelopmentPlanController::class, 'share'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.development-plans.share');
+    Route::post('/schools/{school}/development-plans/{plan}/archive', [CounsellingDevelopmentPlanController::class, 'archive'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.development-plans.archive');
+    Route::get('/schools/{school}/counselling-referrals', [CounsellingReferralController::class, 'indexReferral'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-referrals.index');
+    Route::post('/schools/{school}/counselling-referrals', [CounsellingReferralController::class, 'storeReferral'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-referrals.store');
+    Route::get('/schools/{school}/counselling-referrals/{referral}', [CounsellingReferralController::class, 'showReferral'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-referrals.show');
+    Route::post('/schools/{school}/counselling-referrals/{referral}/approve', [CounsellingReferralController::class, 'approveReferral'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-referrals.approve');
+    Route::post('/schools/{school}/counselling-referrals/{referral}/reject', [CounsellingReferralController::class, 'rejectReferral'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-referrals.reject');
+    Route::post('/schools/{school}/counselling-referrals/{referral}/accept', [CounsellingReferralController::class, 'acceptReferral'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-referrals.accept');
+    Route::post('/schools/{school}/counselling-referrals/{referral}/close', [CounsellingReferralController::class, 'closeReferral'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-referrals.close');
+    Route::post('/schools/{school}/counselling-referrals/{referral}/cancel', [CounsellingReferralController::class, 'cancelReferral'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-referrals.cancel');
+    Route::get('/schools/{school}/counselling-escalations', [CounsellingReferralController::class, 'indexEscalation'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-escalations.index');
+    Route::post('/schools/{school}/counselling-escalations', [CounsellingReferralController::class, 'storeEscalation'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-escalations.store');
+    Route::get('/schools/{school}/counselling-escalations/{escalation}', [CounsellingReferralController::class, 'showEscalation'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-escalations.show');
+    Route::post('/schools/{school}/counselling-escalations/{escalation}/approve', [CounsellingReferralController::class, 'approveEscalation'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-escalations.approve');
+    Route::post('/schools/{school}/counselling-escalations/{escalation}/reject', [CounsellingReferralController::class, 'rejectEscalation'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-escalations.reject');
+    Route::post('/schools/{school}/counselling-escalations/{escalation}/accept', [CounsellingReferralController::class, 'acceptEscalation'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-escalations.accept');
+    Route::post('/schools/{school}/counselling-escalations/{escalation}/close', [CounsellingReferralController::class, 'closeEscalation'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-escalations.close');
+    Route::post('/schools/{school}/counselling-escalations/{escalation}/cancel', [CounsellingReferralController::class, 'cancelEscalation'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.counselling-escalations.cancel');
+    Route::get('/schools/{school}/wellbeing-summaries', [StudentWellbeingSummaryController::class, 'index'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.wellbeing-summaries.index');
+    Route::get('/schools/{school}/wellbeing-summaries/{student}', [StudentWellbeingSummaryController::class, 'show'])->middleware(RequireSchoolContext::class)->name('api.v1.schools.wellbeing-summaries.show');
     Route::get('/schools/{school}/import-templates', [ImportTemplateController::class, 'index'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.import-templates.index');
@@ -586,6 +937,12 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
     Route::get('/schools/{school}/imports/{import}/report', [ImportAuditReportController::class, 'report'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.imports.report.download');
+    Route::get('/schools/{school}/audit-explorer', [SchoolAuditExplorerController::class, 'index'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.audit-explorer.index');
+    Route::get('/schools/{school}/audit-explorer/{event}', [SchoolAuditExplorerController::class, 'show'])
+        ->middleware(RequireSchoolContext::class)
+        ->name('api.v1.schools.audit-explorer.show');
     Route::get('/schools/{school}/academic-sessions/{session}/terms/{term}/class-arms/{classArm}/class-teacher-assignments', [ClassTeacherAssignmentController::class, 'index'])
         ->middleware(RequireSchoolContext::class)
         ->name('api.v1.schools.class-teacher-assignments.index');
@@ -656,14 +1013,22 @@ Route::middleware(JwtAuthenticate::class)->group(function (): void {
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.lessons.approve');
     Route::post('/schools/{school}/academic-sessions/{session}/terms/{term}/subject-offerings/{offering}/lessons/{lesson}/return', [AcademicSchemeLessonController::class, 'returnLesson'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.lessons.return');
+    Route::post('/schools/{school}/teaching/lesson-plans/suggestions', [LessonPlanningSuggestionController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.lesson-planning.suggestions.store');
+    Route::post('/schools/{school}/teaching/academic-insights/suggestions', [AcademicInsightSuggestionController::class, 'store'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.teaching.academic-insights.suggestions.store');
     Route::get('/schools/{school}/announcements', [TeachingAnnouncementController::class, 'index'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.index');
+    Route::get('/schools/{school}/announcements/audiences', [TeachingAnnouncementController::class, 'audiences'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.audiences');
     Route::post('/schools/{school}/announcements', [TeachingAnnouncementController::class, 'store'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.store');
     Route::get('/schools/{school}/announcements/{announcement}', [TeachingAnnouncementController::class, 'show'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.show');
     Route::patch('/schools/{school}/announcements/{announcement}', [TeachingAnnouncementController::class, 'update'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.update');
+    Route::patch('/schools/{school}/announcements/{announcement}/audience', [TeachingAnnouncementController::class, 'updateAudience'])
+        ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.audience');
     Route::post('/schools/{school}/announcements/{announcement}/submit', [TeachingAnnouncementController::class, 'submit'])
         ->middleware(RequireSchoolContext::class)->name('api.v1.schools.announcements.submit');
     Route::post('/schools/{school}/announcements/{announcement}/approve', [TeachingAnnouncementController::class, 'approve'])

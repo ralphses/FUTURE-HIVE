@@ -1,0 +1,12 @@
+{
+  "scripts-to-merge": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "note": "Install/configure tools before enabling the test scripts."
+}

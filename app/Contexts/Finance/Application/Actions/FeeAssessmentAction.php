@@ -30,7 +30,7 @@ final class FeeAssessmentAction
     public function __construct(private readonly SchoolPermissionChecker $permissions, private readonly RecordAuditEventAction $audit) {}
 
     /** @param array{plan_id: string, due_date?: string|null} $data
-     * @return array{assessment: array<string, mixed>}
+     * @return array{assessment: array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>}
      */
     public function generate(UserIdentity $actor, string $school, string $sessionId, string $termId, array $data): array
     {
@@ -62,7 +62,7 @@ final class FeeAssessmentAction
         });
     }
 
-    /** @return array{assessments: list<array<string,mixed>>} */
+    /** @return array{assessments: list<array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>>} */
     public function list(UserIdentity $actor, string $school, string $sessionId, string $termId): array
     {
         $this->authorize($actor, $school, 'finance.fee-assessments.read');
@@ -72,7 +72,7 @@ final class FeeAssessmentAction
         return ['assessments' => $runs->map(fn (FeeAssessmentRun $run): array => $this->runData($run))->all()];
     }
 
-    /** @return array{assessment: array<string, mixed>} */
+    /** @return array{assessment: array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>} */
     public function show(UserIdentity $actor, string $school, string $sessionId, string $termId, string $assessmentId): array
     {
         $this->authorize($actor, $school, 'finance.fee-assessments.read');
@@ -82,7 +82,7 @@ final class FeeAssessmentAction
         return ['assessment' => $this->runData($run)];
     }
 
-    /** @return array{assessment: array<string, mixed>} */
+    /** @return array{assessment: array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>} */
     public function finalize(UserIdentity $actor, string $school, string $assessmentId): array
     {
         $this->authorize($actor, $school, 'finance.fee-assessments.manage');
@@ -105,7 +105,7 @@ final class FeeAssessmentAction
         });
     }
 
-    /** @return array{invoices: list<array<string,mixed>>, meta?: array<string,mixed>} */
+    /** @return array{invoices: list<array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>>, meta?: array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>} */
     public function invoices(UserIdentity $actor, string $school, int $page, int $perPage): array
     {
         $this->authorize($actor, $school, 'finance.invoices.read');
@@ -114,7 +114,7 @@ final class FeeAssessmentAction
         return ['invoices' => $paginator->getCollection()->map(fn (FeeInvoice $invoice): array => $this->invoiceData($invoice))->all(), 'meta' => ['current_page' => $paginator->currentPage(), 'per_page' => $paginator->perPage(), 'total' => $paginator->total(), 'last_page' => $paginator->lastPage()]];
     }
 
-    /** @return array{invoice: array<string, mixed>} */
+    /** @return array{invoice: array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>>} */
     public function invoice(UserIdentity $actor, string $school, string $invoiceId): array
     {
         $this->authorize($actor, $school, 'finance.invoices.read');
@@ -175,19 +175,19 @@ final class FeeAssessmentAction
         return $query->lockForUpdate()->get();
     }
 
-    /** @return array<string,mixed> */
+    /** @return array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> */
     private function runData(FeeAssessmentRun $run): array
     {
         return ['id' => (string) $run->public_id, 'session_id' => (string) $run->session?->public_id, 'term_id' => (string) $run->term?->public_id, 'plan_id' => (string) $run->plan?->public_id, 'plan_version' => (int) $run->plan?->version, 'due_date' => CarbonImmutable::parse((string) $run->due_date)->toDateString(), 'status' => (string) $run->status, 'item_count' => $run->items()->count(), 'invoice_count' => $run->invoices()->count(), 'created_at' => CarbonImmutable::parse((string) $run->created_at)->toISOString(), 'finalized_at' => $run->finalized_at === null ? null : CarbonImmutable::parse((string) $run->finalized_at)->toISOString()];
     }
 
-    /** @return array<string,mixed> */
+    /** @return array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> */
     private function invoiceData(FeeInvoice $invoice): array
     {
         return ['id' => (string) $invoice->public_id, 'invoice_number' => (string) $invoice->invoice_number, 'student_id' => (string) $invoice->student?->public_id, 'display_name' => (string) $invoice->student?->display_name, 'assessment_id' => (string) $invoice->assessment?->public_id, 'plan_id' => (string) $invoice->assessment?->plan?->public_id, 'currency' => (string) $invoice->currency, 'total_minor_units' => (int) $invoice->total_minor_units, 'due_date' => CarbonImmutable::parse((string) $invoice->due_date)->toDateString(), 'status' => (string) $invoice->status, 'lines' => $invoice->relationLoaded('lines') ? $invoice->lines->map(fn (FeeInvoiceLine $line): array => ['id' => (string) $line->public_id, 'category_code' => $line->category_code, 'category_name' => $line->category_name, 'amount_minor_units' => (int) $line->amount_minor_units, 'sequence' => (int) $line->sequence])->all() : []];
     }
 
-    /** @param array<string,mixed> $transition */
+    /** @param array<string, string|int|float|bool|null|array<string, string|int|float|bool|null>|list<string|int|float|bool|null>|list<array<string, string|int|float|bool|null>>> $transition */
     private function record(UserIdentity $actor, string $action, string $subjectType, string $subjectId, array $transition): void
     {
         $context = TenantContext::require();
